@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { db } from "../../src/firebaseConfig";
 
+import { Fonts } from "@/constants/theme";
+
 type Message = {
   id: string;
   text: string;
@@ -26,12 +28,10 @@ export default function HomeScreen() {
 
     const unsubscribe = onValue(messagesRef, (snapshot) => {
       const data = snapshot.val() || {};
-      const list: Message[] = Object.entries(data).map(
-        ([id, value]: any) => ({
-          id,
-          ...value,
-        })
-      );
+      const list: Message[] = Object.entries(data).map(([id, value]: any) => ({
+        id,
+        ...value,
+      }));
 
       setMessages(list);
     });
@@ -77,12 +77,17 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, marginTop: 50 },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
-  message: { padding: 5 },
+  title: {
+    fontSize: 20,
+    marginBottom: 10,
+    fontFamily: Fonts.sansBold,
+  },
+  message: { padding: 5, fontFamily: Fonts.sans },
   input: {
     borderWidth: 1,
     padding: 8,
     marginVertical: 10,
     borderRadius: 5,
+    fontFamily: Fonts.sans,
   },
 });
