@@ -9,9 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need camera access to scan your ID and take a selfie for verification."
+      },
       "supportsTablet": true
     },
     "android": {
+      "permissions": [
+        "CAMERA"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,7 +44,9 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-localization",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
