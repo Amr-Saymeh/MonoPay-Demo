@@ -1,28 +1,30 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 
-import { Image } from 'expo-image';
-import { get, onValue, ref, remove, update } from 'firebase/database';
+import { Image } from "expo-image";
+import { get, onValue, ref, remove, update } from "firebase/database";
 import {
     ActivityIndicator,
     Alert,
     Pressable,
     StyleSheet,
     View,
-} from 'react-native';
+} from "react-native";
 
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
-import { db } from '../../src/firebaseConfig';
+import ParallaxScrollView from "@/components/parallax-scroll-view";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Fonts } from "@/constants/theme";
+import { useI18n } from "@/hooks/use-i18n";
+import { db } from "../../src/firebaseConfig";
 
 type UserRecord = {
   address?: string;
+  email?: string;
   identityImage?: string;
   identityNumber?: number;
   name?: string;
-  number?: number;
+  number?: string | number;
   personalImage?: string;
   type?: number;
 };
@@ -37,7 +39,7 @@ type WalletRecord = {
 };
 
 function isValidImageUri(uri: unknown): uri is string {
-  return typeof uri === 'string' && uri.trim().length > 0;
+  return typeof uri === "string" && uri.trim().length > 0;
 }
 
 function ActionButton({
@@ -47,7 +49,7 @@ function ActionButton({
   disabled,
 }: {
   label: string;
-  variant: 'approve' | 'reject';
+  variant: "approve" | "reject";
   onPress: () => void;
   disabled?: boolean;
 }) {
@@ -57,10 +59,11 @@ function ActionButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.actionButton,
-        variant === 'approve' ? styles.actionApprove : styles.actionReject,
+        variant === "approve" ? styles.actionApprove : styles.actionReject,
         pressed ? styles.actionPressed : null,
         disabled ? styles.actionDisabled : null,
-      ]}>
+      ]}
+    >
       <ThemedText type="defaultSemiBold" style={styles.actionLabel}>
         {label}
       </ThemedText>
@@ -69,11 +72,12 @@ function ActionButton({
 }
 
 export default function ApproveUsersScreen() {
+  const { t } = useI18n();
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
-  const usersRef = useMemo(() => ref(db, 'users'), []);
+  const usersRef = useMemo(() => ref(db, "users"), []);
 
   useEffect(() => {
     const unsubscribe = onValue(
@@ -90,18 +94,21 @@ export default function ApproveUsersScreen() {
       },
       () => {
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
   }, [usersRef]);
 
   const approveUser = async (userId: string) => {
-    const walletsSnap = await get(ref(db, 'wallets'));
+    const walletsSnap = await get(ref(db, "wallets"));
     const wallets = (walletsSnap.val() ?? {}) as Record<string, WalletRecord>;
 
     const userWalletsSnap = await get(ref(db, `users/${userId}/userwallet`));
-    const userWallets = (userWalletsSnap.val() ?? {}) as Record<string, unknown>;
+    const userWallets = (userWalletsSnap.val() ?? {}) as Record<
+      string,
+      unknown
+    >;
 
     const maxId = Object.values(wallets).reduce((acc, w) => {
       const value = Number(w?.id);
@@ -124,12 +131,12 @@ export default function ApproveUsersScreen() {
       [`wallets/${walletKey}`]: {
         currancies: {},
         id: newWalletId,
-        state: 'active',
-        type: 'real',
+        state: "active",
+        type: "real",
       },
       [`users/${userId}/type`]: 1,
       [`users/${userId}/userwallet/${userWalletKey}`]: {
-        name: 'Main wallet',
+        name: "Main wallet",
         walletid: newWalletId,
       },
     };
@@ -143,43 +150,43 @@ export default function ApproveUsersScreen() {
 
   const onApprove = (userId: string, userName?: string) => {
     Alert.alert(
-      'Approve user',
-      `Approve ${userName ?? userId}?`,
+      t("approveUserTitle"),
+      `${t("approveAction")} ${userName ?? userId}?`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t("cancel"), style: "cancel" },
         {
-          text: 'Approve',
-          style: 'default',
+          text: t("approveAction"),
+          style: "default",
           onPress: async () => {
             try {
               await approveUser(userId);
             } catch {
-              Alert.alert('Error', 'Failed to approve user.');
+              Alert.alert(t("error"), t("uploadFailed"));
             }
           },
         },
-      ]
+      ],
     );
   };
 
   const onReject = (userId: string, userName?: string) => {
     Alert.alert(
-      'Reject user',
-      `Reject ${userName ?? userId}? This will delete the user from the database.`,
+      t("rejectUserTitle"),
+      `${t("rejectAction")} ${userName ?? userId}?`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t("cancel"), style: "cancel" },
         {
-          text: 'Reject',
-          style: 'destructive',
+          text: t("rejectAction"),
+          style: "destructive",
           onPress: async () => {
             try {
               await rejectUser(userId);
             } catch {
-              Alert.alert('Error', 'Failed to reject user.');
+              Alert.alert(t("error"), t("uploadFailed"));
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -187,13 +194,19 @@ export default function ApproveUsersScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#E9F7FF', dark: '#11222A' }}
+      headerBackgroundColor={{ light: "#E9F7FF", dark: "#11222A" }}
       headerImage={
-        <IconSymbol size={260} color="#0a7ea4" name="person.crop.circle" style={styles.headerIcon} />
-      }>
+        <IconSymbol
+          size={260}
+          color="#0a7ea4"
+          name="person.crop.circle"
+          style={styles.headerIcon}
+        />
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title" style={{ fontFamily: Fonts.rounded }}>
-          Approve Users
+          {t("approveUsers")}
         </ThemedText>
         <View style={styles.countPill}>
           <ThemedText type="defaultSemiBold" style={styles.countPillText}>
@@ -202,7 +215,9 @@ export default function ApproveUsersScreen() {
         </View>
       </ThemedView>
 
-      <ThemedText style={styles.subtitle}>Pending verification</ThemedText>
+      <ThemedText style={styles.subtitle}>
+        {t("pendingVerification")}
+      </ThemedText>
 
       {loading ? (
         <View style={styles.center}>
@@ -210,8 +225,10 @@ export default function ApproveUsersScreen() {
         </View>
       ) : pendingUsers.length === 0 ? (
         <ThemedView style={styles.emptyState}>
-          <ThemedText type="subtitle">No pending users</ThemedText>
-          <ThemedText style={styles.emptyText}>Users with type 0 will show up here.</ThemedText>
+          <ThemedText type="subtitle">{t("noPendingUsers")}</ThemedText>
+          <ThemedText style={styles.emptyText}>
+            {t("usersWithType0")}
+          </ThemedText>
         </ThemedView>
       ) : (
         <View style={styles.list}>
@@ -222,8 +239,14 @@ export default function ApproveUsersScreen() {
             return (
               <ThemedView key={id} style={styles.card}>
                 <Pressable
-                  onPress={() => setExpandedUserId((prev) => (prev === id ? null : id))}
-                  style={({ pressed }) => [styles.cardHeader, pressed ? styles.headerPressed : null]}>
+                  onPress={() =>
+                    setExpandedUserId((prev) => (prev === id ? null : id))
+                  }
+                  style={({ pressed }) => [
+                    styles.cardHeader,
+                    pressed ? styles.headerPressed : null,
+                  ]}
+                >
                   <View style={styles.headerLeft}>
                     {isValidImageUri(data.personalImage) ? (
                       <Image
@@ -246,29 +269,48 @@ export default function ApproveUsersScreen() {
                     size={18}
                     name="chevron.right"
                     color="#6b7280"
-                    style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
+                    style={{
+                      transform: [{ rotate: isOpen ? "90deg" : "0deg" }],
+                    }}
                   />
                 </Pressable>
 
                 {isOpen ? (
                   <View style={styles.cardBody}>
+                    {data.email ? (
+                      <View style={styles.detailRow}>
+                        <ThemedText type="defaultSemiBold">
+                          {t("email")}
+                        </ThemedText>
+                        <ThemedText>{data.email}</ThemedText>
+                      </View>
+                    ) : null}
                     <View style={styles.detailRow}>
-                      <ThemedText type="defaultSemiBold">Phone</ThemedText>
-                      <ThemedText>{data.number ?? '-'}</ThemedText>
+                      <ThemedText type="defaultSemiBold">
+                        {t("phone")}
+                      </ThemedText>
+                      <ThemedText>{data.number ?? "-"}</ThemedText>
                     </View>
                     <View style={styles.detailRow}>
-                      <ThemedText type="defaultSemiBold">Address</ThemedText>
-                      <ThemedText>{data.address ?? '-'}</ThemedText>
+                      <ThemedText type="defaultSemiBold">
+                        {t("address")}
+                      </ThemedText>
+                      <ThemedText>{data.address ?? "-"}</ThemedText>
                     </View>
                     <View style={styles.detailRow}>
-                      <ThemedText type="defaultSemiBold">Identity #</ThemedText>
-                      <ThemedText>{data.identityNumber ?? '-'}</ThemedText>
+                      <ThemedText type="defaultSemiBold">
+                        {t("identityNumberLabel")}
+                      </ThemedText>
+                      <ThemedText>{data.identityNumber ?? "-"}</ThemedText>
                     </View>
 
                     <View style={styles.imagesRow}>
                       <View style={styles.imageBlock}>
-                        <ThemedText type="defaultSemiBold" style={styles.imageLabel}>
-                          Personal
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={styles.imageLabel}
+                        >
+                          {t("personal")}
                         </ThemedText>
                         {isValidImageUri(data.personalImage) ? (
                           <Image
@@ -282,8 +324,11 @@ export default function ApproveUsersScreen() {
                       </View>
 
                       <View style={styles.imageBlock}>
-                        <ThemedText type="defaultSemiBold" style={styles.imageLabel}>
-                          Identity
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={styles.imageLabel}
+                        >
+                          {t("identity")}
                         </ThemedText>
                         {isValidImageUri(data.identityImage) ? (
                           <Image
@@ -299,12 +344,12 @@ export default function ApproveUsersScreen() {
 
                     <View style={styles.actionsRow}>
                       <ActionButton
-                        label="Approve"
+                        label={t("approveAction")}
                         variant="approve"
                         onPress={() => onApprove(id, data.name)}
                       />
                       <ActionButton
-                        label="Reject"
+                        label={t("rejectAction")}
                         variant="reject"
                         onPress={() => onReject(id, data.name)}
                       />
@@ -324,12 +369,12 @@ const styles = StyleSheet.create({
   headerIcon: {
     bottom: -80,
     left: -20,
-    position: 'absolute',
+    position: "absolute",
     opacity: 0.25,
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   countPill: {
@@ -337,12 +382,12 @@ const styles = StyleSheet.create({
     height: 28,
     paddingHorizontal: 10,
     borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0a7ea4',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0a7ea4",
   },
   countPillText: {
-    color: '#fff',
+    color: "#fff",
   },
   subtitle: {
     opacity: 0.7,
@@ -350,7 +395,7 @@ const styles = StyleSheet.create({
   },
   center: {
     paddingVertical: 32,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyState: {
     borderRadius: 16,
@@ -367,22 +412,22 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderWidth: 1,
-    borderColor: 'rgba(120,120,120,0.18)',
+    borderColor: "rgba(120,120,120,0.18)",
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 16,
   },
   headerPressed: {
     opacity: 0.9,
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     flex: 1,
   },
@@ -394,15 +439,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 999,
-    backgroundColor: 'rgba(120,120,120,0.12)',
+    backgroundColor: "rgba(120,120,120,0.12)",
   },
   avatarPlaceholder: {
     width: 44,
     height: 44,
     borderRadius: 999,
-    backgroundColor: 'rgba(120,120,120,0.12)',
+    backgroundColor: "rgba(120,120,120,0.12)",
     borderWidth: 1,
-    borderColor: 'rgba(120,120,120,0.18)',
+    borderColor: "rgba(120,120,120,0.18)",
   },
   cardBody: {
     padding: 16,
@@ -416,12 +461,12 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 12,
   },
   imagesRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
     marginTop: 6,
   },
@@ -433,21 +478,21 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 140,
     borderRadius: 14,
-    backgroundColor: 'rgba(120,120,120,0.12)',
+    backgroundColor: "rgba(120,120,120,0.12)",
   },
   imagePlaceholder: {
-    width: '100%',
+    width: "100%",
     height: 140,
     borderRadius: 14,
-    backgroundColor: 'rgba(120,120,120,0.12)',
+    backgroundColor: "rgba(120,120,120,0.12)",
     borderWidth: 1,
-    borderColor: 'rgba(120,120,120,0.18)',
+    borderColor: "rgba(120,120,120,0.18)",
   },
   actionsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
     marginTop: 6,
   },
@@ -455,16 +500,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   actionLabel: {
-    color: '#fff',
+    color: "#fff",
   },
   actionApprove: {
-    backgroundColor: '#16a34a',
+    backgroundColor: "#16a34a",
   },
   actionReject: {
-    backgroundColor: '#dc2626',
+    backgroundColor: "#dc2626",
   },
   actionPressed: {
     opacity: 0.88,
