@@ -77,6 +77,7 @@ function RootLayoutInner() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      
       <View style={{ flex: 1 }}>
         <Stack
           screenOptions={{
