@@ -24,17 +24,20 @@ import { ActivityIndicator, Text, TextInput, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { LanguageSwitch } from "@/components/language-switch";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AuthProvider } from "@/src/providers/AuthProvider";
 import { LanguageProvider } from "@/src/providers/LanguageProvider";
 import { SignupFlowProvider } from "@/src/providers/SignupFlowProvider";
+import {
+  ThemeModeProvider,
+  useThemeMode,
+} from "@/src/providers/ThemeModeProvider";
 
 export const unstable_settings = {
   anchor: "index",
 };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootLayoutInner() {
+  const { colorScheme } = useThemeMode();
 
   const [fontsLoaded] = useFonts({
     Tajawal_200ExtraLight,
@@ -74,36 +77,43 @@ export default function RootLayout() {
   }
 
   return (
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <View style={{ flex: 1 }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
+            headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+        </Stack>
+
+        <LanguageSwitch />
+        <StatusBar style="auto" />
+      </View>
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <SafeAreaProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <SignupFlowProvider>
-            <ThemeProvider
-              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-            >
-              <View style={{ flex: 1 }}>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
-                    headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
-                  }}
-                >
-                  <Stack.Screen name="index" />
-                  <Stack.Screen name="(auth)" />
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen
-                    name="modal"
-                    options={{ presentation: "modal", title: "Modal" }}
-                  />
-                </Stack>
-                <LanguageSwitch />
-                <StatusBar style="auto" />
-              </View>
-            </ThemeProvider>
-          </SignupFlowProvider>
-        </AuthProvider>
-      </LanguageProvider>
+      <ThemeModeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <SignupFlowProvider>
+              <RootLayoutInner />
+            </SignupFlowProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeModeProvider>
     </SafeAreaProvider>
   );
 }

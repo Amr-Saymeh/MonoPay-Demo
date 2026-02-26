@@ -4,12 +4,15 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Alert, Pressable, StyleSheet, Switch, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/src/providers/AuthProvider";
+import { useThemeMode } from "@/src/providers/ThemeModeProvider";
 
 function Row({
   icon,
@@ -19,6 +22,11 @@ function Row({
   onPress,
   destructive,
   disabled,
+  iconColor,
+  chevronColor,
+  pressedColor,
+  separatorColor,
+  iconBg,
 }: {
   icon: React.ComponentProps<typeof MaterialIcons>["name"];
   label: string;
@@ -27,6 +35,11 @@ function Row({
   onPress?: () => void;
   destructive?: boolean;
   disabled?: boolean;
+  iconColor: string;
+  chevronColor: string;
+  pressedColor: string;
+  separatorColor: string;
+  iconBg: string;
 }) {
   return (
     <Pressable
@@ -34,18 +47,23 @@ function Row({
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
-        pressed && onPress ? styles.rowPressed : null,
+        { borderTopColor: separatorColor },
+        pressed && onPress ? { backgroundColor: pressedColor } : null,
         disabled ? styles.rowDisabled : null,
       ]}
     >
       <View style={styles.rowLeft}>
         <View
-          style={[styles.iconWrap, destructive ? styles.iconWrapDanger : null]}
+          style={[
+            styles.iconWrap,
+            { backgroundColor: iconBg },
+            destructive ? styles.iconWrapDanger : null,
+          ]}
         >
           <MaterialIcons
             name={icon}
             size={18}
-            color={destructive ? "#dc2626" : "#11181C"}
+            color={destructive ? "#dc2626" : iconColor}
           />
         </View>
         <ThemedText
@@ -62,11 +80,7 @@ function Row({
         ) : null}
         {right}
         {onPress ? (
-          <MaterialIcons
-            name="chevron-right"
-            size={20}
-            color="rgba(17, 24, 28, 0.45)"
-          />
+          <MaterialIcons name="chevron-right" size={20} color={chevronColor} />
         ) : null}
       </View>
     </Pressable>
@@ -77,6 +91,25 @@ export default function SettingsScreen() {
   const { t, language, setLanguage } = useI18n();
   const router = useRouter();
   const { user, profile, signOut, signingOut } = useAuth();
+  const insets = useSafeAreaInsets();
+  const { colorScheme, setMode } = useThemeMode();
+
+  const border = useThemeColor({}, "border");
+  const surface = useThemeColor({}, "surface");
+  const surfacePressed = useThemeColor({}, "surfacePressed");
+  const iconColor = useThemeColor({}, "icon");
+  const chevronColor = useThemeColor(
+    { light: "rgba(17, 24, 28, 0.45)", dark: "rgba(236, 237, 238, 0.55)" },
+    "icon",
+  );
+  const separatorColor = useThemeColor(
+    { light: "rgba(17,24,28,0.06)", dark: "rgba(236,237,238,0.12)" },
+    "border",
+  );
+  const iconBg = useThemeColor(
+    { light: "rgba(255,255,255,0.8)", dark: "rgba(236,237,238,0.10)" },
+    "surface",
+  );
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
@@ -91,6 +124,11 @@ export default function SettingsScreen() {
 
   const toggleLanguage = () => {
     setLanguage(language === "ar" ? "en" : "ar");
+  };
+
+  const isDark = colorScheme === "dark";
+  const toggleDarkMode = () => {
+    setMode(isDark ? "light" : "dark");
   };
 
   const onLogout = () => {
@@ -111,8 +149,15 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ThemedView style={styles.screen}>
-      <View style={styles.card}>
+    <ThemedView
+      style={[
+        styles.screen,
+        { paddingBottom: Math.max(16, insets.bottom + 16) },
+      ]}
+    >
+      <View
+        style={[styles.card, { borderColor: border, backgroundColor: surface }]}
+      >
         <View style={styles.headerGradient}>
           <View style={styles.headerContent}>
             <View style={styles.avatarWrap}>
@@ -157,27 +202,47 @@ export default function SettingsScreen() {
 
         <View style={styles.section}>
           <ThemedText style={styles.sectionTitle}>{t("account")}</ThemedText>
-          <View style={styles.group}>
+          <View
+            style={[
+              styles.group,
+              { backgroundColor: surface, borderColor: border },
+            ]}
+          >
             <Row
               icon="credit-card"
               label={t("paymentMethods")}
               value=""
               onPress={() => {}}
+              iconColor={iconColor}
+              chevronColor={chevronColor}
+              pressedColor={surfacePressed}
+              separatorColor={separatorColor}
+              iconBg={iconBg}
             />
             <Row
               icon="language"
               label="Language"
               value={languageLabel}
               onPress={toggleLanguage}
+              iconColor={iconColor}
+              chevronColor={chevronColor}
+              pressedColor={surfacePressed}
+              separatorColor={separatorColor}
+              iconBg={iconBg}
             />
           </View>
         </View>
 
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingBottom: 16 }]}>
           <ThemedText style={styles.sectionTitle}>
             {t("preferences")}
           </ThemedText>
-          <View style={styles.group}>
+          <View
+            style={[
+              styles.group,
+              { backgroundColor: surface, borderColor: border },
+            ]}
+          >
             <Row
               icon="notifications-none"
               label={t("notifications")}
@@ -188,13 +253,36 @@ export default function SettingsScreen() {
                 />
               }
               onPress={() => setNotificationsEnabled((v) => !v)}
+              iconColor={iconColor}
+              chevronColor={chevronColor}
+              pressedColor={surfacePressed}
+              separatorColor={separatorColor}
+              iconBg={iconBg}
             />
+
+            <Row
+              icon="dark-mode"
+              label={t("darkMode")}
+              right={<Switch value={isDark} onValueChange={toggleDarkMode} />}
+              onPress={toggleDarkMode}
+              iconColor={iconColor}
+              chevronColor={chevronColor}
+              pressedColor={surfacePressed}
+              separatorColor={separatorColor}
+              iconBg={iconBg}
+            />
+
             <Row
               icon="lock-outline"
               label={t("securityPrivacy")}
               onPress={() =>
                 router.push("/(tabs)/settings/change-password" as any)
               }
+              iconColor={iconColor}
+              chevronColor={chevronColor}
+              pressedColor={surfacePressed}
+              separatorColor={separatorColor}
+              iconBg={iconBg}
             />
             <Row
               icon="logout"
@@ -202,6 +290,11 @@ export default function SettingsScreen() {
               destructive
               disabled={!user || signingOut}
               onPress={onLogout}
+              iconColor={iconColor}
+              chevronColor={chevronColor}
+              pressedColor={surfacePressed}
+              separatorColor={separatorColor}
+              iconBg={iconBg}
             />
           </View>
         </View>
@@ -219,7 +312,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.08)",
   },
   headerGradient: {
     backgroundColor: "#7C3AED",
@@ -274,9 +366,7 @@ const styles = StyleSheet.create({
   group: {
     borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: "rgba(17,24,28,0.04)",
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.06)",
   },
   row: {
     flexDirection: "row",
@@ -285,10 +375,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: "rgba(17,24,28,0.06)",
-  },
-  rowPressed: {
-    backgroundColor: "rgba(17,24,28,0.05)",
   },
   rowDisabled: {
     opacity: 0.6,
@@ -305,7 +391,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.8)",
   },
   iconWrapDanger: {
     backgroundColor: "rgba(220,38,38,0.08)",
