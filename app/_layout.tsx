@@ -23,7 +23,6 @@ import {
 import { ActivityIndicator, Text, TextInput, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { LanguageSwitch } from "@/components/language-switch";
 import { AuthProvider } from "@/src/providers/AuthProvider";
 import { LanguageProvider } from "@/src/providers/LanguageProvider";
 import { SignupFlowProvider } from "@/src/providers/SignupFlowProvider";
@@ -95,7 +94,7 @@ function RootLayoutInner() {
           />
         </Stack>
 
-        <LanguageSwitch />
+        
         <StatusBar style="auto" />
       </View>
     </ThemeProvider>
