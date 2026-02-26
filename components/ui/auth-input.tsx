@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, TextInput, View } from "react-native";
 
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export function AuthInput({
   value,
@@ -26,6 +27,11 @@ export function AuthInput({
   textContentType?: any;
 }) {
   const { isRtl } = useI18n();
+  const backgroundColor = useThemeColor({}, "inputBackground");
+  const borderColor = useThemeColor({}, "inputBorder");
+  const textColor = useThemeColor({}, "text");
+  const placeholderColor = useThemeColor({}, "placeholder");
+  const iconColor = useThemeColor({}, "icon");
 
   const showEye = useMemo(
     () => typeof onToggleSecure === "function",
@@ -38,11 +44,12 @@ export function AuthInput({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="rgba(17, 24, 28, 0.35)"
+        placeholderTextColor={placeholderColor}
         style={[
           styles.input,
           isRtl ? styles.rtl : null,
           showEye ? styles.withIcon : null,
+          { backgroundColor, borderColor, color: textColor },
         ]}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
@@ -55,7 +62,7 @@ export function AuthInput({
           <MaterialIcons
             name={secureTextEntry ? "visibility-off" : "visibility"}
             size={20}
-            color="rgba(17, 24, 28, 0.55)"
+            color={iconColor}
           />
         </Pressable>
       ) : null}
@@ -71,13 +78,10 @@ const styles = StyleSheet.create({
   input: {
     height: 52,
     borderRadius: 14,
-    backgroundColor: "rgba(17, 24, 28, 0.06)",
     borderWidth: 1,
-    borderColor: "rgba(17, 24, 28, 0.08)",
     paddingHorizontal: 16,
     fontSize: 15,
     fontFamily: Fonts.sans,
-    color: "#11181C",
   },
   withIcon: {
     paddingRight: 46,

@@ -7,6 +7,7 @@ import {
     updatePassword,
 } from "firebase/auth";
 import { Alert, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
@@ -19,6 +20,7 @@ export default function ChangePasswordScreen() {
   const { t } = useI18n();
   const router = useRouter();
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -55,7 +57,12 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <ThemedView style={styles.screen}>
+    <ThemedView
+      style={[
+        styles.screen,
+        { paddingBottom: Math.max(16, insets.bottom + 16) },
+      ]}
+    >
       <AuthInput
         value={currentPassword}
         onChangeText={setCurrentPassword}
