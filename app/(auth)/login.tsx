@@ -2,15 +2,16 @@ import React, { useMemo, useState } from "react";
 
 import { Link, useRouter } from "expo-router";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
@@ -48,6 +49,7 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.screen}>
+      <LanguageSwitch />
       <KeyboardAvoidingView
         style={styles.inner}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
