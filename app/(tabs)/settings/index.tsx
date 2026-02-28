@@ -212,12 +212,14 @@ export default function SettingsScreen() {
               icon="credit-card"
               label={t("paymentMethods")}
               value=""
-              onPress={() => {}}
+
+              onPress={() => router.push("/(tabs)/wallets" as any)}
               iconColor={iconColor}
               chevronColor={chevronColor}
               pressedColor={surfacePressed}
               separatorColor={separatorColor}
               iconBg={iconBg}
+
             />
             <Row
               icon="language"
