@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-
+import '../global.css';
 import { onValue, ref } from "firebase/database";
 
 import { HapticTab } from "@/components/haptic-tab";
