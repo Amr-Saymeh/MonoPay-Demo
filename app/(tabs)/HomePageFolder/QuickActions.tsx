@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 const actions = [
   {
@@ -28,6 +29,8 @@ const actions = [
     color: '#00BCD4',
   },
 ] as const;
+const moreActions = () => router.push("/(tabs)/FeturesPage/FeturesPage");
+
 
 export default function QuickActions() {
   return (
@@ -36,7 +39,7 @@ export default function QuickActions() {
 
     <View style={styles.container}>
       {actions.map((item) => (
-        <TouchableOpacity key={item.id} style={styles.actionItem}>
+        <TouchableOpacity key={item.id} style={styles.actionItem} onPress={item.id === '4' ? moreActions : undefined}>
           <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
             <Ionicons name={item.iconName} size={40} color="white" />
           </View>
