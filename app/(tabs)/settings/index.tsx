@@ -162,7 +162,7 @@ export default function SettingsScreen() {
               icon="credit-card"
               label={t("paymentMethods")}
               value=""
-              onPress={() => {}}
+              onPress={() => router.push("/(tabs)/wallets" as any)}
             />
             <Row
               icon="language"
