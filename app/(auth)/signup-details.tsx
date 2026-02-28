@@ -2,15 +2,17 @@ import React, { useMemo, useState } from "react";
 
 import { Link, useRouter } from "expo-router";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
@@ -18,6 +20,7 @@ import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
 import { useSignup } from "@/hooks/use-signup-flow";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 function isValidEmail(email: string) {
   return /^\S+@\S+\.\S+$/.test(email.trim());
@@ -27,6 +30,9 @@ export default function SignupDetailsScreen() {
   const { t, isRtl } = useI18n();
   const router = useRouter();
   const { setDetails, clear } = useSignup();
+  const insets = useSafeAreaInsets();
+
+  const tint = useThemeColor({}, "tint");
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -100,12 +106,16 @@ export default function SignupDetailsScreen() {
 
   return (
     <ThemedView style={styles.screen}>
+      <LanguageSwitch />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: Math.max(60, insets.bottom + 24) },
+          ]}
           keyboardShouldPersistTaps="handled"
         >
           <Animated.View
@@ -194,7 +204,9 @@ export default function SignupDetailsScreen() {
                 {t("alreadyHaveAccount")}{" "}
               </ThemedText>
               <Link href={"/(auth)/login" as any} style={styles.link}>
-                <ThemedText style={styles.linkText}>{t("signIn")}</ThemedText>
+                <ThemedText style={[styles.linkText, { color: tint }]}>
+                  {t("signIn")}
+                </ThemedText>
               </Link>
             </View>
           </View>
@@ -256,7 +268,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   linkText: {
-    color: "#8B5CF6",
     fontFamily: Fonts.sansBold,
   },
 });

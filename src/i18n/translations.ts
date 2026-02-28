@@ -79,6 +79,7 @@ type TranslationKey =
   | "paymentMethods"
   | "preferences"
   | "notifications"
+  | "darkMode"
   | "securityPrivacy"
   | "changePassword"
   | "currentPassword"
@@ -200,6 +201,7 @@ export const translations: Record<
     paymentMethods: "Payment Methods",
     preferences: "Preferences",
     notifications: "Notifications",
+    darkMode: "Dark Mode",
     securityPrivacy: "Security & Privacy",
     changePassword: "Change Password",
     currentPassword: "Current password",
@@ -317,6 +319,7 @@ export const translations: Record<
     paymentMethods: "طرق الدفع",
     preferences: "التفضيلات",
     notifications: "الإشعارات",
+    darkMode: "الوضع الداكن",
     securityPrivacy: "الأمان والخصوصية",
     changePassword: "تغيير كلمة المرور",
     currentPassword: "كلمة المرور الحالية",
