@@ -74,6 +74,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="wallets"
+        options={{
+          title: t("wallets"),
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="creditcard" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="approve-users"
         options={{
           title: t("approve"),
