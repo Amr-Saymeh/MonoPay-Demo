@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useI18n } from "@/hooks/use-i18n";   
 
 export default function HomeHeader() {
-  const username = 'Ashour';
+  const { t } = useI18n();                  
+  const username = 'Ashour';                
 
   return (
     <View style={styles.container}>
@@ -19,16 +21,16 @@ export default function HomeHeader() {
             <Ionicons name="person" size={30} color="#fff" />
           </View>
           <View style={styles.menuIcon}>
-<Ionicons name="menu-outline" size={32} color="#fff" />
+            <Ionicons name="menu-outline" size={32} color="#fff" />
           </View>
 
           <View style={styles.textContainer}>
             <View style={styles.greetingWrapper}>
-              <Text style={styles.greeting}>Good Evening</Text>
+              <Text style={styles.greeting}>{t("goodEvening")}</Text>
             </View>
 
             <Text style={styles.welcome}>
-              Welcome back, 
+              {t("welcomeBack")}{' '}
             </Text>
             <Text style={styles.name}>{username}</Text>
           </View>
