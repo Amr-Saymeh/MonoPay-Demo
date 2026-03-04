@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useI18n } from "@/hooks/use-i18n";   
 
 export default function Advertisement() {
+  const { t } = useI18n();                    
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -12,16 +14,16 @@ export default function Advertisement() {
         style={styles.gradient}
       >
         <View style={styles.content}>
-          <Text style={styles.adText}>Advertisement</Text>
+          <Text style={styles.adText}>{t("advertisement")}</Text>
         </View>
 
-       
-               <View style={styles.bigCircleRight} />
-               <View style={styles.bigCircleLeft} />
+        <View style={styles.bigCircleRight} />
+        <View style={styles.bigCircleLeft} />
       </LinearGradient>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

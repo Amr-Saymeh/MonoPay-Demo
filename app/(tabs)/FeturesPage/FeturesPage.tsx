@@ -2,59 +2,69 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useI18n } from "@/hooks/use-i18n";
 
 const menuItems = [
   {
     id: '1',
-    title: 'My Cards',
-    subtitle: 'Manage credit & debit cards',
+    titleKey: 'myCards',
+    subtitleKey: 'myCardsSubtitle',
     iconName: 'card-outline' as const,
     color: '#FF5722',
   },
   {
     id: '2',
-    title: 'Exchange Rates',
-    subtitle: 'View real-time currency exchange rates',
+    titleKey: 'exchangeRates',
+    subtitleKey: 'exchangeRatesSubtitle',
     iconName: 'trending-up-outline' as const,
     color: '#2196F3',
   },
   {
     id: '3',
-    title: 'Spending Insights',
-    subtitle: 'Track your spending by category',
+    titleKey: 'spendingInsights',
+    subtitleKey: 'spendingInsightsSubtitle',
     iconName: 'bar-chart-outline' as const,
     color: '#9C27B0',
   },
   {
     id: '4',
-    title: 'saving goals',
-    subtitle: 'show how much you saved',
+    titleKey: 'savingGoals',
+    subtitleKey: undefined,
     iconName: 'wallet-outline' as const,
     color: '#4CAF50',
   },
   {
     id: '5',
-    title: 'Transactions',
-    subtitle: '',
+    titleKey: 'transactions',
+    subtitleKey: undefined,
     iconName: 'receipt-outline' as const,
     color: '#00BCD4',
   },
   {
     id: '6',
-    title: 'Settings',
-    subtitle: 'Manage your account preferences',
+    titleKey: 'settings',
+    subtitleKey: 'settingsSubtitle',
     iconName: 'settings-outline' as const,
     color: '#607D8B',
   },
 ] as const;
+
 const arrowBack = () => router.push("/(tabs)/HomePageFolder/HomePage");
 
 export default function MenuList() {
+  const { t } = useI18n();
+
   return (
     <View style={styles.screenContainer}>
-      <Text style={styles.headerTitle}>Features</Text>
-<Ionicons name="arrow-back" size={24} color="#111" style={styles.backButton } onPress={arrowBack} />
-      <ScrollView 
+      <Text style={styles.headerTitle}>{t("features")}</Text>
+      <Ionicons
+        name="arrow-back"
+        size={24}
+        color="#111"
+        style={styles.backButton}
+        onPress={arrowBack}
+      />
+      <ScrollView
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -72,10 +82,10 @@ export default function MenuList() {
             </View>
 
             <View style={styles.textContainer}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              {item.subtitle ? (
-                <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
-              ) : null}
+              <Text style={styles.itemTitle}>{t(item.titleKey)}</Text>
+              {item.subtitleKey && (
+                <Text style={styles.itemSubtitle}>{t(item.subtitleKey)}</Text>
+              )}
             </View>
 
             <Ionicons name="chevron-forward" size={22} color="#C0C0C0" />
@@ -86,10 +96,11 @@ export default function MenuList() {
   );
 }
 
+
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: '#F8F9FA', // خلفية رمادي فاتح جدًا للشاشة
+    backgroundColor: '#F8F9FA', 
     paddingTop: 100,
   },
     backButton: {   

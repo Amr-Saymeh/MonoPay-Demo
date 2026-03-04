@@ -2,53 +2,39 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useI18n } from "@/hooks/use-i18n";
 
 const actions = [
-  {
-    id: '1',
-    name: 'saving goals',
-    iconName: 'wallet-outline' as const,     
-    color: '#4CAF50',
-  },
-  {
-    id: '2',
-    name: 'insights',
-    iconName: 'bar-chart-outline' as const,  
-    color: '#9C27B0',
-  },
-  {
-    id: '3',
-    name: 'cards',
-    iconName: 'card-outline' as const,     
-    color: '#FF5722',
-  },
-  {
-    id: '4',
-    name: 'more',
-    iconName: 'ellipsis-horizontal' as const, 
-    color: '#00BCD4',
-  },
+  { id: '1', key: 'savingGoals', iconName: 'wallet-outline' as const, color: '#4CAF50' },
+  { id: '2', key: 'insights',    iconName: 'bar-chart-outline' as const, color: '#9C27B0' },
+  { id: '3', key: 'cards',       iconName: 'card-outline' as const, color: '#FF5722' },
+  { id: '4', key: 'more',        iconName: 'ellipsis-horizontal' as const, color: '#00BCD4' },
 ] as const;
+
 const moreActions = () => router.push("/(tabs)/FeturesPage/FeturesPage");
 
-
 export default function QuickActions() {
+  const { t } = useI18n();
+
   return (
     <>
-            <Text style={styles.title}>Quick Actions</Text>
+      <Text style={styles.title}>{t("quickActions")}</Text>
 
-    <View style={styles.container}>
-      {actions.map((item) => (
-        <TouchableOpacity key={item.id} style={styles.actionItem} onPress={item.id === '4' ? moreActions : undefined}>
-          <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
-            <Ionicons name={item.iconName} size={40} color="white" />
-          </View>
-          <Text style={styles.label}>{item.name}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-        </>
-
+      <View style={styles.container}>
+        {actions.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.actionItem}
+            onPress={item.id === '4' ? moreActions : undefined}
+          >
+            <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
+              <Ionicons name={item.iconName} size={40} color="white" />
+            </View>
+            <Text style={styles.label}>{t(item.key)}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </>
   );
 }
 

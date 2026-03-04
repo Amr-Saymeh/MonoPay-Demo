@@ -2,10 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useI18n } from "@/hooks/use-i18n";
 
 export default function TotalBalance() {
+  const { t } = useI18n();
+
   const totalBalance = '$24,562.80';
-  const changePercent = '+12.5% from last month';
+  const changePercent = ' from last month';
+  const changePercentValue = '+5.2%';
   const income = '+$8,240.00';
   const expenses = '-$3,128.50';
 
@@ -18,23 +22,23 @@ export default function TotalBalance() {
         style={styles.gradient}
       >
         <View style={styles.contentContainer}>
-          <Text style={styles.label}>Total Balance</Text>
+          <Text style={styles.label}>{t("totalBalance")}</Text>
 
           <Text style={styles.balanceAmount}>{totalBalance}</Text>
 
           <View style={styles.changeRow}>
             <Ionicons name="trending-up" size={20} color="#00ff9d" />
-            <Text style={styles.changeText}>{changePercent}</Text>
+            <Text style={styles.changeText}>{changePercentValue+t("changePercent")}</Text>
           </View>
 
           <View style={styles.incomeExpensesRow}>
             <View style={styles.column}>
-              <Text style={styles.sectionLabel}>Income</Text>
+              <Text style={styles.sectionLabel}>{t("income")}</Text>
               <Text style={[styles.amount, styles.incomeAmount]}>{income}</Text>
             </View>
 
             <View style={styles.column}>
-              <Text style={styles.sectionLabel}>Expenses</Text>
+              <Text style={styles.sectionLabel}>{t("expenses")}</Text>
               <Text style={[styles.amount, styles.expensesAmount]}>{expenses}</Text>
             </View>
           </View>
@@ -46,6 +50,7 @@ export default function TotalBalance() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
