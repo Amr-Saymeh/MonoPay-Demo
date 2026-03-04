@@ -4,6 +4,51 @@ type TranslationKey =
   | "appName"
   | "home"
   | "explore"
+  | "wallets"
+  | "walletManagement"
+  | "myWallets"
+  | "addWallet"
+  | "yourWallets"
+  | "noWalletsYet"
+  | "tapPlusToAddFirstWallet"
+  | "walletDetails"
+  | "walletName"
+  | "walletNamePlaceholder"
+  | "walletType"
+  | "walletTypeReal"
+  | "walletTypeCredit"
+  | "walletTypeShared"
+  | "walletStatus"
+  | "walletExpiry"
+  | "walletOwner"
+  | "walletMembers"
+  | "walletCurrencies"
+  | "balance"
+  | "members"
+  | "expShort"
+  | "active"
+  | "inactive"
+  | "pleaseSignIn"
+  | "createWallet"
+  | "creating"
+  | "initialBalances"
+  | "chooseCardColor"
+  | "chooseEmoji"
+  | "addMembers"
+  | "searchByNameOrNumber"
+  | "deleteWallet"
+  | "deleting"
+  | "delete"
+  | "deleteWalletConfirmTitle"
+  | "deleteWalletConfirmMessage"
+  | "mainWalletNotFound"
+  | "cannotDeleteMainWallet"
+  | "walletNotFound"
+  | "onlyOwnerCanDelete"
+  | "walletNameRequired"
+  | "invalidExpiry"
+  | "invalidAmount"
+  | "duplicateCurrency"
   | "approve"
   | "settings"
   | "signIn"
@@ -34,6 +79,7 @@ type TranslationKey =
   | "paymentMethods"
   | "preferences"
   | "notifications"
+  | "darkMode"
   | "securityPrivacy"
   | "changePassword"
   | "currentPassword"
@@ -80,6 +126,51 @@ export const translations: Record<
     appName: "MonoPay",
     home: "Home",
     explore: "Explore",
+    wallets: "Wallets",
+    walletManagement: "Wallet Management",
+    myWallets: "My Wallets",
+    addWallet: "Add Wallet",
+    yourWallets: "Your wallets",
+    noWalletsYet: "No wallets yet",
+    tapPlusToAddFirstWallet: "Tap the + button to add your first wallet.",
+    walletDetails: "Wallet Details",
+    walletName: "Name",
+    walletNamePlaceholder: "Main wallet",
+    walletType: "Wallet Type",
+    walletTypeReal: "Real",
+    walletTypeCredit: "Credit",
+    walletTypeShared: "Shared",
+    walletStatus: "Status",
+    walletExpiry: "Expiry",
+    walletOwner: "Owner",
+    walletMembers: "Members",
+    walletCurrencies: "Currencies",
+    balance: "Balance",
+    members: "members",
+    expShort: "Exp",
+    active: "Active",
+    inactive: "Inactive",
+    pleaseSignIn: "Please sign in",
+    createWallet: "Create Wallet",
+    creating: "Creating...",
+    initialBalances: "Initial Balances (optional)",
+    chooseCardColor: "Choose Card Color",
+    chooseEmoji: "Choose Emoji",
+    addMembers: "Add Members",
+    searchByNameOrNumber: "Search by name or number",
+    deleteWallet: "Delete Wallet",
+    deleting: "Deleting...",
+    delete: "Delete",
+    deleteWalletConfirmTitle: "Delete wallet",
+    deleteWalletConfirmMessage: "Are you sure you want to delete",
+    mainWalletNotFound: "Main wallet not found",
+    cannotDeleteMainWallet: "You can't delete the Main wallet",
+    walletNotFound: "Wallet not found",
+    onlyOwnerCanDelete: "Only the owner can delete this shared wallet",
+    walletNameRequired: "Wallet name is required",
+    invalidExpiry: "Invalid expiry date (use MM/YY)",
+    invalidAmount: "Invalid amount",
+    duplicateCurrency: "Duplicate currency",
     approve: "Approve",
     settings: "Settings",
     signIn: "Sign In",
@@ -110,6 +201,7 @@ export const translations: Record<
     paymentMethods: "Payment Methods",
     preferences: "Preferences",
     notifications: "Notifications",
+    darkMode: "Dark Mode",
     securityPrivacy: "Security & Privacy",
     changePassword: "Change Password",
     currentPassword: "Current password",
@@ -152,6 +244,51 @@ export const translations: Record<
     appName: "MonoPay",
     home: "الرئيسية",
     explore: "استكشاف",
+    wallets: "المحافظ",
+    walletManagement: "إدارة المحافظ",
+    myWallets: "محافظي",
+    addWallet: "إضافة محفظة",
+    yourWallets: "محافظك",
+    noWalletsYet: "لا توجد محافظ بعد",
+    tapPlusToAddFirstWallet: "اضغط على زر + لإضافة أول محفظة لك.",
+    walletDetails: "تفاصيل المحفظة",
+    walletName: "الاسم",
+    walletNamePlaceholder: "المحفظة الرئيسية",
+    walletType: "نوع المحفظة",
+    walletTypeReal: "حقيقية",
+    walletTypeCredit: "ائتمان",
+    walletTypeShared: "مشتركة",
+    walletStatus: "الحالة",
+    walletExpiry: "تاريخ الانتهاء",
+    walletOwner: "المالك",
+    walletMembers: "الأعضاء",
+    walletCurrencies: "العملات",
+    balance: "الرصيد",
+    members: "أعضاء",
+    expShort: "انتهاء",
+    active: "نشطة",
+    inactive: "غير نشطة",
+    pleaseSignIn: "يرجى تسجيل الدخول",
+    createWallet: "إنشاء محفظة",
+    creating: "جاري الإنشاء...",
+    initialBalances: "أرصدة البداية (اختياري)",
+    chooseCardColor: "اختر لون البطاقة",
+    chooseEmoji: "اختر رمزاً",
+    addMembers: "إضافة أعضاء",
+    searchByNameOrNumber: "ابحث بالاسم أو الرقم",
+    deleteWallet: "حذف المحفظة",
+    deleting: "جاري الحذف...",
+    delete: "حذف",
+    deleteWalletConfirmTitle: "حذف المحفظة",
+    deleteWalletConfirmMessage: "هل أنت متأكد أنك تريد حذف",
+    mainWalletNotFound: "لم يتم العثور على المحفظة الرئيسية",
+    cannotDeleteMainWallet: "لا يمكنك حذف المحفظة الرئيسية",
+    walletNotFound: "لم يتم العثور على المحفظة",
+    onlyOwnerCanDelete: "فقط المالك يمكنه حذف هذه المحفظة المشتركة",
+    walletNameRequired: "اسم المحفظة مطلوب",
+    invalidExpiry: "تاريخ انتهاء غير صحيح (MM/YY)",
+    invalidAmount: "قيمة غير صحيحة",
+    duplicateCurrency: "عملة مكررة",
     approve: "قبول",
     settings: "الإعدادات",
     signIn: "تسجيل الدخول",
@@ -182,6 +319,7 @@ export const translations: Record<
     paymentMethods: "طرق الدفع",
     preferences: "التفضيلات",
     notifications: "الإشعارات",
+    darkMode: "الوضع الداكن",
     securityPrivacy: "الأمان والخصوصية",
     changePassword: "تغيير كلمة المرور",
     currentPassword: "كلمة المرور الحالية",

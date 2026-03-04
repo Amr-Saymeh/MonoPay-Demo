@@ -4,11 +4,11 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  StyleSheet,
-  View,
+    ActivityIndicator,
+    Alert,
+    Pressable,
+    StyleSheet,
+    View,
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
@@ -16,6 +16,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { uploadImageToCloudinary } from "@/src/services/cloudinary.service";
 import { updateUserProfile } from "@/src/services/user.service";
@@ -24,6 +25,10 @@ export default function AvatarCameraScreen() {
   const { t } = useI18n();
   const router = useRouter();
   const { user, profile } = useAuth();
+
+  const surface = useThemeColor({}, "surface");
+  const border = useThemeColor({}, "border");
+  const surfacePressed = useThemeColor({}, "surfacePressed");
 
   const cameraRef = useRef<CameraView | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
@@ -87,7 +92,10 @@ export default function AvatarCameraScreen() {
       <ThemedView style={styles.permission}>
         <Animated.View
           entering={FadeInDown.duration(450)}
-          style={styles.permissionCard}
+          style={[
+            styles.permissionCard,
+            { borderColor: border, backgroundColor: surface },
+          ]}
         >
           <ThemedText type="subtitle">{t("takeSelfie")}</ThemedText>
           <ThemedText style={styles.permissionText}>
@@ -143,6 +151,7 @@ export default function AvatarCameraScreen() {
               onPress={() => setPhotoUri(null)}
               style={({ pressed }) => [
                 styles.secondary,
+                { backgroundColor: surface, borderColor: border },
                 pressed ? styles.pressed : null,
               ]}
             >
@@ -230,9 +239,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(17, 24, 28, 0.06)",
     borderWidth: 1,
-    borderColor: "rgba(17, 24, 28, 0.08)",
   },
   previewWrap: {
     flex: 1,
@@ -253,8 +260,6 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 10,
     borderWidth: 1,
-    borderColor: "rgba(17, 24, 28, 0.08)",
-    backgroundColor: "rgba(17, 24, 28, 0.03)",
   },
   permissionText: {
     opacity: 0.7,
