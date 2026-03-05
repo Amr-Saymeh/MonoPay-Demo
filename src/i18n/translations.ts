@@ -116,7 +116,32 @@ type TranslationKey =
   | "rejectAction"
   | "approveUserTitle"
   | "rejectUserTitle"
-  | "cancel";
+  | "cancel"
+  // ──────────────────────────────────────────────
+  // الكلمات الجديدة اللي أضفتها من الكومبوننتات اللي بعثتها
+  | "advertisement"
+  | "goodEvening"
+  | "welcomeBack"
+  | "quickActions"
+  | "savingGoals"
+  | "insights"
+  | "cards"
+  | "more"
+  | "totalBalance"
+  | "income"
+  | "expenses"
+  | "features"
+  | "myCards"
+  | "myCardsSubtitle"
+  | "exchangeRates"
+  | "exchangeRatesSubtitle"
+  | "spendingInsights"
+  | "spendingInsightsSubtitle"
+  | "transactions"
+  | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
+  | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
+  | "changePercent";        // نص إضافي لعرض التغير الشهري في TotalBalance
+  ;
 
 export const translations: Record<
   SupportedLanguage,
@@ -239,6 +264,32 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
+
+    // ──────────────────────────────────────────────
+    // الكلمات الجديدة المضافة
+    advertisement:          "Advertisement",
+    goodEvening:            "Good Evening",
+    welcomeBack:            "Welcome back,",
+    quickActions:           "Quick Actions",
+    savingGoals:            "Saving Goals",
+    insights:               "Insights",
+    cards:                  "Cards",
+    more:                   "More",
+    totalBalance:           "Total Balance",
+    income:                 "Income",
+    expenses:               "Expenses",
+    features:               "Features",
+    myCards:                "My Cards",
+    myCardsSubtitle:        "Manage credit & debit cards",
+    exchangeRates:          "Exchange Rates",
+    exchangeRatesSubtitle:  "View real-time currency exchange rates",
+    spendingInsights:       "Spending Insights",
+    spendingInsightsSubtitle: "Track your spending by category",
+    transactions:           "Transactions",
+    settingsSubtitle:       "Manage your account preferences",  // ← أضيف هنا
+    changeLanguage:         "Change Language",
+    changePercent:          " from last month"
+
   },
   ar: {
     appName: "MonoPay",
@@ -357,6 +408,31 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
+
+    // ──────────────────────────────────────────────
+    // الكلمات الجديدة المضافة
+    advertisement:          "إعلان",
+    goodEvening:            "مساء الخير",
+    welcomeBack:            "مرحباً بعودتك،",
+    quickActions:           "الإجراءات السريعة",
+    savingGoals:            "أهداف التوفير",
+    insights:               "الرؤى",
+    cards:                  "البطاقات",
+    more:                   "المزيد",
+    totalBalance:           "الرصيد الكلي",
+    income:                 "الدخل",
+    expenses:               "المصروفات",
+    features:               "الميزات",
+    myCards:                "بطاقاتي",
+    myCardsSubtitle:        "إدارة بطاقات الائتمان والخصم",
+    exchangeRates:          "أسعار الصرف",
+    exchangeRatesSubtitle:  "عرض أسعار صرف العملات في الوقت الفعلي",
+    spendingInsights:       "رؤى الإنفاق",
+    spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
+    transactions:           "المعاملات",
+    settingsSubtitle:       "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    changeLanguage:         "تغيير اللغة",
+       changePercent: " من الشهر الماضي",
   },
 };
 
