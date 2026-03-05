@@ -16,7 +16,6 @@
     },
     "android": {
       "permissions": [
-        "CAMERA",
         "CAMERA"
       ],
       "adaptiveIcon": {
@@ -26,8 +25,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.MonoPay"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
