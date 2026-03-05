@@ -72,7 +72,7 @@ export default function HomeScreen() {
       />
 
       <Button title="Send" onPress={sendMessage} />
-      <Button title="HomePage" onPress={() => router.push("/HomePage")} />
+      <Button title="HomePage" onPress={() => router.push("/(tabs)/HomePage")} />
 
     </View>
   );

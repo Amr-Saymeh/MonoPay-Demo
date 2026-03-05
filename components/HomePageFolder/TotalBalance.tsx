@@ -3,12 +3,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useI18n } from "@/hooks/use-i18n";
-import { getTotalBalance } from "@/lib/auth";
 
 export default function TotalBalance() {
   const { t } = useI18n();
 
-  const totalBalance = getTotalBalance();
+  const totalBalance = "$12,345.67";
   const changePercent = ' from last month';
   const changePercentValue = '+5.2%';
   const income = '+$8,240.00';
