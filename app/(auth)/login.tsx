@@ -2,26 +2,32 @@ import React, { useMemo, useState } from "react";
 
 import { Link, useRouter } from "expo-router";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/src/providers/AuthProvider";
 
 export default function LoginScreen() {
   const { t } = useI18n();
   const router = useRouter();
   const { signIn, signingIn } = useAuth();
+  const insets = useSafeAreaInsets();
+
+  const tint = useThemeColor({}, "tint");
 
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
@@ -43,6 +49,7 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.screen}>
+      <LanguageSwitch />
       <KeyboardAvoidingView
         style={styles.inner}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -85,14 +92,18 @@ export default function LoginScreen() {
           />
         </Animated.View>
 
-        <View style={styles.footer}>
+        <View
+          style={[styles.footer, { bottom: Math.max(16, insets.bottom + 16) }]}
+        >
           <ThemedText style={styles.footerBrand}>{t("appName")}</ThemedText>
           <View style={styles.footerRow}>
             <ThemedText style={styles.footerMuted}>
               {t("noAccount")}{" "}
             </ThemedText>
             <Link href={"/(auth)/signup-details" as any} style={styles.link}>
-              <ThemedText style={styles.linkText}>{t("signUp")}</ThemedText>
+              <ThemedText style={[styles.linkText, { color: tint }]}>
+                {t("signUp")}
+              </ThemedText>
             </Link>
           </View>
         </View>
@@ -136,7 +147,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 40,
     alignItems: "center",
     gap: 12,
   },
@@ -154,7 +164,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   linkText: {
-    color: "#8B5CF6",
     fontFamily: Fonts.sansBold,
   },
 });
