@@ -3,10 +3,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useI18n } from "@/hooks/use-i18n";   
+import { getUserName } from '@/lib/auth';
 
 export default function HomeHeader() {
   const { t } = useI18n();                  
-  const username = 'Ashour';                
+  const username = getUserName();                
 
   return (
     <View style={styles.container}>
