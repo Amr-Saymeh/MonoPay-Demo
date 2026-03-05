@@ -3,11 +3,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useI18n } from "@/hooks/use-i18n";   
-import { getUserName } from '@/lib/auth';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 export default function HomeHeader() {
   const { t } = useI18n();                  
-  const username = getUserName();                
+     const { profile } = useAuth();
+;                
 
   return (
     <View style={styles.container}>
@@ -33,7 +34,7 @@ export default function HomeHeader() {
             <Text style={styles.welcome}>
               {t("welcomeBack")}{' '}
             </Text>
-            <Text style={styles.name}>{username}</Text>
+            <Text style={styles.name}>{profile?.name}</Text>
           </View>
 
           <View style={styles.notificationWrapper}>

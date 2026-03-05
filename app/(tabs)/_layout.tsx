@@ -93,6 +93,20 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* Hidden screens that still show the tab bar */}
+      <Tabs.Screen
+        name="HomePage"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="FeturesPage"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
