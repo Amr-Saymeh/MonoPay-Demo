@@ -11,7 +11,7 @@ const actions = [
   { id: '4', key: 'more',        iconName: 'ellipsis-horizontal' as const, color: '#00BCD4' },
 ] as const;
 
-const moreActions = () => router.push("/(tabs)/FeturesPage/FeturesPage");
+const moreActions = () => router.push("/FeturesPage");
 
 export default function QuickActions() {
   const { t } = useI18n();

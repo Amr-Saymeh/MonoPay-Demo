@@ -49,7 +49,7 @@ const menuItems = [
   },
 ] as const;
 
-const arrowBack = () => router.push("/(tabs)/HomePageFolder/HomePage");
+const arrowBack = () => router.push("/HomePage");
 
 export default function MenuList() {
   const { t } = useI18n();
@@ -100,10 +100,10 @@ export default function MenuList() {
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: '#F8F9FA', 
+    backgroundColor: '#F8F9FA',
     paddingTop: 100,
   },
-    backButton: {   
+  backButton: {
     position: 'absolute',
     top: 110,
     left: 20,
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     color: '#111',
     paddingHorizontal: 20,
     marginBottom: 20,
-marginLeft: 30,
-marginTop: 10,
+    marginLeft: 30,
+    marginTop: 10,
   },
 
   scrollContainer: {
