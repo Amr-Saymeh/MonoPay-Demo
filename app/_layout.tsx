@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-
+import "../global.css";
 import {
   DarkTheme,
   DefaultTheme,
