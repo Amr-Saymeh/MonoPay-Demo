@@ -70,7 +70,33 @@ type TranslationKey =
   | "rejectAction"
   | "approveUserTitle"
   | "rejectUserTitle"
-  | "cancel";
+  | "cancel"
+  | "transfer"
+  | "makeTransaction"
+  | "sendMoney"
+  | "receiveMoney"
+  | "amount"
+  | "recipient"
+  | "selectRecipient"
+  | "payer"
+  | "selectPayer"
+  | "category"
+  | "selectCategory"
+  | "noteOptional"
+  | "notePlaceholder"
+  | "sendBtn"
+  | "requestBtn"
+  | "mainWalletNote"
+  | "requestNote"
+  | "insufficientFunds"
+  | "walletInactive"
+  | "senderIsReceiver"
+  | "mainWalletNotFound"
+  | "userNotFound"
+  | "invalidAmount"
+  | "successSend"
+  | "successRequest"
+  | "fillRequired";
 
 export const translations: Record<
   SupportedLanguage,
@@ -147,6 +173,32 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
+    transfer: "Transfer",
+    makeTransaction: "Make a Transaction",
+    sendMoney: "Send",
+    receiveMoney: "Request",
+    amount: "Amount",
+    recipient: "Recipient",
+    selectRecipient: "Who are you sending to?",
+    payer: "Payer",
+    selectPayer: "Who should pay you?",
+    category: "Category",
+    selectCategory: "Select category",
+    noteOptional: "Note (Optional)",
+    notePlaceholder: "Add a note...",
+    sendBtn: "Send",
+    requestBtn: "Request",
+    mainWalletNote: "Funds will be sent to recipient's main wallet",
+    requestNote: "Payer will receive a request to approve",
+    insufficientFunds: "Insufficient funds in your wallet.",
+    walletInactive: "Your wallet is inactive.",
+    senderIsReceiver: "You cannot send money to yourself.",
+    mainWalletNotFound: "Recipient has no active wallet.",
+    userNotFound: "User not found.",
+    invalidAmount: "Please enter a valid amount.",
+    successSend: "Money sent successfully! 🎉",
+    successRequest: "Request sent! The payer will be notified. ⏳",
+    fillRequired: "Please fill all required fields.",
   },
   ar: {
     appName: "MonoPay",
@@ -219,6 +271,32 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
+    transfer: "تحويل",
+    makeTransaction: "إجراء معاملة",
+    sendMoney: "إرسال",
+    receiveMoney: "طلب",
+    amount: "المبلغ",
+    recipient: "المستلم",
+    selectRecipient: "لمن تريد الإرسال؟",
+    payer: "الدافع",
+    selectPayer: "من سيدفع لك؟",
+    category: "الفئة",
+    selectCategory: "اختر الفئة",
+    noteOptional: "ملاحظة (اختياري)",
+    notePlaceholder: "أضف ملاحظة...",
+    sendBtn: "إرسال",
+    requestBtn: "طلب",
+    mainWalletNote: "سيتم الإرسال للمحفظة الرئيسية للمستلم",
+    requestNote: "سيصل الطلب للدافع للموافقة عليه",
+    insufficientFunds: "الرصيد غير كافٍ في محفظتك.",
+    walletInactive: "محفظتك غير نشطة.",
+    senderIsReceiver: "لا يمكنك إرسال المال لنفسك.",
+    mainWalletNotFound: "المستلم ليس لديه محفظة نشطة.",
+    userNotFound: "المستخدم غير موجود.",
+    invalidAmount: "الرجاء إدخال مبلغ صحيح.",
+    successSend: "تم الإرسال بنجاح! 🎉",
+    successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع. ⏳",
+    fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
   },
 };
 
