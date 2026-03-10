@@ -15,9 +15,7 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": [
-        "CAMERA"
-      ],
+      "permissions": ["CAMERA"],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -46,7 +44,13 @@
         }
       ],
       "expo-localization",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow MonoPay to access your contacts to find friends on the app."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
