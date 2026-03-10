@@ -90,10 +90,13 @@
 ### Approve Request
 
 ```
-1. الدافع يختار من أي محفظة يدفع
-2. نفس منطق Send Money (atomic balance update)
-3. يُكتب transaction history عند الطرفين
-4. يُحدَّث status → "approved" عند الطرفين
+1. الدافع يختار من أي محفظة يدفع (في صفحة الطلبات)
+2. يظهر مقارنة الرصيد الحالي مقابل المطلوب:
+   - رصيد كافٍ     → خلفية خضراء + زر التأكيد مفعّل
+   - رصيد غير كافٍ → خلفية حمراء + رسالة تحذير + زر التأكيد معطّل
+3. نفس منطق Send Money (atomic balance update)
+4. يُكتب transaction history عند الطرفين
+5. يُحدَّث status → "approved" عند الطرفين
 ```
 
 ### Reject Request
@@ -155,7 +158,10 @@ src/features/transfer/
 
 ## TODO
 
-- [ ] ربط Firebase Auth الحقيقي بدل `CURRENT_USER_UID` الثابت
-- [ ] صفحة الطلبات (عرض + موافقة + رفض + إلغاء)
+- [x] ربط Firebase Auth الحقيقي بدل `CURRENT_USER_UID` الثابت
+- [x] صفحة الطلبات (عرض + موافقة + رفض + إلغاء)
+- [x] فحص الرصيد قبل الموافقة مع رسالة واضحة
+- [x] Badge عدد الطلبات الـ pending على زر Requests
+- [x] useUserWallets يستخدم onValue لتحديث الرصيد realtime
 - [ ] الإشعارات عند الإرسال/الاستقبال
 - [ ] NativeWind metro config (Windows Node v22 issue)

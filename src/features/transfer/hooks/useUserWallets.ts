@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { get, ref } from "firebase/database";
+import { get, onValue, ref } from "firebase/database";
 
 import { db } from "@/src/firebaseConfig";
 import { Wallet } from "../types/index";
@@ -32,20 +32,20 @@ export function useUserWallets(userUid: string | null): UseUserWalletsResult {
       return;
     }
 
-    const fetchWallets = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    setLoading(true);
+    setError(null);
 
-        const userWalletSnap = await get(
-          ref(db, `users/${userUid}/userwallet`),
-        );
-        if (!userWalletSnap.exists()) {
+    let unsubs: (() => void)[] = [];
+
+    get(ref(db, `users/${userUid}/userwallet`))
+      .then((snap) => {
+        if (!snap.exists()) {
           setWallets([]);
+          setLoading(false);
           return;
         }
 
-        const userWalletRaw = userWalletSnap.val() as Record<
+        const raw = snap.val() as Record<
           string,
           {
             name: string;
@@ -56,51 +56,49 @@ export function useUserWallets(userUid: string | null): UseUserWalletsResult {
           }
         >;
 
-        // Fetch actual wallet data for each slot
-        const enriched = await Promise.all(
-          Object.entries(userWalletRaw).map(async ([slotKey, slot]) => {
-            const walletId = slot.walletid ?? slot.id;
-            if (walletId === undefined) {
-              return {
-                slotKey,
-                slotName: slot.name,
-                walletKey: "",
-                walletId: -1,
-                color: slot.color,
-                emoji: slot.emoji,
-                wallet: undefined,
-              } as EnrichedWalletSlot;
-            }
+        const entries = Object.entries(raw);
 
-            const walletKey = `wallet${walletId}`;
-            const walletSnap = await get(ref(db, `wallets/${walletKey}`));
-            const wallet: Wallet | undefined = walletSnap.exists()
-              ? walletSnap.val()
+        entries.forEach(([slotKey, slot]) => {
+          const walletId = slot.walletid ?? slot.id;
+          if (walletId === undefined) return;
+
+          const walletKey = `wallet${walletId}`;
+
+          const unsub = onValue(ref(db, `wallets/${walletKey}`), (wSnap) => {
+            const wallet: Wallet | undefined = wSnap.exists()
+              ? wSnap.val()
               : undefined;
 
-            return {
-              slotKey,
-              slotName: slot.name,
-              walletKey,
-              walletId,
-              color: slot.color,
-              emoji: slot.emoji,
-              wallet,
-            } as EnrichedWalletSlot;
-          }),
-        );
+            setWallets((prev) => {
+              const others = prev.filter((w) => w.slotKey !== slotKey);
+              if (!wallet || wallet.state !== "active") return others;
+              return [
+                ...others,
+                {
+                  slotKey,
+                  slotName: slot.name,
+                  walletKey,
+                  walletId,
+                  color: slot.color,
+                  emoji: slot.emoji,
+                  wallet,
+                },
+              ].sort((a, b) => a.slotKey.localeCompare(b.slotKey));
+            });
 
-        // Only show active wallets
-        setWallets(enriched.filter((w) => w.wallet?.state === "active"));
-      } catch (e) {
+            setLoading(false);
+          });
+
+          unsubs.push(unsub);
+        });
+      })
+      .catch((e) => {
         console.error("[useUserWallets]", e);
         setError("Failed to load wallets");
-      } finally {
         setLoading(false);
-      }
-    };
+      });
 
-    void fetchWallets();
+    return () => unsubs.forEach((u) => u());
   }, [userUid]);
 
   return { wallets, loading, error };
