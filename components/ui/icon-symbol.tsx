@@ -22,6 +22,7 @@ const MAPPING = {
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
   "person.crop.circle": "person",
+  creditcard: "credit-card",
   gearshape: "settings",
 } as IconMapping;
 
