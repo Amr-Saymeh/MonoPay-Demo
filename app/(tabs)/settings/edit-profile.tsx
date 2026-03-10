@@ -10,6 +10,7 @@ import { AuthInput } from "@/components/ui/auth-input";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { updateUserProfile } from "@/src/services/user.service";
 
@@ -23,6 +24,10 @@ export default function EditProfileScreen() {
   const { t } = useI18n();
   const router = useRouter();
   const { user, profile } = useAuth();
+
+  const border = useThemeColor({}, "border");
+  const surface = useThemeColor({}, "surface");
+  const surfacePressed = useThemeColor({}, "surfacePressed");
 
   const initial = useMemo(() => {
     const name = profile?.name ?? "";
@@ -71,7 +76,9 @@ export default function EditProfileScreen() {
 
   return (
     <ThemedView style={styles.screen}>
-      <View style={styles.card}>
+      <View
+        style={[styles.card, { borderColor: border, backgroundColor: surface }]}
+      >
         <View style={styles.avatarRow}>
           <View style={styles.avatarWrap}>
             {typeof avatarUri === "string" && avatarUri.trim().length > 0 ? (
@@ -81,7 +88,12 @@ export default function EditProfileScreen() {
                 contentFit="cover"
               />
             ) : (
-              <View style={styles.avatarPlaceholder} />
+              <View
+                style={[
+                  styles.avatarPlaceholder,
+                  { backgroundColor: surfacePressed },
+                ]}
+              />
             )}
           </View>
           <View style={styles.avatarText}>
@@ -146,7 +158,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.08)",
     padding: 16,
     gap: 16,
   },
@@ -160,7 +171,7 @@ const styles = StyleSheet.create({
     height: 84,
     borderRadius: 999,
     overflow: "hidden",
-    backgroundColor: "rgba(17,24,28,0.08)",
+    backgroundColor: "transparent",
   },
   avatar: {
     width: "100%",
@@ -169,7 +180,6 @@ const styles = StyleSheet.create({
   avatarPlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(17,24,28,0.08)",
   },
   avatarText: {
     flex: 1,
