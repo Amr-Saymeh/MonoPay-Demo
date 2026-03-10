@@ -86,11 +86,14 @@ cancelled → ألغيتها أنا
 ### Approve Request (موافقة)
 ```
 1. الدافع يختار من أي محفظة يدفع (Bottom Sheet)
-2. نفس منطق Send Money:
+2. يظهر مقارنة الرصيد الحالي مقابل المطلوب:
+   - رصيد كافٍ  → خلفية خضراء + زر التأكيد مفعّل
+   - رصيد غير كافٍ → خلفية حمراء + رسالة تحذير + زر التأكيد معطّل
+3. نفس منطق Send Money:
    - ينقص من محفظة الدافع المختارة
    - يزيد في main wallet (wallet1) للطالب
    - يُكتب transaction history عند الطرفين
-3. status → "approved" + decidedAt عند الطرفين
+4. status → "approved" + decidedAt عند الطرفين
 ```
 
 ### Reject Request (رفض)
@@ -163,7 +166,8 @@ app/
 ---
 
 ## TODO
-- [ ] ربط Firebase Auth الحقيقي بدل `CURRENT_USER_UID` الثابت
+- [x] ربط Firebase Auth الحقيقي بدل `CURRENT_USER_UID` الثابت
+- [x] Badge عدد الطلبات الـ pending على زر Requests في صفحة Transfer
+- [x] فحص الرصيد قبل الموافقة مع رسالة واضحة
 - [ ] إشعار push عند وصول طلب جديد
-- [ ] Badge عدد الطلبات الـ pending على زر Requests
 - [ ] إضافة زر وصول من الـ Home page

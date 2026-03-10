@@ -33,6 +33,8 @@ import {
   CURRENCY_SYMBOLS,
   TransactionMode,
 } from "../types/index";
+import { useAuth } from "@/src/providers/AuthProvider";
+import { useMoneyRequests } from "@/src/features/requests/hooks/useMoneyRequests";
 // ─── Strings محلية للصفحة ─────────────────────────────────────────────────────
 const TX_STRINGS = {
   en: {
@@ -97,9 +99,9 @@ const TX_STRINGS = {
   },
 };
 
-// ─── TODO: استبدل بـ Firebase Auth uid الحقيقي ───────────────────────────────
-// مثال: const { user } = useAuth(); const CURRENT_USER_UID = user?.uid ?? "";
-const CURRENT_USER_UID = "E8tBkcVIY4TEdk9jzSQFLn3zTF72";
+
+
+
 const MAX_AMOUNT: Record<string, number> = {
   nis: 5000,
   jod: 1000,
@@ -110,6 +112,13 @@ const MAX_NOTE_LENGTH = 150;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function MakeTransactionScreen() {
+
+  const { user } = useAuth();
+  const CURRENT_USER_UID = user?.uid ?? "";
+
+  const { received } = useMoneyRequests(CURRENT_USER_UID);
+  const pendingCount = received.filter((r) => r.status === "pending").length;
+
   const router = useRouter();
   const amountAnim = useRef(new Animated.Value(0)).current;
 
@@ -357,7 +366,31 @@ export default function MakeTransactionScreen() {
               gap: 6,
             }}
           >
-            <Text style={{ fontSize: 14 }}>🔔</Text>
+            <View>
+              <Text style={{ fontSize: 14 }}>🔔</Text>
+              {pendingCount > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    right: -6,
+                    backgroundColor: "#EF4444",
+                    borderRadius: 10,
+                    minWidth: 16,
+                    height: 16,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 3,
+                  }}
+                >
+                  <Text
+                    style={{ color: "white", fontSize: 9, fontWeight: "bold" }}
+                  >
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>
               {language === "ar" ? "الطلبات" : "Requests"}
             </Text>

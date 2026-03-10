@@ -4,7 +4,6 @@ import {
   Alert,
   Animated,
   FlatList,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -18,14 +17,15 @@ import {
   approveRequest,
   rejectRequest,
 } from "@/src/features/transfer/services/transferService";
-import { update, ref } from "firebase/database";
 import { db } from "@/src/firebaseConfig";
+import { ref, update } from "firebase/database";
 
 import { RequestCard } from "../components/RequestCard";
 import { MoneyRequestItem, useMoneyRequests } from "../hooks/useMoneyRequests";
+import { useAuth } from "@/src/providers/AuthProvider";
 
 // ─── TODO: replace with Firebase Auth ────────────────────────────────────────
-const CURRENT_USER_UID = "E8tBkcVIY4TEdk9jzSQFLn3zTF72";
+
 
 const STRINGS = {
   en: {
@@ -74,6 +74,10 @@ const STRINGS = {
 };
 
 export default function RequestsScreen() {
+
+  const { user } = useAuth();
+  const CURRENT_USER_UID = user?.uid ?? "";
+
   const router = useRouter();
   const { language, isRtl } = useI18n();
   const s = STRINGS[language as "en" | "ar"] ?? STRINGS.en;
@@ -393,6 +397,94 @@ export default function RequestsScreen() {
               isRtl={isRtl}
             />
 
+            {/* ── رصيد المحفظة المختارة ── */}
+            {selectedSlot &&
+              approveItem &&
+              (() => {
+                const currancy = approveItem.currancy;
+                const balance =
+                  selectedSlot.wallet?.currancies?.[currancy] ?? 0;
+                const hasEnough = balance >= approveItem.amount;
+                const symbol =
+                  CURRENCY_SYMBOLS[currancy] ?? currancy.toUpperCase();
+
+                return (
+                  <>
+                    <View
+                      style={{
+                        marginTop: 12,
+                        padding: 12,
+                        borderRadius: 12,
+                        backgroundColor: hasEnough ? "#D1FAE5" : "#FEE2E2",
+                        flexDirection: isRtl ? "row-reverse" : "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: hasEnough ? "#059669" : "#DC2626",
+                            marginBottom: 2,
+                          }}
+                        >
+                          {language === "ar" ? "رصيدك الحالي" : "Your balance"}
+                        </Text>
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            color: hasEnough ? "#059669" : "#DC2626",
+                          }}
+                        >
+                          {symbol}
+                          {balance.toFixed(2)}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          alignItems: isRtl ? "flex-start" : "flex-end",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: hasEnough ? "#059669" : "#DC2626",
+                            marginBottom: 2,
+                          }}
+                        >
+                          {language === "ar" ? "المطلوب" : "Required"}
+                        </Text>
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            color: hasEnough ? "#059669" : "#DC2626",
+                          }}
+                        >
+                          {symbol}
+                          {approveItem.amount.toFixed(2)}
+                        </Text>
+                      </View>
+                    </View>
+                    {!hasEnough && (
+                      <Text
+                        style={{
+                          color: "#DC2626",
+                          fontSize: 12,
+                          fontWeight: "600",
+                          textAlign: "center",
+                          marginTop: 6,
+                        }}
+                      >
+                        {language === "ar"
+                          ? "⚠️ رصيد غير كافٍ في هذه المحفظة"
+                          : "⚠️ Insufficient balance in this wallet"}
+                      </Text>
+                    )}
+                  </>
+                );
+              })()}
+
             <View style={{ flexDirection: "row", gap: 12, marginTop: 20 }}>
               <TouchableOpacity
                 onPress={() => {
@@ -414,7 +506,17 @@ export default function RequestsScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={confirmApprove}
-                disabled={actionLoading || !selectedSlot}
+                disabled={
+                  actionLoading ||
+                  !selectedSlot ||
+                  (() => {
+                    if (!selectedSlot || !approveItem) return true;
+                    const balance =
+                      selectedSlot.wallet?.currancies?.[approveItem.currancy] ??
+                      0;
+                    return balance < approveItem.amount;
+                  })()
+                }
                 style={{
                   flex: 2,
                   height: 52,
@@ -422,7 +524,14 @@ export default function RequestsScreen() {
                   backgroundColor: "#7C3AED",
                   alignItems: "center",
                   justifyContent: "center",
-                  opacity: actionLoading || !selectedSlot ? 0.6 : 1,
+                  opacity: (() => {
+                    if (actionLoading || !selectedSlot) return 0.6;
+                    const balance =
+                      selectedSlot.wallet?.currancies?.[
+                        approveItem?.currancy ?? ""
+                      ] ?? 0;
+                    return balance < (approveItem?.amount ?? 0) ? 0.6 : 1;
+                  })(),
                 }}
               >
                 <Text
