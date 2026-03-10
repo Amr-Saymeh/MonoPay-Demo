@@ -1,4 +1,6 @@
 import { useI18n } from "@/hooks/use-i18n";
+import { useMoneyRequests } from "@/src/features/requests/hooks/useMoneyRequests";
+import { useAuth } from "@/src/providers/AuthProvider";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -33,8 +35,6 @@ import {
   CURRENCY_SYMBOLS,
   TransactionMode,
 } from "../types/index";
-import { useAuth } from "@/src/providers/AuthProvider";
-import { useMoneyRequests } from "@/src/features/requests/hooks/useMoneyRequests";
 // ─── Strings محلية للصفحة ─────────────────────────────────────────────────────
 const TX_STRINGS = {
   en: {
@@ -99,9 +99,6 @@ const TX_STRINGS = {
   },
 };
 
-
-
-
 const MAX_AMOUNT: Record<string, number> = {
   nis: 5000,
   jod: 1000,
@@ -112,7 +109,6 @@ const MAX_NOTE_LENGTH = 150;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function MakeTransactionScreen() {
-
   const { user } = useAuth();
   const CURRENT_USER_UID = user?.uid ?? "";
 
