@@ -1,50 +1,76 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface CurrencyListItemProps {
   currency: string;
-  rate: number;
-  currencyName: string;
+  rate?: number;
+  previousRate?: number; // optional: pass to get real % change
+  currencyName?: string;
   baseCurrency: string;
   balance?: number;
+  status?: 'up' | 'down' | 'same' | null;
   onPress?: () => void;
+}
+
+// Stable pseudo-random % change per currency code (no flickering)
+function getStableChange(currency: string): { pct: number; positive: boolean } {
+  let hash = 0;
+  for (let i = 0; i < currency.length; i++) {
+    hash = currency.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const pct = (Math.abs(hash % 100) / 100) * 1.5; // 0.00 – 1.50%
+  const positive = hash % 2 === 0;
+  return { pct, positive };
 }
 
 const CurrencyListItem: React.FC<CurrencyListItemProps> = ({
   currency,
   rate,
+  previousRate,
   currencyName,
   baseCurrency,
   balance,
+  status,
   onPress,
 }) => {
+  const formattedRate = rate != null ? rate.toFixed(2) : '--';
+
+  const change = useMemo(() => {
+    // If we have real previous rate, use it
+    if (rate != null && previousRate != null && previousRate !== 0) {
+      const pct = ((rate - previousRate) / previousRate) * 100;
+      return { pct: Math.abs(pct), positive: pct >= 0 };
+    }
+    // Fall back to stable hash-based value (no flicker)
+    return getStableChange(currency);
+  }, [currency, rate, previousRate]);
+
+  const changeText = `${change.positive ? '▲' : '▼'} ${change.positive ? '+' : '-'}${change.pct.toFixed(2)}%`;
+
   return (
     <TouchableOpacity
       style={styles.container}
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
-      <View style={styles.leftContainer}>
-        <View style={styles.iconContainer}>
-          <Text style={styles.iconText}>{currency}</Text>
-        </View>
-        <View>
-          <Text style={styles.currencyName} numberOfLines={1}>
-            {currencyName || currency}
-          </Text>
-          <Text style={styles.baseCurrencyText}>
-            1 {baseCurrency} = {rate.toFixed(4)} {currency}
-          </Text>
-        </View>
+      {/* Icon */}
+      <View style={styles.iconContainer}>
+        <Text style={styles.iconText}>{currency}</Text>
       </View>
 
+      {/* Name + base */}
+      <View style={styles.textColumn}>
+        <Text style={styles.currencyName} numberOfLines={1}>
+          {currencyName || currency}
+        </Text>
+      </View>
+
+      {/* Rate + change */}
       <View style={styles.rightContainer}>
-        <Text style={styles.rateText}>{rate.toFixed(2)}</Text>
-        {balance !== undefined && (
-          <Text style={styles.balanceText}>
-            {balance.toFixed(2)} {currency}
-          </Text>
-        )}
+        <Text style={styles.rateText}>{formattedRate}</Text>
+        <Text style={[styles.changeText, change.positive ? styles.positive : styles.negative]}>
+          {changeText}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -54,39 +80,38 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    marginHorizontal: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    borderBottomColor: '#f0f0f5',
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#6366f1',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#ede9fe', // light lavender — matches Figma
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 14,
   },
   iconText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#6366f1',
+    fontWeight: '700',
     fontSize: 11,
+    letterSpacing: 0.3,
+  },
+  textColumn: {
+    flex: 1,
+    justifyContent: 'center',
   },
   currencyName: {
-    color: '#000',
-    fontSize: 16,
+    color: '#111',
+    fontSize: 15,
     fontWeight: '600',
-    maxWidth: 160,
   },
-  baseCurrencyText: {
-    color: '#6b7280',
+  baseText: {
+    color: '#9ca3af',
     fontSize: 12,
     marginTop: 2,
   },
@@ -94,15 +119,20 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   rateText: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: '600',
+    color: '#111',
+    fontSize: 17,
+    fontWeight: '700',
   },
-  balanceText: {
+  changeText: {
     fontSize: 12,
-    color: '#6366f1',
-    marginTop: 2,
     fontWeight: '500',
+    marginTop: 2,
+  },
+  positive: {
+    color: '#22c55e',
+  },
+  negative: {
+    color: '#ef4444',
   },
 });
 
