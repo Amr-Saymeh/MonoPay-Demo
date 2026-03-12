@@ -6,7 +6,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View
+  TextInput,
+  TouchableOpacity,
+  View,
+  Modal,
 } from 'react-native';
 import CurrencyListItem from '../../components/exchange/CurrencyListItem';
 import Header from '../../components/exchange/Header';
@@ -56,6 +59,11 @@ const Exchange: React.FC = () => {
   const [walletCurrencies, setWalletCurrencies] = useState<CurrencyEntry[]>([]);
   const [walletLoading, setWalletLoading] = useState(false);
 
+  const [exchangeModalVisible, setExchangeModalVisible] = useState(false);
+  const [targetCurrency, setTargetCurrency] = useState<string | null>(null);
+  const [targetRate, setTargetRate] = useState<number | null>(null);
+  const [amountInput, setAmountInput] = useState('');
+  const [exchangeError, setExchangeError] = useState<string | null>(null);
 
 
   const baseCurrencyRef = useRef(baseCurrency);
@@ -217,6 +225,80 @@ const displayEntries = React.useMemo<[string, number][]>(() => {
     [walletCurrencies]
   );
 
+  const handleOpenExchange = useCallback(
+    (currency: string, rate: number) => {
+      setTargetCurrency(currency);
+      setTargetRate(rate);
+      setAmountInput('');
+      setExchangeError(null);
+      setExchangeModalVisible(true);
+    },
+    []
+  );
+
+  const handleConfirmExchange = useCallback(async () => {
+    if (!user || !selectedWalletId || !targetCurrency || !targetRate) {
+      return;
+    }
+
+    const amount = Number(amountInput.replace(',', '.'));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setExchangeError('Enter a valid amount');
+      return;
+    }
+
+    const fromBalance = getBalance(baseCurrency) ?? 0;
+    if (amount > fromBalance) {
+      setExchangeError('Amount exceeds wallet balance');
+      return;
+    }
+
+    const converted = amount * targetRate;
+
+    // compute DB keys (NIS <-> ILS special case)
+    const fromKey = denormalizeCurrency(baseCurrency.trim().toUpperCase());
+    const toKey = denormalizeCurrency(targetCurrency.trim().toUpperCase());
+
+    try {
+      const walletRef = ref(db, `wallets/wallet${selectedWalletId}/currancies`);
+      // lazy-load helpers from firebase/database
+      const { get, set } = await import('firebase/database');
+
+      // Read current balances from DB to normalize any legacy keys
+      const snap = await get(walletRef);
+      const raw = (snap.val() ?? {}) as Record<string, number>;
+
+      const merged: Record<string, number> = {};
+      for (const [rawCode, rawAmount] of Object.entries(raw)) {
+        const normalizedKey = denormalizeCurrency(rawCode.trim().toUpperCase());
+        const value = Number(rawAmount);
+        if (!Number.isFinite(value)) continue;
+        const prev = Number(merged[normalizedKey] ?? 0);
+        merged[normalizedKey] = (Number.isFinite(prev) ? prev : 0) + value;
+      }
+
+      const toBalance = Number(merged[toKey] ?? 0);
+      if (!Number.isFinite(toBalance)) {
+        setExchangeError('This wallet does not have the target currency.');
+        return;
+      }
+
+      const newFromBalance = Number((fromBalance - amount).toFixed(2));
+      const newToBalance = Number((toBalance + converted).toFixed(2));
+
+      merged[fromKey] = newFromBalance;
+      merged[toKey] = newToBalance;
+
+      // overwrite currancies with normalized, merged balances
+      await set(walletRef, merged);
+
+      setExchangeModalVisible(false);
+    } catch (e) {
+      console.error('Exchange failed', e);
+      setExchangeError('Failed to perform exchange, please try again.');
+    }
+  }, [user, selectedWalletId, targetCurrency, targetRate, amountInput, baseCurrency, getBalance]);
+
   if (walletsLoading && wallets.length === 0) {
     return (
       <View style={styles.loadingContainer}>
@@ -258,6 +340,7 @@ const displayEntries = React.useMemo<[string, number][]>(() => {
               currencyName={currencyNames[normalizeCurrency(currency)]}
               baseCurrency={baseCurrency}
               balance={getBalance(currency)}
+              onPress={() => handleOpenExchange(currency, rate)}
             />
           ))}
 
@@ -273,6 +356,62 @@ const displayEntries = React.useMemo<[string, number][]>(() => {
 
         <View style={{ height: 32 }} />
       </ScrollView>
+
+      <Modal
+        visible={exchangeModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setExchangeModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.exchangeModal}>
+            <Text style={styles.exchangeTitle}>Exchange</Text>
+            {targetCurrency && (
+              <Text style={styles.exchangeSubtitle}>
+                {baseCurrency} → {targetCurrency}
+              </Text>
+            )}
+
+            <Text style={styles.exchangeLabel}>Amount in {baseCurrency}</Text>
+            <Text style={styles.exchangeAvailable}>
+              Available: {(getBalance(baseCurrency) ?? 0).toFixed(2)} {baseCurrency}
+            </Text>
+            <TextInput
+              style={styles.exchangeInput}
+              keyboardType="numeric"
+              value={amountInput}
+              onChangeText={(text) => {
+                setAmountInput(text);
+                setExchangeError(null);
+              }}
+              placeholder="0.00"
+            />
+            {targetRate != null && amountInput.trim() !== '' && (
+              <Text style={styles.exchangePreview}>
+                ≈ {(Number(amountInput.replace(',', '.')) * targetRate || 0).toFixed(2)}{' '}
+                {targetCurrency}
+              </Text>
+            )}
+
+            {exchangeError && <Text style={styles.exchangeError}>{exchangeError}</Text>}
+
+            <View style={styles.exchangeButtonsRow}>
+              <TouchableOpacity
+                style={[styles.exchangeButton, styles.exchangeCancelButton]}
+                onPress={() => setExchangeModalVisible(false)}
+              >
+                <Text style={styles.exchangeCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.exchangeButton, styles.exchangeConfirmButton]}
+                onPress={handleConfirmExchange}
+              >
+                <Text style={styles.exchangeConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -314,6 +453,81 @@ const styles = StyleSheet.create({
   noResultsText: {
     color: '#666',
     fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  exchangeModal: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  exchangeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  exchangeSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 16,
+  },
+  exchangeLabel: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  exchangeAvailable: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginBottom: 4,
+  },
+  exchangeInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  exchangePreview: {
+    fontSize: 14,
+    color: '#4b5563',
+    marginBottom: 8,
+  },
+  exchangeError: {
+    fontSize: 12,
+    color: '#dc2626',
+    marginBottom: 8,
+  },
+  exchangeButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 8,
+  },
+  exchangeButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+  exchangeCancelButton: {
+    backgroundColor: '#e5e7eb',
+  },
+  exchangeConfirmButton: {
+    backgroundColor: '#6366f1',
+  },
+  exchangeCancelText: {
+    color: '#111827',
+    fontWeight: '500',
+  },
+  exchangeConfirmText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
 
