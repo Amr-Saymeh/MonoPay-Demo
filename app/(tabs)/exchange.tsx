@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Modal,
 } from 'react-native';
 import CurrencyListItem from '../../components/exchange/CurrencyListItem';
 import Header from '../../components/exchange/Header';
@@ -29,54 +30,94 @@ type WalletCard = {
 };
 
 type CurrencyEntry = {
-  code: string;      // uppercase e.g. 'NIS'
-  balance: number;   // e.g. 500
+  code: string;
+  balance: number;
+};
+
+const normalizeCurrency = (code: string) => {
+  if (code === 'NIS') return 'ILS';
+  return code;
+};
+
+const denormalizeCurrency = (code: string) => {
+  if (code === 'ILS') return 'NIS';
+  return code;
 };
 
 const Exchange: React.FC = () => {
   const { user } = useAuth();
 
-  const [ratesData, setRatesData]           = useState<RatesData | null>(null);
-  const [currencyNames, setCurrencyNames]   = useState<{ [key: string]: string }>({});
-  const [loading, setLoading]               = useState(true);
-  const [baseCurrency, setBaseCurrency]     = useState('');
+  const [ratesData, setRatesData] = useState<RatesData | null>(null);
+  const [currencyNames, setCurrencyNames] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(true);
+  const [baseCurrency, setBaseCurrency] = useState('');
 
-  const [wallets, setWallets]               = useState<WalletCard[]>([]);
+  const [wallets, setWallets] = useState<WalletCard[]>([]);
   const [walletsLoading, setWalletsLoading] = useState(true);
 
   const [selectedWalletId, setSelectedWalletId] = useState<number | null>(null);
   const [walletCurrencies, setWalletCurrencies] = useState<CurrencyEntry[]>([]);
-  const [walletLoading, setWalletLoading]       = useState(false);
+  const [walletLoading, setWalletLoading] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [exchangeModalVisible, setExchangeModalVisible] = useState(false);
+  const [targetCurrency, setTargetCurrency] = useState<string | null>(null);
+  const [targetRate, setTargetRate] = useState<number | null>(null);
+  const [amountInput, setAmountInput] = useState('');
+  const [exchangeError, setExchangeError] = useState<string | null>(null);
 
-  // Ref so wallet-currency fetch doesn't depend on baseCurrency → avoids loop
+
   const baseCurrencyRef = useRef(baseCurrency);
   baseCurrencyRef.current = baseCurrency;
 
-  // ── 1. Fetch currency names (once) ─────────────────────────────────
   useEffect(() => {
     getCurrencies().then(setCurrencyNames);
   }, []);
 
-  // ── 2. Fetch exchange rates whenever baseCurrency changes ───────────
   const fetchRates = useCallback(async (currency: string) => {
+    if (!currency) return;
+
     setLoading(true);
-    const rates = await getLatestRates(currency);
-    setRatesData(rates);
+    const latest = await getLatestRates(normalizeCurrency(currency));
+    setRatesData(latest);
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchRates(baseCurrency);
+    if (baseCurrency) {
+      fetchRates(baseCurrency);
+    }
   }, [baseCurrency, fetchRates]);
 
   const handleRefresh = useCallback(() => {
-    fetchRates(baseCurrency);
-  }, [baseCurrency, fetchRates]);
+  // refresh exchange rates
+  fetchRates(baseCurrency);
 
-  // ── 3. Listen to user's wallets (onValue — realtime) ───────────────
-  // Same as WalletManagementScreen: users/{uid}/userwallet
+  // refresh wallet currencies / balances
+  if (selectedWalletId) {
+    const walletRef = ref(db, `wallets/wallet${selectedWalletId}/currancies`);
+
+    onValue(
+      walletRef,
+      (snap) => {
+        const data = snap.val();
+
+        if (data) {
+          const list = Object.entries(data).map(([code, balance]: any) => ({
+            code: code.trim().toUpperCase(),
+            balance: Number(balance) || 0,
+          }));
+
+          setWalletCurrencies(list);
+        }
+      },
+      { onlyOnce: true }
+    );
+  }
+
+  // refresh transactions if you have them
+  // fetchTransactions();  <-- if you created a transaction listener
+}, [baseCurrency, fetchRates, selectedWalletId]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -84,6 +125,7 @@ const Exchange: React.FC = () => {
       ref(db, `users/${user.uid}/userwallet`),
       (snap) => {
         const data = snap.val() || {};
+
         const list: WalletCard[] = Object.entries(data)
           .map(([key, wallet]: [string, any]) => ({
             userWalletKey: key,
@@ -98,7 +140,6 @@ const Exchange: React.FC = () => {
         setWallets(list);
         setWalletsLoading(false);
 
-        // Auto-select first wallet if none selected yet
         if (list.length > 0) {
           setSelectedWalletId((prev) => prev ?? list[0].walletid);
         }
@@ -112,9 +153,6 @@ const Exchange: React.FC = () => {
     return () => unsub();
   }, [user]);
 
-  // ── 4. Listen to selected wallet's currencies (onValue — realtime) ──
-  // Path: wallets/wallet{id}/currancies  e.g. wallets/wallet9/currancies
-  // Same pattern as WalletManagementScreen
   useEffect(() => {
     if (!selectedWalletId) {
       setWalletCurrencies([]);
@@ -132,15 +170,15 @@ const Exchange: React.FC = () => {
           const list: CurrencyEntry[] = Object.entries(data)
             .filter(([k, v]) => k && Number.isFinite(Number(v)))
             .map(([code, balance]: [string, any]) => ({
-              code: code.trim().toUpperCase(), // 'nis' → 'NIS'
+              code: denormalizeCurrency(code.trim().toUpperCase()),
               balance: Number(balance) || 0,
             }))
             .sort((a, b) => a.code.localeCompare(b.code));
 
           setWalletCurrencies(list);
 
-          // Switch baseCurrency if current one isn't in this wallet
           const codes = list.map((c) => c.code);
+
           if (codes.length > 0 && !codes.includes(baseCurrencyRef.current)) {
             setBaseCurrency(codes[0]);
           }
@@ -159,38 +197,108 @@ const Exchange: React.FC = () => {
     return () => unsub();
   }, [selectedWalletId]);
 
-  // ── Filtered display entries ────────────────────────────────────────
-  const displayEntries = React.useMemo(() => {
-    if (!ratesData?.rates) return [];
 
-    let entries = Object.entries(ratesData.rates) as [string, number][];
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
 
-    // Only show currencies that exist in the selected wallet
-    if (walletCurrencies.length > 0) {
-      const allowed = new Set(walletCurrencies.map((c) => c.code.toUpperCase()));
-      entries = entries.filter(([code]) => allowed.has(code.toUpperCase()));
-    }
+const displayEntries = React.useMemo<[string, number][]>(() => {
+  if (!ratesData?.rates) return [];
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      entries = entries.filter(([code]) => {
-        const name = currencyNames[code] || '';
-        return code.toLowerCase().includes(q) || name.toLowerCase().includes(q);
-      });
-    }
+  let entries = Object.entries(ratesData.rates) as [string, number][];
 
-    return entries;
-  }, [ratesData, currencyNames, searchQuery, walletCurrencies]);
+  // only show supported currencies from the API
+  entries = entries.filter(([code]) =>
+    SUPPORTED_CURRENCIES.includes(code)
+  );
 
-  // Helper: get balance for a given currency code
+  return entries.map(([code, rate]) => [
+    denormalizeCurrency(code),
+    rate,
+  ]);
+}, [ratesData, currencyNames]);
+
   const getBalance = useCallback(
     (code: string): number | undefined =>
-      walletCurrencies.find((c) => c.code === code.toUpperCase())?.balance,
+      walletCurrencies.find(
+        (c) =>
+          normalizeCurrency(c.code) === normalizeCurrency(code)
+      )?.balance,
     [walletCurrencies]
   );
 
-  // ── Initial loading screen ──────────────────────────────────────────
+  const handleOpenExchange = useCallback(
+    (currency: string, rate: number) => {
+      setTargetCurrency(currency);
+      setTargetRate(rate);
+      setAmountInput('');
+      setExchangeError(null);
+      setExchangeModalVisible(true);
+    },
+    []
+  );
+
+  const handleConfirmExchange = useCallback(async () => {
+    if (!user || !selectedWalletId || !targetCurrency || !targetRate) {
+      return;
+    }
+
+    const amount = Number(amountInput.replace(',', '.'));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setExchangeError('Enter a valid amount');
+      return;
+    }
+
+    const fromBalance = getBalance(baseCurrency) ?? 0;
+    if (amount > fromBalance) {
+      setExchangeError('Amount exceeds wallet balance');
+      return;
+    }
+
+    const converted = amount * targetRate;
+
+    // compute DB keys (NIS <-> ILS special case)
+    const fromKey = denormalizeCurrency(baseCurrency.trim().toUpperCase());
+    const toKey = denormalizeCurrency(targetCurrency.trim().toUpperCase());
+
+    try {
+      const walletRef = ref(db, `wallets/wallet${selectedWalletId}/currancies`);
+      // lazy-load helpers from firebase/database
+      const { get, set } = await import('firebase/database');
+
+      // Read current balances from DB to normalize any legacy keys
+      const snap = await get(walletRef);
+      const raw = (snap.val() ?? {}) as Record<string, number>;
+
+      const merged: Record<string, number> = {};
+      for (const [rawCode, rawAmount] of Object.entries(raw)) {
+        const normalizedKey = denormalizeCurrency(rawCode.trim().toUpperCase());
+        const value = Number(rawAmount);
+        if (!Number.isFinite(value)) continue;
+        const prev = Number(merged[normalizedKey] ?? 0);
+        merged[normalizedKey] = (Number.isFinite(prev) ? prev : 0) + value;
+      }
+
+      const toBalance = Number(merged[toKey] ?? 0);
+      if (!Number.isFinite(toBalance)) {
+        setExchangeError('This wallet does not have the target currency.');
+        return;
+      }
+
+      const newFromBalance = Number((fromBalance - amount).toFixed(2));
+      const newToBalance = Number((toBalance + converted).toFixed(2));
+
+      merged[fromKey] = newFromBalance;
+      merged[toKey] = newToBalance;
+
+      // overwrite currancies with normalized, merged balances
+      await set(walletRef, merged);
+
+      setExchangeModalVisible(false);
+    } catch (e) {
+      console.error('Exchange failed', e);
+      setExchangeError('Failed to perform exchange, please try again.');
+    }
+  }, [user, selectedWalletId, targetCurrency, targetRate, amountInput, baseCurrency, getBalance]);
+
   if (walletsLoading && wallets.length === 0) {
     return (
       <View style={styles.loadingContainer}>
@@ -198,11 +306,6 @@ const Exchange: React.FC = () => {
       </View>
     );
   }
-  
-  console.log('selectedWalletId:', selectedWalletId);
-console.log('walletCurrencies:', walletCurrencies);
-console.log('displayEntries:', displayEntries);
-console.log('ratesData keys sample:', Object.keys(ratesData?.rates || {}).slice(0, 5));
 
   return (
     <View style={styles.container}>
@@ -216,34 +319,11 @@ console.log('ratesData keys sample:', Object.keys(ratesData?.rates || {}).slice(
         walletCurrencies={walletCurrencies.map((c) => c.code)}
         onCurrencyChange={setBaseCurrency}
       />
-
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchRow}>
-          <TextInput
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search currencies..."
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity
-              onPress={() => setSearchQuery('')}
-              style={styles.clearButton}
-            >
-              <Text style={styles.clearText}>×</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* List */}
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
         }
       >
-        {/* Wallet currencies loading */}
         {walletLoading && (
           <View style={styles.inlineLoader}>
             <ActivityIndicator size="small" color="#6366f1" />
@@ -251,20 +331,19 @@ console.log('ratesData keys sample:', Object.keys(ratesData?.rates || {}).slice(
           </View>
         )}
 
-        {/* Currency rows — each shows rate + wallet balance */}
         {!walletLoading &&
           displayEntries.map(([currency, rate]) => (
             <CurrencyListItem
               key={currency}
               currency={currency}
               rate={rate}
-              currencyName={currencyNames[currency]}
+              currencyName={currencyNames[normalizeCurrency(currency)]}
               baseCurrency={baseCurrency}
               balance={getBalance(currency)}
+              onPress={() => handleOpenExchange(currency, rate)}
             />
           ))}
 
-        {/* Empty states */}
         {!walletLoading && displayEntries.length === 0 && (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
@@ -277,6 +356,62 @@ console.log('ratesData keys sample:', Object.keys(ratesData?.rates || {}).slice(
 
         <View style={{ height: 32 }} />
       </ScrollView>
+
+      <Modal
+        visible={exchangeModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setExchangeModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.exchangeModal}>
+            <Text style={styles.exchangeTitle}>Exchange</Text>
+            {targetCurrency && (
+              <Text style={styles.exchangeSubtitle}>
+                {baseCurrency} → {targetCurrency}
+              </Text>
+            )}
+
+            <Text style={styles.exchangeLabel}>Amount in {baseCurrency}</Text>
+            <Text style={styles.exchangeAvailable}>
+              Available: {(getBalance(baseCurrency) ?? 0).toFixed(2)} {baseCurrency}
+            </Text>
+            <TextInput
+              style={styles.exchangeInput}
+              keyboardType="numeric"
+              value={amountInput}
+              onChangeText={(text) => {
+                setAmountInput(text);
+                setExchangeError(null);
+              }}
+              placeholder="0.00"
+            />
+            {targetRate != null && amountInput.trim() !== '' && (
+              <Text style={styles.exchangePreview}>
+                ≈ {(Number(amountInput.replace(',', '.')) * targetRate || 0).toFixed(2)}{' '}
+                {targetCurrency}
+              </Text>
+            )}
+
+            {exchangeError && <Text style={styles.exchangeError}>{exchangeError}</Text>}
+
+            <View style={styles.exchangeButtonsRow}>
+              <TouchableOpacity
+                style={[styles.exchangeButton, styles.exchangeCancelButton]}
+                onPress={() => setExchangeModalVisible(false)}
+              >
+                <Text style={styles.exchangeCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.exchangeButton, styles.exchangeConfirmButton]}
+                onPress={handleConfirmExchange}
+              >
+                <Text style={styles.exchangeConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -291,23 +426,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    borderColor: 'rgb(243, 244, 246)',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    backgroundColor: 'rgb(243, 244, 246)',
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   clearButton: {
     marginLeft: 8,
@@ -336,8 +454,81 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 16,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  exchangeModal: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  exchangeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  exchangeSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 16,
+  },
+  exchangeLabel: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  exchangeAvailable: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginBottom: 4,
+  },
+  exchangeInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  exchangePreview: {
+    fontSize: 14,
+    color: '#4b5563',
+    marginBottom: 8,
+  },
+  exchangeError: {
+    fontSize: 12,
+    color: '#dc2626',
+    marginBottom: 8,
+  },
+  exchangeButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 8,
+  },
+  exchangeButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+  exchangeCancelButton: {
+    backgroundColor: '#e5e7eb',
+  },
+  exchangeConfirmButton: {
+    backgroundColor: '#6366f1',
+  },
+  exchangeCancelText: {
+    color: '#111827',
+    fontWeight: '500',
+  },
+  exchangeConfirmText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
 });
-
-
 
 export default Exchange;
