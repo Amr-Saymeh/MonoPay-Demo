@@ -1,5 +1,3 @@
-import React, { useEffect } from "react";
-import "../global.css";
 import {
   DarkTheme,
   DefaultTheme,
@@ -7,7 +5,9 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import React, { useEffect } from "react";
 import "react-native-reanimated";
+import "../global.css";
 
 import {
   Tajawal_200ExtraLight,
@@ -52,23 +52,33 @@ function RootLayoutInner() {
     if (!fontsLoaded) return;
 
     const RNText = Text as any;
-    RNText.defaultProps = RNText.defaultProps || {};
-    RNText.defaultProps.style = RNText.defaultProps.style || {};
-    RNText.defaultProps.style.fontFamily = "Tajawal_400Regular";
-
     const RNTextInput = TextInput as any;
+
+    RNText.defaultProps = RNText.defaultProps || {};
     RNTextInput.defaultProps = RNTextInput.defaultProps || {};
-    RNTextInput.defaultProps.style = RNTextInput.defaultProps.style || {};
-    RNTextInput.defaultProps.style.fontFamily = "Tajawal_400Regular";
+
+    RNText.defaultProps.style = [
+      { fontFamily: "Tajawal_400Regular" },
+      RNText.defaultProps.style,
+    ];
+
+    RNTextInput.defaultProps.style = [
+      { fontFamily: "Tajawal_400Regular" },
+      RNTextInput.defaultProps.style,
+    ];
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return (
       <SafeAreaProvider>
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          <ActivityIndicator />
+          <ActivityIndicator size="large" />
           <StatusBar style="auto" />
         </View>
       </SafeAreaProvider>
@@ -77,7 +87,6 @@ function RootLayoutInner() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      
       <View style={{ flex: 1 }}>
         <Stack
           screenOptions={{
@@ -95,7 +104,6 @@ function RootLayoutInner() {
           />
         </Stack>
 
-        
         <StatusBar style="auto" />
       </View>
     </ThemeProvider>
