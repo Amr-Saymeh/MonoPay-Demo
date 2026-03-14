@@ -77,7 +77,11 @@ const Header: React.FC<HeaderProps> = ({
         >
           <View style={styles.selectorInner}>
             <Text style={styles.selectorLabel}>Wallet</Text>
-            <Text style={styles.selectorValue}>
+            <Text
+              style={styles.selectorValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {selectedWallet?.emoji} {selectedWallet?.name || 'Select'}
             </Text>
             <FontAwesome name="chevron-down" size={12} color="black" />
