@@ -117,6 +117,32 @@ type TranslationKey =
   | "approveUserTitle"
   | "rejectUserTitle"
   | "cancel"
+  | "transfer"
+  | "makeTransaction"
+  | "sendMoney"
+  | "receiveMoney"
+  | "amount"
+  | "recipient"
+  | "selectRecipient"
+  | "payer"
+  | "selectPayer"
+  | "category"
+  | "selectCategory"
+  | "noteOptional"
+  | "notePlaceholder"
+  | "sendBtn"
+  | "requestBtn"
+  | "mainWalletNote"
+  | "requestNote"
+  | "insufficientFunds"
+  | "walletInactive"
+  | "senderIsReceiver"
+  | "recipientWalletNotFound"
+  | "userNotFound"
+  | "invalidTransferAmount"
+  | "successSend"
+  | "successRequest"
+  | "fillRequired"
   // ──────────────────────────────────────────────
   // الكلمات الجديدة اللي أضفتها من الكومبوننتات اللي بعثتها
   | "advertisement"
@@ -141,7 +167,7 @@ type TranslationKey =
   | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
   | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
   | "changePercent";        // نص إضافي لعرض التغير الشهري في TotalBalance
-  ;
+;
 
 export const translations: Record<
   SupportedLanguage,
@@ -264,31 +290,56 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
-
+    transfer: "Transfer",
+    makeTransaction: "Make a Transaction",
+    sendMoney: "Send",
+    receiveMoney: "Request",
+    amount: "Amount",
+    recipient: "Recipient",
+    selectRecipient: "Who are you sending to?",
+    payer: "Payer",
+    selectPayer: "Who should pay you?",
+    category: "Category",
+    selectCategory: "Select category",
+    noteOptional: "Note (Optional)",
+    notePlaceholder: "Add a note...",
+    sendBtn: "Send",
+    requestBtn: "Request",
+    mainWalletNote: "Funds will be sent to recipient's main wallet",
+    requestNote: "Payer will receive a request to approve",
+    insufficientFunds: "Insufficient funds in your wallet.",
+    walletInactive: "Your wallet is inactive.",
+    senderIsReceiver: "You cannot send money to yourself.",
+    recipientWalletNotFound: "Recipient has no active wallet.",
+    userNotFound: "User not found.",
+    invalidTransferAmount: "Please enter a valid amount.",
+    successSend: "Money sent successfully! 🎉",
+    successRequest: "Request sent! The payer will be notified. ⏳",
+    fillRequired: "Please fill all required fields.",
     // ──────────────────────────────────────────────
     // الكلمات الجديدة المضافة
-    advertisement:          "Advertisement",
-    goodEvening:            "Good Evening",
-    welcomeBack:            "Welcome back,",
-    quickActions:           "Quick Actions",
-    savingGoals:            "Saving Goals",
-    insights:               "Insights",
-    cards:                  "Cards",
-    more:                   "More",
-    totalBalance:           "Total Balance",
-    income:                 "Income",
-    expenses:               "Expenses",
-    features:               "Features",
-    myCards:                "My Cards",
-    myCardsSubtitle:        "Manage credit & debit cards",
-    exchangeRates:          "Exchange Rates",
-    exchangeRatesSubtitle:  "View real-time currency exchange rates",
-    spendingInsights:       "Spending Insights",
+    advertisement: "Advertisement",
+    goodEvening: "Good Evening",
+    welcomeBack: "Welcome back,",
+    quickActions: "Quick Actions",
+    savingGoals: "Saving Goals",
+    insights: "Insights",
+    cards: "Cards",
+    more: "More",
+    totalBalance: "Total Balance",
+    income: "Income",
+    expenses: "Expenses",
+    features: "Features",
+    myCards: "My Cards",
+    myCardsSubtitle: "Manage credit & debit cards",
+    exchangeRates: "Exchange Rates",
+    exchangeRatesSubtitle: "View real-time currency exchange rates",
+    spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
-    transactions:           "Transactions",
-    settingsSubtitle:       "Manage your account preferences",  // ← أضيف هنا
-    changeLanguage:         "Change Language",
-    changePercent:          " from last month"
+    transactions: "Transactions",
+    settingsSubtitle: "Manage your account preferences",  // ← أضيف هنا
+    changeLanguage: "Change Language",
+    changePercent: " from last month"
 
   },
   ar: {
@@ -408,31 +459,56 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
-
+    transfer: "تحويل",
+    makeTransaction: "إجراء معاملة",
+    sendMoney: "إرسال",
+    receiveMoney: "طلب",
+    amount: "المبلغ",
+    recipient: "المستلم",
+    selectRecipient: "لمن تريد الإرسال؟",
+    payer: "الدافع",
+    selectPayer: "من سيدفع لك؟",
+    category: "الفئة",
+    selectCategory: "اختر الفئة",
+    noteOptional: "ملاحظة (اختياري)",
+    notePlaceholder: "أضف ملاحظة...",
+    sendBtn: "إرسال",
+    requestBtn: "طلب",
+    mainWalletNote: "سيتم الإرسال للمحفظة الرئيسية للمستلم",
+    requestNote: "سيصل الطلب للدافع للموافقة عليه",
+    insufficientFunds: "الرصيد غير كافٍ في محفظتك.",
+    walletInactive: "محفظتك غير نشطة.",
+    senderIsReceiver: "لا يمكنك إرسال المال لنفسك.",
+    recipientWalletNotFound: "المستلم ليس لديه محفظة نشطة.",
+    userNotFound: "المستخدم غير موجود.",
+    invalidTransferAmount: "الرجاء إدخال مبلغ صحيح.",
+    successSend: "تم الإرسال بنجاح! 🎉",
+    successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع. ⏳",
+    fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
     // ──────────────────────────────────────────────
     // الكلمات الجديدة المضافة
-    advertisement:          "إعلان",
-    goodEvening:            "مساء الخير",
-    welcomeBack:            "مرحباً بعودتك،",
-    quickActions:           "الإجراءات السريعة",
-    savingGoals:            "أهداف التوفير",
-    insights:               "الرؤى",
-    cards:                  "البطاقات",
-    more:                   "المزيد",
-    totalBalance:           "الرصيد الكلي",
-    income:                 "الدخل",
-    expenses:               "المصروفات",
-    features:               "الميزات",
-    myCards:                "بطاقاتي",
-    myCardsSubtitle:        "إدارة بطاقات الائتمان والخصم",
-    exchangeRates:          "أسعار الصرف",
-    exchangeRatesSubtitle:  "عرض أسعار صرف العملات في الوقت الفعلي",
-    spendingInsights:       "رؤى الإنفاق",
+    advertisement: "إعلان",
+    goodEvening: "مساء الخير",
+    welcomeBack: "مرحباً بعودتك،",
+    quickActions: "الإجراءات السريعة",
+    savingGoals: "أهداف التوفير",
+    insights: "الرؤى",
+    cards: "البطاقات",
+    more: "المزيد",
+    totalBalance: "الرصيد الكلي",
+    income: "الدخل",
+    expenses: "المصروفات",
+    features: "الميزات",
+    myCards: "بطاقاتي",
+    myCardsSubtitle: "إدارة بطاقات الائتمان والخصم",
+    exchangeRates: "أسعار الصرف",
+    exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
+    spendingInsights: "رؤى الإنفاق",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
-    transactions:           "المعاملات",
-    settingsSubtitle:       "إدارة تفضيلات حسابك",           // ← أضيف هنا
-    changeLanguage:         "تغيير اللغة",
-       changePercent: " من الشهر الماضي",
+    transactions: "المعاملات",
+    settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    changeLanguage: "تغيير اللغة",
+    changePercent: " من الشهر الماضي",
   },
 };
 

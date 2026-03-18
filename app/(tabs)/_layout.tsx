@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import '../global.css';
+
 import { onValue, ref } from "firebase/database";
 
 import { HapticTab } from "@/components/haptic-tab";
@@ -90,6 +90,16 @@ export default function TabLayout() {
             <IconSymbol size={28} name="person.crop.circle" color={color} />
           ),
           tabBarBadge: pendingUsersCount > 0 ? pendingUsersCount : undefined,
+        }}
+      />
+
+      <Tabs.Screen
+        name="transfer"
+        options={{
+          title: t("transfer"),
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="arrow.left.arrow.right" color={color} />
+          ),
         }}
       />
 

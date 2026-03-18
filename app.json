@@ -15,10 +15,7 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": [
-        "CAMERA",
-        "CAMERA"
-      ],
+      "permissions": ["CAMERA"],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -26,8 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.MonoPay"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
@@ -48,7 +44,13 @@
         }
       ],
       "expo-localization",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow MonoPay to access your contacts to find friends on the app."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
