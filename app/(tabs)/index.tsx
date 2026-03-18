@@ -10,9 +10,9 @@ import {
   View,
 } from "react-native";
 import { db } from "../../src/firebaseConfig";
-import { router, useRouter } from 'expo-router';
 
 import { Fonts } from "@/constants/theme";
+import { router } from "expo-router";
 
 type Message = {
   id: string;
@@ -72,8 +72,6 @@ export default function HomeScreen() {
       />
 
       <Button title="Send" onPress={sendMessage} />
-      <Button title="HomePage" onPress={() => router.push("/(tabs)/HomePage")} />
-
     </View>
   );
 }
