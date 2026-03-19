@@ -168,7 +168,10 @@ type TranslationKey =
   | "successRequest"
   | "selectWalletFirst"
   | "fillRequired"
-  | "transfer";
+  | "transfer"
+  | "customization"
+  | "Youmustselect3features"
+  | "Youcanonlyselect3features";
 
 export const translations: Record<
   SupportedLanguage,
@@ -344,7 +347,10 @@ export const translations: Record<
     selectWalletFirst: "Please select your wallet first.",
     fillRequired: "Please fill all required fields.",
     transfer: "Transfer",
-
+    customization: "Customization",
+    Youmustselect3features: "You must select 3 features",
+    Youcanonlyselect3features: "You can only select 3 features",
+      
   },
   ar: {
     appName: "MonoPay",
@@ -516,6 +522,10 @@ export const translations: Record<
     selectWalletFirst: "الرجاء اختيار محفظتك أولاً.",
     fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
     transfer: "التحويل",
+    customization: "التخصيص",
+    Youmustselect3features: "يجب اختيار 3 عناصر فقط",
+    Youcanonlyselect3features: "يجب اختيار 3 عناصر فقط",
+
   },
 };
 

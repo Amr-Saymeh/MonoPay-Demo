@@ -3,36 +3,44 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useI18n } from "@/hooks/use-i18n";
+import { menuItems } from '../FeturesPage/icons';
+import { useFeatures } from '@/src/providers/FeaturesProvider';
 
-const actions = [
-  { id: '1', key: 'savingGoals', iconName: 'wallet-outline' as const, color: '#4CAF50' },
-  { id: '2', key: 'insights',    iconName: 'bar-chart-outline' as const, color: '#9C27B0' },
-  { id: '3', key: 'cards',       iconName: 'card-outline' as const, color: '#FF5722' },
-  { id: '4', key: 'more',        iconName: 'ellipsis-horizontal' as const, color: '#00BCD4' },
-] as const;
-
-const moreActions = () => router.push("/FeturesPage");
+const customization = () => router.push("/CustomaztionFeture");
 
 export default function QuickActions() {
   const { t } = useI18n();
+  const { activeFeatures } = useFeatures();
+ const handleNavigate = (item: any) => {
+  if (item.route) {
+    router.push(item.route);
+  }
+};
 
   return (
     <>
       <Text style={styles.title}>{t("quickActions")}</Text>
 
+      <TouchableOpacity onPress={customization}>
+        <Text style={styles.customization}>{t("customization")}</Text>
+      </TouchableOpacity>
+
       <View style={styles.container}>
-        {actions.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.actionItem}
-            onPress={item.id === '4' ? moreActions : undefined}
-          >
-            <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
-              <Ionicons name={item.iconName} size={40} color="white" />
-            </View>
-            <Text style={styles.label}>{t(item.key)}</Text>
-          </TouchableOpacity>
-        ))}
+        {menuItems
+          .filter((item: any) => activeFeatures.includes(item.id) || item.id === '7')
+          .map((item: any) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.actionItem}
+              onPress={() => handleNavigate(item)}
+              
+            >
+              <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
+                <Ionicons name={item.iconName} size={40} color="white" />
+              </View>
+              <Text style={styles.label}>{t(item.titleKey)}</Text>
+            </TouchableOpacity>
+          ))}
       </View>
     </>
   );
@@ -44,20 +52,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 20,
     paddingHorizontal: 10,
-    
+    flexWrap: 'wrap',
   },
-    title: {    
+  title: {
     fontSize: 18,
     fontWeight: '600',
-    color: 'black',
+    color: '#566CB2',
     textAlign: 'left',
     marginBottom: 5,
     marginTop: -15,
-    marginLeft: 25,    
-  },    
+    marginLeft: 25,
+    
+  },
   actionItem: {
     alignItems: 'center',
     width: 90,
+    marginBottom: 10,
   },
   iconCircle: {
     width: 80,
@@ -71,14 +81,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
-    backgroundAttachment: 'fixed', 
-    
-    
+   
   },
   label: {
     fontSize: 13,
     color: '#333',
     textAlign: 'center',
     fontWeight: '500',
+  },
+  customization: {
+    fontSize: 13,
+    textDecorationLine: 'underline',
+    color: '#566CB2',
+    marginBottom: 5,
+    marginTop: -24,
+    textAlign: 'right',
+    fontWeight: '500',
+    marginRight: 20,
   },
 });
