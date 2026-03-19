@@ -3,57 +3,17 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useI18n } from "@/hooks/use-i18n";
+import { menuItems } from './icons';
 
-const menuItems = [
-  {
-    id: '1',
-    titleKey: 'myCards',
-    subtitleKey: 'myCardsSubtitle',
-    iconName: 'card-outline' as const,
-    color: '#FF5722',
-  },
-  {
-    id: '2',
-    titleKey: 'exchangeRates',
-    subtitleKey: 'exchangeRatesSubtitle',
-    iconName: 'trending-up-outline' as const,
-    color: '#2196F3',
-  },
-  {
-    id: '3',
-    titleKey: 'spendingInsights',
-    subtitleKey: 'spendingInsightsSubtitle',
-    iconName: 'bar-chart-outline' as const,
-    color: '#9C27B0',
-  },
-  {
-    id: '4',
-    titleKey: 'savingGoals',
-    subtitleKey: undefined,
-    iconName: 'wallet-outline' as const,
-    color: '#4CAF50',
-  },
-  {
-    id: '5',
-    titleKey: 'transactions',
-    subtitleKey: undefined,
-    iconName: 'receipt-outline' as const,
-    color: '#00BCD4',
-  },
-  {
-    id: '6',
-    titleKey: 'settings',
-    subtitleKey: 'settingsSubtitle',
-    iconName: 'settings-outline' as const,
-    color: '#607D8B',
-  },
-] as const;
-
-const arrowBack = () => router.push("/HomePage");
+const arrowBack = () => router.back();
 
 export default function MenuList() {
   const { t } = useI18n();
-
+const handleNavigate = (item: any) => {
+  if (item.route) {
+    router.push(item.route);
+  }
+};
   return (
     <View style={styles.screenContainer}>
       <Text style={styles.headerTitle}>{t("features")}</Text>
@@ -68,29 +28,33 @@ export default function MenuList() {
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.item,
-              index === menuItems.length - 1 && styles.lastItem,
-            ]}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
-              <Ionicons name={item.iconName} size={26} color="white" />
-            </View>
 
-            <View style={styles.textContainer}>
-              <Text style={styles.itemTitle}>{t(item.titleKey)}</Text>
-              {item.subtitleKey && (
-                <Text style={styles.itemSubtitle}>{t(item.subtitleKey)}</Text>
-              )}
-            </View>
+        {
+          menuItems.filter((item: any) => item.id !== '7').map((item: any, index: any) => (      
+                  <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.item,
+                index === menuItems.length - 1 && styles.lastItem,
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleNavigate(item)}
+            >
+              <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
+                <Ionicons name={item.iconName} size={26} color="white" />
+                
+              </View>
 
-            <Ionicons name="chevron-forward" size={22} color="#C0C0C0" />
-          </TouchableOpacity>
-        ))}
+              <View style={styles.textContainer}>
+                <Text style={styles.itemTitle}>{t(item.titleKey)}</Text>
+                {item.subtitleKey && (
+                  <Text style={styles.itemSubtitle}>{t(item.subtitleKey)}</Text>
+                )}
+              </View>
+
+              <Ionicons name="chevron-forward" size={22} color="#C0C0C0" />
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );
@@ -101,23 +65,23 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: '#F8F9FA',
-    paddingTop: 100,
+    paddingTop: 60,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111',
+    marginLeft: 40,
+    marginBottom: 40,
+    textAlign: 'left',
+    paddingHorizontal: 20,
+    paddingVertical: 2,
   },
   backButton: {
     position: 'absolute',
-    top: 110,
+    top: 65,
     left: 20,
-    zIndex: 1,
-  },
-
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#111',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    marginLeft: 30,
-    marginTop: 10,
+    zIndex: 10,
   },
 
   scrollContainer: {
