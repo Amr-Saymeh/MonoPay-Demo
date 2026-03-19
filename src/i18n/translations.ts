@@ -117,11 +117,40 @@ type TranslationKey =
   | "approveUserTitle"
   | "rejectUserTitle"
   | "cancel"
-  | "transfer"
+  // ──────────────────────────────────────────────
+  // الكلمات الجديدة اللي أضفتها من الكومبوننتات اللي بعثتها
+  | "advertisement"
+  | "goodEvening"
+  | "welcomeBack"
+  | "quickActions"
+  | "savingGoals"
+  | "insights"
+  | "cards"
+  | "more"
+  | "totalBalance"
+  | "income"
+  | "expenses"
+  | "features"
+  | "myCards"
+  | "myCardsSubtitle"
+  | "exchangeRates"
+  | "exchangeRatesSubtitle"
+  | "spendingInsights"
+  | "spendingInsightsSubtitle"
+  | "transactions"
+  | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
+  | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
+  | "changePercent"         // نص إضافي لعرض التغير الشهري في TotalBalance
   | "makeTransaction"
   | "sendMoney"
   | "receiveMoney"
   | "amount"
+  | "myWallet"
+  | "selectMyWallet"
+  | "recipientWallet"
+  | "selectRecipientWallet"
+  | "myReceivingWallet"
+  | "selectReceivingWallet"
   | "recipient"
   | "selectRecipient"
   | "payer"
@@ -130,19 +159,16 @@ type TranslationKey =
   | "selectCategory"
   | "noteOptional"
   | "notePlaceholder"
-  | "sendBtn"
-  | "requestBtn"
-  | "mainWalletNote"
-  | "requestNote"
+  | "send"
+  | "request"
   | "insufficientFunds"
   | "walletInactive"
   | "senderIsReceiver"
-  | "mainWalletNotFound"
-  | "userNotFound"
-  | "invalidAmount"
   | "successSend"
   | "successRequest"
-  | "fillRequired";
+  | "selectWalletFirst"
+  | "fillRequired"
+  | "transfer";
 
 export const translations: Record<
   SupportedLanguage,
@@ -265,32 +291,60 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
-    transfer: "Transfer",
+
+    // ──────────────────────────────────────────────
+    // الكلمات الجديدة المضافة
+    advertisement: "Advertisement",
+    goodEvening: "Good Evening",
+    welcomeBack: "Welcome back,",
+    quickActions: "Quick Actions",
+    savingGoals: "Saving Goals",
+    insights: "Insights",
+    cards: "Cards",
+    more: "More",
+    totalBalance: "Total Balance",
+    income: "Income",
+    expenses: "Expenses",
+    features: "Features",
+    myCards: "My Cards",
+    myCardsSubtitle: "Manage credit & debit cards",
+    exchangeRates: "Exchange Rates",
+    exchangeRatesSubtitle: "View real-time currency exchange rates",
+    spendingInsights: "Spending Insights",
+    spendingInsightsSubtitle: "Track your spending by category",
+    transactions: "Transactions",
+    settingsSubtitle: "Manage your account preferences",  // ← أضيف هنا
+    changeLanguage: "Change Language",
+    changePercent: " from last month",
     makeTransaction: "Make a Transaction",
-    sendMoney: "Send",
-    receiveMoney: "Request",
+    sendMoney: "Send Money",
+    receiveMoney: "Receive Money",
     amount: "Amount",
+    myWallet: "My Wallet",
+    selectMyWallet: "Select your wallet",
+    recipientWallet: "Recipient's Wallet",
+    selectRecipientWallet: "Select recipient's wallet",
+    myReceivingWallet: "My Receiving Wallet",
+    selectReceivingWallet: "Select wallet to receive",
     recipient: "Recipient",
-    selectRecipient: "Who are you sending to?",
+    selectRecipient: "Select recipient",
     payer: "Payer",
     selectPayer: "Who should pay you?",
     category: "Category",
     selectCategory: "Select category",
     noteOptional: "Note (Optional)",
     notePlaceholder: "Add a note...",
-    sendBtn: "Send",
-    requestBtn: "Request",
-    mainWalletNote: "Funds will be sent to recipient's main wallet",
-    requestNote: "Payer will receive a request to approve",
-    insufficientFunds: "Insufficient funds in your wallet.",
-    walletInactive: "Your wallet is inactive.",
+    send: "Send",
+    request: "Request",
+    insufficientFunds: "Insufficient funds in the selected wallet.",
+    walletInactive: "Selected wallet is inactive.",
     senderIsReceiver: "You cannot send money to yourself.",
-    mainWalletNotFound: "Recipient has no active wallet.",
-    userNotFound: "User not found.",
-    invalidAmount: "Please enter a valid amount.",
     successSend: "Money sent successfully! 🎉",
-    successRequest: "Request sent! The payer will be notified. ⏳",
+    successRequest: "Money request sent! ⏳",
+    selectWalletFirst: "Please select your wallet first.",
     fillRequired: "Please fill all required fields.",
+    transfer: "Transfer",
+
   },
   ar: {
     appName: "MonoPay",
@@ -409,32 +463,59 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
-    transfer: "تحويل",
+
+    // ──────────────────────────────────────────────
+    // الكلمات الجديدة المضافة
+    advertisement: "إعلان",
+    goodEvening: "مساء الخير",
+    welcomeBack: "مرحباً بعودتك،",
+    quickActions: "الإجراءات السريعة",
+    savingGoals: "أهداف التوفير",
+    insights: "الرؤى",
+    cards: "البطاقات",
+    more: "المزيد",
+    totalBalance: "الرصيد الكلي",
+    income: "الدخل",
+    expenses: "المصروفات",
+    features: "الميزات",
+    myCards: "بطاقاتي",
+    myCardsSubtitle: "إدارة بطاقات الائتمان والخصم",
+    exchangeRates: "أسعار الصرف",
+    exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
+    spendingInsights: "رؤى الإنفاق",
+    spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
+    transactions: "المعاملات",
+    settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    changeLanguage: "تغيير اللغة",
+    changePercent: " من الشهر الماضي",
     makeTransaction: "إجراء معاملة",
     sendMoney: "إرسال",
     receiveMoney: "طلب",
     amount: "المبلغ",
+    myWallet: "محفظتي",
+    selectMyWallet: "اختر محفظتك",
+    recipientWallet: "محفظة المستلم",
+    selectRecipientWallet: "اختر محفظة المستلم",
+    myReceivingWallet: "محفظة الاستقبال",
+    selectReceivingWallet: "اختر محفظة للاستقبال",
     recipient: "المستلم",
-    selectRecipient: "لمن تريد الإرسال؟",
+    selectRecipient: "اختر المستلم",
     payer: "الدافع",
-    selectPayer: "من سيدفع لك؟",
+    selectPayer: "من سيدفع؟",
     category: "الفئة",
     selectCategory: "اختر الفئة",
     noteOptional: "ملاحظة (اختياري)",
     notePlaceholder: "أضف ملاحظة...",
-    sendBtn: "إرسال",
-    requestBtn: "طلب",
-    mainWalletNote: "سيتم الإرسال للمحفظة الرئيسية للمستلم",
-    requestNote: "سيصل الطلب للدافع للموافقة عليه",
-    insufficientFunds: "الرصيد غير كافٍ في محفظتك.",
-    walletInactive: "محفظتك غير نشطة.",
+    send: "إرسال",
+    request: "طلب",
+    insufficientFunds: "الرصيد غير كافٍ في المحفظة المختارة.",
+    walletInactive: "المحفظة المختارة غير نشطة.",
     senderIsReceiver: "لا يمكنك إرسال المال لنفسك.",
-    mainWalletNotFound: "المستلم ليس لديه محفظة نشطة.",
-    userNotFound: "المستخدم غير موجود.",
-    invalidAmount: "الرجاء إدخال مبلغ صحيح.",
-    successSend: "تم الإرسال بنجاح! 🎉",
-    successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع. ⏳",
+    successSend: "تم إرسال المال بنجاح! 🎉",
+    successRequest: "تم إرسال طلب الأموال! ⏳",
+    selectWalletFirst: "الرجاء اختيار محفظتك أولاً.",
     fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
+    transfer: "التحويل",
   },
 };
 
