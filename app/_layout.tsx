@@ -30,6 +30,7 @@ import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
+import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
 
 export const unstable_settings = {
   anchor: "index",
@@ -88,12 +89,15 @@ function RootLayoutInner() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1 }}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
-            headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
-          }}
+       <Stack
+  screenOptions={{
+    headerShown: false,
+    gestureEnabled: true,
+    fullScreenGestureEnabled: true,
+    animation: "slide_from_right",
+    headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
+    headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
+  }}
         >
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
@@ -117,7 +121,9 @@ export default function RootLayout() {
         <LanguageProvider>
           <AuthProvider>
             <SignupFlowProvider>
-              <RootLayoutInner />
+              <FeaturesProvider>
+                <RootLayoutInner />
+              </FeaturesProvider>
             </SignupFlowProvider>
           </AuthProvider>
         </LanguageProvider>
