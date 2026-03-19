@@ -11,11 +11,11 @@ import {
   View,
   Modal,
 } from 'react-native';
-import CurrencyListItem from '../../components/exchange/CurrencyListItem';
-import Header from '../../components/exchange/Header';
-import { getCurrencies, getLatestRates } from '../../servisec/exchageServices/Currency';
-import { db } from '../../src/firebaseConfig';
-import { useAuth } from '../../src/providers/AuthProvider';
+import CurrencyListItem from '../components/exchange/CurrencyListItem';
+import Header from '../components/exchange/Header';
+import { getCurrencies, getLatestRates } from '../servisec/exchageServices/Currency';
+import { db } from '../src/firebaseConfig';
+import { useAuth } from '../src/providers/AuthProvider';
 
 interface RatesData {
   rates: { [key: string]: number };
