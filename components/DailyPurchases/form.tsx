@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { useI18n } from "@/hooks/use-i18n";
 import { ref, push, set } from "firebase/database";
 import { db } from '@/src/firebaseConfig';
 
+const CATEGORIES: { label: string; icon: string }[] = [
+  { label: 'Food & Drinks', icon: '🍔' },
+  { label: 'Groceries',     icon: '🛒' },
+  { label: 'Transport',     icon: '🚗' },
+  { label: 'Health',        icon: '💊' },
+  { label: 'Shopping',      icon: '🛍️' },
+  { label: 'Entertainment', icon: '🎮' },
+  { label: 'Bills',         icon: '📄' },
+  { label: 'Education',     icon: '📚' },
+  { label: 'Personal Care', icon: '✨' },
+];
+
 type FormValues = {
   name: string;
   cost: string;
   currency: 'NIS' | 'USD' | 'JOD';
+  category: string;
 };
 
 export default function DailyPurchasesForm() {
@@ -26,6 +39,7 @@ export default function DailyPurchasesForm() {
       name: '',
       cost: '',
       currency: 'NIS',
+      category: 'Shopping',
     },
   });
 
@@ -33,16 +47,12 @@ export default function DailyPurchasesForm() {
 
   const getPlaceholder = () => {
     switch (selectedCurrency) {
-      case 'USD':
-        return '$0.00';
-      case 'JOD':
-        return 'JD 0.00';
-      default:
-        return '₪ 0.00';
+      case 'USD': return '$0.00';
+      case 'JOD': return 'JD 0.00';
+      default:    return '₪ 0.00';
     }
   };
 
-  // دالة إضافة المشتراة إلى Firebase
   const onSubmit = async (data: FormValues) => {
     if (!data.name.trim() || !data.cost) {
       Alert.alert('Error', 'Please fill all fields');
@@ -55,28 +65,24 @@ export default function DailyPurchasesForm() {
       const now = new Date();
 
       const purchaseData = {
-        title: data.name.trim(),
-        amount: parseFloat(data.cost),
-        currency: data.currency,
-        time: now.toLocaleTimeString('en-US', {
+        title:     data.name.trim(),
+        amount:    parseFloat(data.cost),
+        currency:  data.currency,
+        category:  data.category,
+        time:      now.toLocaleTimeString('en-US', {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true,
         }),
-        createdAt: now.toISOString(),           // وقت كامل ISO
-        category: "Other",                      // يمكنك تغييره لاحقاً
-        isBundle: false,
+        createdAt: now.toISOString(),
+        isBundle:  false,
       };
 
-      // إضافة إلى Realtime Database باستخدام push() → يولد ID تلقائي
-      const purchasesRef = ref(db, 'purchases');
+      const purchasesRef   = ref(db, 'purchases');
       const newPurchaseRef = push(purchasesRef);
-
       await set(newPurchaseRef, purchaseData);
 
       Alert.alert('Success', 'Purchase added successfully!');
-
-      // إعادة تعيين الفورم بعد الإضافة الناجحة
       reset();
 
     } catch (error: any) {
@@ -114,7 +120,6 @@ export default function DailyPurchasesForm() {
 
       {/* COST + CURRENCY */}
       <View style={styles.row}>
-        {/* COST */}
         <Controller
           control={control}
           name="cost"
@@ -149,15 +154,9 @@ export default function DailyPurchasesForm() {
                 <TouchableOpacity
                   key={cur}
                   onPress={() => onChange(cur)}
-                  style={[
-                    styles.radioButton,
-                    value === cur && styles.radioButtonSelected,
-                  ]}
+                  style={[styles.radioButton, value === cur && styles.radioButtonSelected]}
                 >
-                  <Text style={[
-                    styles.radioText,
-                    value === cur && styles.radioTextSelected,
-                  ]}>
+                  <Text style={[styles.radioText, value === cur && styles.radioTextSelected]}>
                     {cur}
                   </Text>
                 </TouchableOpacity>
@@ -166,6 +165,36 @@ export default function DailyPurchasesForm() {
           )}
         />
       </View>
+
+      {/* CATEGORY SELECTOR */}
+      <Text style={styles.categoryTitle}>Category</Text>
+      <Controller
+        control={control}
+        name="category"
+        render={({ field: { onChange, value } }) => (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryScroll}
+          >
+            {CATEGORIES.map((cat) => {
+              const selected = value === cat.label;
+              return (
+                <TouchableOpacity
+                  key={cat.label}
+                  onPress={() => onChange(cat.label)}
+                  style={[styles.categoryChip, selected && styles.categoryChipSelected]}
+                >
+                  <Text style={styles.categoryChipIcon}>{cat.icon}</Text>
+                  <Text style={[styles.categoryChipText, selected && styles.categoryChipTextSelected]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+      />
 
       {/* ADD BUTTON */}
       <TouchableOpacity
@@ -238,6 +267,46 @@ const styles = StyleSheet.create({
   radioTextSelected: {
     color: '#fff',
   },
+
+  // Category
+  categoryTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1c1c1e',
+    marginBottom: 10,
+  },
+  categoryScroll: {
+    paddingBottom: 12,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 30,
+    backgroundColor: '#E1E2E7',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    marginRight: 8,
+  },
+  categoryChipSelected: {
+    backgroundColor: '#EDE7FF',
+    borderColor: '#7C4DFF',
+  },
+  categoryChipIcon: {
+    fontSize: 15,
+  },
+  categoryChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#555',
+  },
+  categoryChipTextSelected: {
+    color: '#7C4DFF',
+  },
+
+  // Button
   addButton: {
     backgroundColor: '#4F00D0',
     paddingVertical: 15,
