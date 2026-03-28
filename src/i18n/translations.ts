@@ -147,6 +147,7 @@ type TranslationKey =
   | "selectMyWallet"
   | "recipientWallet"
   | "selectRecipientWallet"
+
   | "myReceivingWallet"
   | "selectReceivingWallet"
   | "recipient"
@@ -190,7 +191,8 @@ type TranslationKey =
   | "addNewPurchase"
   | "fillAllFields"
   | "success"
-  | "totalExpenses";
+  | "totalExpenses"
+  | "deletePurchase";
 
 export const translations: Record<
   SupportedLanguage,
@@ -387,6 +389,7 @@ export const translations: Record<
     fillAllFields: "Please fill all fields",
     success: "Success",
     totalExpenses: "Spent Today",
+    deletePurchase: "Delete Purchase",
    
   },
   ar: {
@@ -580,7 +583,7 @@ export const translations: Record<
     fillAllFields: "الرجاء ملء جميع الحقول",
     success: "تم بنجاح",
     totalExpenses: "إجمالي المصروفات",
-  
+    deletePurchase: "حذف المصروف",
   },
 };
 
