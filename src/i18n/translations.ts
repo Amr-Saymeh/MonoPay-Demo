@@ -192,7 +192,10 @@ type TranslationKey =
   | "fillAllFields"
   | "success"
   | "totalExpenses"
-  | "deletePurchase";
+  | "deletePurchase"
+  | "updatedEveryHour"
+  | "errorFetchingRates"
+  | "enterAmountInAnyCurrency";
 
 export const translations: Record<
   SupportedLanguage,
@@ -390,7 +393,9 @@ export const translations: Record<
     success: "Success",
     totalExpenses: "Spent Today",
     deletePurchase: "Delete Purchase",
-   
+    updatedEveryHour: "Updated every hour",
+    errorFetchingRates: "Error fetching rates",
+    enterAmountInAnyCurrency: "Enter amount in any currency",
   },
   ar: {
     appName: "MonoPay",
@@ -543,6 +548,7 @@ export const translations: Record<
     selectReceivingWallet: "اختر محفظة للاستقبال",
     recipient: "المستلم",
     selectRecipient: "اختر المستلم",
+    
     payer: "الدافع",
     selectPayer: "من سيدفع؟",
     category: "الفئة",
@@ -584,6 +590,10 @@ export const translations: Record<
     success: "تم بنجاح",
     totalExpenses: "إجمالي المصروفات",
     deletePurchase: "حذف المصروف",
+    updatedEveryHour: "يتم التحديث كل ساعة",
+    errorFetchingRates: "خطأ في جلب الأسعار",
+    enterAmountInAnyCurrency: "أدخل المبلغ بأي عملة",
+    
   },
 };
 
