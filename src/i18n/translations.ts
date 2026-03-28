@@ -171,7 +171,8 @@ type TranslationKey =
   | "transfer"
   | "customization"
   | "Youmustselect3features"
-  | "Youcanonlyselect3features";
+  | "Youcanonlyselect3features"
+  | "dailyPurchases";
 
 export const translations: Record<
   SupportedLanguage,
@@ -330,6 +331,7 @@ export const translations: Record<
     myReceivingWallet: "My Receiving Wallet",
     selectReceivingWallet: "Select wallet to receive",
     recipient: "Recipient",
+    dailyPurchases: "New Purchase",
     selectRecipient: "Select recipient",
     payer: "Payer",
     selectPayer: "Who should pay you?",
@@ -491,6 +493,7 @@ export const translations: Record<
     spendingInsights: "رؤى الإنفاق",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
     transactions: "المعاملات",
+    dailyPurchases: "المشتريات اليومية",
     settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
     changeLanguage: "تغيير اللغة",
     changePercent: " من الشهر الماضي",
