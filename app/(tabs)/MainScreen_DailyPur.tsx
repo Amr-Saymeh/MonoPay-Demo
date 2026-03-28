@@ -16,14 +16,7 @@ export default function MainScreen_DailyPur() {
       
       <DailyPurchasesForm />
 <PurchaseCard
-item={{
-  id: "1",
-  title: "Groceries",
-  amount: 120,
-  time: "11:45 AM",
-  category: "Groceries",
-  isBundle: true
-}}/>
+/>
       <Card
       currency="NIS"
       spentAmount={45.00}
