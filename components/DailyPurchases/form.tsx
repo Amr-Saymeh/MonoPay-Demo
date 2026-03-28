@@ -9,7 +9,8 @@ import {
   ScrollView, 
   ActivityIndicator, 
   I18nManager,
-  Keyboard
+  Keyboard,
+  Animated,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { useI18n } from "@/hooks/use-i18n";
@@ -35,10 +36,35 @@ type FormValues = {
   category: string;
 };
 
+// ── Toast Component ──────────────────────────────────────────
+function Toast({ visible, message }: { visible: boolean; message: string }) {
+  const opacity = useMemo(() => new Animated.Value(0), []);
+
+  useEffect(() => {
+    if (visible) {
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.delay(900),
+        Animated.timing(opacity, { toValue: 0, duration: 350, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <Animated.View style={[styles.toast, { opacity }]}>
+      <Text style={styles.toastIcon}>✅</Text>
+      <Text style={styles.toastText}>{message}</Text>
+    </Animated.View>
+  );
+}
+
+// ── Main Component ───────────────────────────────────────────
 export default function DailyPurchasesForm() {
   const { t, locale } = useI18n() as any; 
   const isRtl = locale === 'ar' || I18nManager.isRTL;
-  
+  const [visable, setVisable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [allPastPurchases, setAllPastPurchases] = useState<string[]>([]);
 
@@ -54,7 +80,6 @@ export default function DailyPurchasesForm() {
   const nameInput = watch('name');
   const selectedCurrency = watch('currency');
 
-  // جلب البيانات مع التأكد من نوع البيانات لتجنب خطأ toLowerCase
   useEffect(() => {
     const unsubscribe = onValue(ref(db, 'purchases'), (snapshot) => {
       if (snapshot.exists()) {
@@ -68,7 +93,6 @@ export default function DailyPurchasesForm() {
     return () => unsubscribe();
   }, []);
 
-  // تصفية المقترحات للشريط الأفقي
   const filteredSuggestions = useMemo(() => {
     if (!nameInput || typeof nameInput !== 'string' || nameInput.trim() === '') return [];
     return allPastPurchases.filter(n => 
@@ -93,9 +117,16 @@ export default function DailyPurchasesForm() {
         createdAt: now.toISOString(),
         isBundle: false,
       });
-      Alert.alert(t('success' as any), t('purchaseAdded' as any));
+
+      // ✅ إظهار Toast يروح لحاله بعد ثانية بدون ما حد يكبس شي
+      setVisable(true);
+      setTimeout(() => setVisable(false), 1500);
+
       reset();
+      Keyboard.dismiss();
+
     } catch (e) {
+      console.error(e);
       Alert.alert(t('error' as any), t('uploadFailed' as any));
     } finally {
       setLoading(false);
@@ -104,9 +135,13 @@ export default function DailyPurchasesForm() {
 
   return (
     <View style={styles.container}>
+
+      {/* ── Toast ── */}
+      <Toast visible={visable} message={t('purchaseAdded' as any)} />
+
       <Text style={[styles.label, isRtl && { textAlign: 'right' }]}>{t('addNewPurchase' as any)}</Text>
 
-      {/* حقل الاسم مع إضافة شريط المقترحات الجديد */}
+      {/* حقل الاسم */}
       <View style={styles.inputWrapper}>
         <Controller
           control={control}
@@ -120,7 +155,6 @@ export default function DailyPurchasesForm() {
                 onChangeText={onChange}
                 style={[styles.input, isRtl && { textAlign: 'right' }]}
               />
-              {/* شريط المقترحات الأفقي الجديد */}
               {filteredSuggestions.length > 0 && (
                 <View style={styles.quickSuggestionsContainer}>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="always">
@@ -145,7 +179,7 @@ export default function DailyPurchasesForm() {
         {errors.name && <Text style={[styles.error, isRtl && { textAlign: 'right' }]}>{errors.name.message}</Text>}
       </View>
 
-      {/* حقل السعر والعملة كما كان سابقاً */}
+      {/* حقل السعر والعملة */}
       <View style={[styles.row, isRtl && { flexDirection: 'row-reverse' }]}>
         <Controller
           control={control}
@@ -183,7 +217,7 @@ export default function DailyPurchasesForm() {
         />
       </View>
 
-      {/* التصنيفات كما كانت سابقاً */}
+      {/* التصنيفات */}
       <Text style={[styles.categoryTitle, isRtl && { textAlign: 'right' }]}>{t('category' as any)}</Text>
       <Controller
         control={control}
@@ -218,11 +252,33 @@ export default function DailyPurchasesForm() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
+  container:   { padding: 20 },
   inputWrapper: { marginBottom: 15 },
-  label: { fontSize: 18, fontWeight: '700', color: '#000', marginBottom: 15 },
-  input: { padding: 14, borderRadius: 15, backgroundColor: '#E1E2E7', borderWidth: 1, borderColor: '#E0E0E0', fontSize: 16 },
-  // ستايلات شريط المقترحات الجديد
+  label:       { fontSize: 18, fontWeight: '700', color: '#000', marginBottom: 15 },
+  input:       { padding: 14, borderRadius: 15, backgroundColor: '#E1E2E7', borderWidth: 1, borderColor: '#E0E0E0', fontSize: 16 },
+
+  // ── Toast ──
+  toast: {
+    position: 'absolute',
+    top: -10,
+    alignSelf: 'center',
+    zIndex: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#1e1e2e',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  toastIcon: { fontSize: 16 },
+  toastText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+
+  // ── Suggestions ──
   quickSuggestionsContainer: { marginTop: 8, height: 40 },
   suggestionChip: { 
     backgroundColor: '#4F00D0', 
@@ -230,24 +286,30 @@ const styles = StyleSheet.create({
     borderRadius: 20, 
     justifyContent: 'center', 
     marginRight: 8,
-    height: 34
+    height: 34,
   },
   suggestionChipText: { color: '#fff', fontWeight: '600', fontSize: 13 },
-  row: { flexDirection: 'row', gap: 10, marginBottom: 15 },
-  error: { color: 'red', fontSize: 12, marginTop: 4 },
-  radioGroup: { flex: 1.5, flexDirection: 'row', gap: 6 },
-  radioButton: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: '#E1E2E7', alignItems: 'center', justifyContent: 'center' },
-  radioButtonSelected: { backgroundColor: '#4F00D0' },
-  radioText: { fontSize: 13, fontWeight: '600', color: '#555' },
-  radioTextSelected: { color: '#fff' },
-  categoryTitle: { fontSize: 15, fontWeight: '600', color: '#1c1c1e', marginBottom: 10 },
-  categoryScroll: { paddingBottom: 12 },
-  categoryChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 30, backgroundColor: '#E1E2E7', marginRight: 8 },
-  categoryChipSelected: { backgroundColor: '#EDE7FF', borderColor: '#7C4DFF', borderWidth: 1.5 },
-  categoryChipIcon: { fontSize: 15 },
-  categoryChipText: { fontSize: 13, fontWeight: '600', color: '#555' },
+
+  // ── Row / Currency ──
+  row:                  { flexDirection: 'row', gap: 10, marginBottom: 15 },
+  error:                { color: 'red', fontSize: 12, marginTop: 4 },
+  radioGroup:           { flex: 1.5, flexDirection: 'row', gap: 6 },
+  radioButton:          { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: '#E1E2E7', alignItems: 'center', justifyContent: 'center' },
+  radioButtonSelected:  { backgroundColor: '#4F00D0' },
+  radioText:            { fontSize: 13, fontWeight: '600', color: '#555' },
+  radioTextSelected:    { color: '#fff' },
+
+  // ── Categories ──
+  categoryTitle:            { fontSize: 15, fontWeight: '600', color: '#1c1c1e', marginBottom: 10 },
+  categoryScroll:           { paddingBottom: 12 },
+  categoryChip:             { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 30, backgroundColor: '#E1E2E7', marginRight: 8 },
+  categoryChipSelected:     { backgroundColor: '#EDE7FF', borderColor: '#7C4DFF', borderWidth: 1.5 },
+  categoryChipIcon:         { fontSize: 15 },
+  categoryChipText:         { fontSize: 13, fontWeight: '600', color: '#555' },
   categoryChipTextSelected: { color: '#7C4DFF' },
-  addButton: { backgroundColor: '#4F00D0', paddingVertical: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
+
+  // ── Button ──
+  addButton:         { backgroundColor: '#4F00D0', paddingVertical: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
   addButtonDisabled: { backgroundColor: '#a38eff' },
-  addButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  addButtonText:     { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

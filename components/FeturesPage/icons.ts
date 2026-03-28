@@ -24,7 +24,7 @@ export const menuItems = [
     iconName: 'bar-chart-outline',
     color: '#9C27B0',
     state: false,
-    route: "/SpendingInsights"
+    route: "/MainScreen_DailyPur"
   },
   {
     id: '4',
