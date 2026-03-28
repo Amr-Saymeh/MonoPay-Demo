@@ -1,26 +1,34 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, FlatList,
-  ActivityIndicator, Alert, Animated, PanResponder, Dimensions,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  PanResponder,
+  I18nManager,
 } from 'react-native';
 import { ref, onValue, remove } from 'firebase/database';
 import { db } from '@/src/firebaseConfig';
+import { useI18n } from "@/hooks/use-i18n";
 
 const DELETE_BTN_WIDTH = 80;
-const SWIPE_THRESHOLD  = -60;
+const SWIPE_THRESHOLD = 60; // القيمة مطلقة للتعامل مع الاتجاهين
 
-// ── أيقونة ولون حسب الـ category ────────────────────────────
 const CATEGORY_META: Record<string, { icon: string; bg: string }> = {
-  'Food & Drinks':  { icon: '🍔', bg: '#FFF0EB' },
-  'Groceries':      { icon: '🛒', bg: '#E8FFF5' },
-  'Transport':      { icon: '🚗', bg: '#E8F4FF' },
-  'Health':         { icon: '💊', bg: '#FFE8F4' },
-  'Shopping':       { icon: '🛍️', bg: '#F3EEFF' },
-  'Entertainment':  { icon: '🎮', bg: '#FFF3E0' },
-  'Bills':          { icon: '📄', bg: '#ECEFF1' },
-  'Education':      { icon: '📚', bg: '#E0F2F1' },
-  'Personal Care':  { icon: '✨', bg: '#F3E5F5' },
+  'foodDrinks': { icon: '🍔', bg: '#FFF0EB' },
+  'groceries': { icon: '🛒', bg: '#E8FFF5' },
+  'transport': { icon: '🚗', bg: '#E8F4FF' },
+  'health': { icon: '💊', bg: '#FFE8F4' },
+  'shopping': { icon: '🛍️', bg: '#F3EEFF' },
+  'entertainment': { icon: '🎮', bg: '#FFF3E0' },
+  'bills': { icon: '📄', bg: '#ECEFF1' },
+  'education': { icon: '📚', bg: '#E0F2F1' },
+  'personalCare': { icon: '✨', bg: '#F3E5F5' },
 };
+
 const DEFAULT_META = { icon: '📦', bg: '#F2F2F7' };
 
 const CURRENCY_SYMBOL: Record<string, string> = {
@@ -29,7 +37,6 @@ const CURRENCY_SYMBOL: Record<string, string> = {
   JOD: 'JD',
 };
 
-// ── Type ─────────────────────────────────────────────────────
 type PurchaseItem = {
   id: string;
   title: string;
@@ -41,7 +48,7 @@ type PurchaseItem = {
   createdAt: string;
 };
 
-// ── كارد واحدة — swipe to delete ────────────────────────────
+// ====================== PurchaseCard ======================
 function PurchaseCard({
   item,
   onPress,
@@ -51,39 +58,38 @@ function PurchaseCard({
   onPress?: (item: PurchaseItem) => void;
   onDelete: (item: PurchaseItem) => void;
 }) {
-  const meta            = item.category ? (CATEGORY_META[item.category] ?? DEFAULT_META) : DEFAULT_META;
-  const symbol          = item.currency ? (CURRENCY_SYMBOL[item.currency] ?? '$') : '$';
+  const { t } = useI18n();
+  const isRtl = I18nManager.isRTL;
+  
+  // اختيار الأيقونة واللون بناءً على مفتاح التصنيف
+  const meta = item.category ? (CATEGORY_META[item.category] ?? DEFAULT_META) : DEFAULT_META;
+  const symbol = item.currency ? (CURRENCY_SYMBOL[item.currency] ?? '$') : '$';
   const formattedAmount = `${symbol}${item.amount.toFixed(2)}`;
-  const subtitle        = item.category ? `${item.category} • ${item.time}` : item.time;
+  
+  // ترجمة اسم التصنيف إذا وجد
+  const categoryName = item.category ? t(item.category as any) : '';
+  const subtitle = categoryName ? `${categoryName} • ${item.time}` : item.time;
 
   const translateX = useRef(new Animated.Value(0)).current;
-  const isOpen     = useRef(false);
+  const isOpen = useRef(false);
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) =>
-        Math.abs(g.dx) > 8 && Math.abs(g.dy) < 20,
-
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dy) < 20,
       onPanResponderMove: (_, g) => {
-        if (g.dx < 0) {
-          translateX.setValue(Math.max(g.dx, -DELETE_BTN_WIDTH));
-        }
+        // في العربي نسحب لليمين، في الإنجليزي نسحب لليسار
+        const dragAmount = isRtl ? Math.max(0, Math.min(g.dx, DELETE_BTN_WIDTH)) : Math.min(0, Math.max(g.dx, -DELETE_BTN_WIDTH));
+        translateX.setValue(dragAmount);
       },
-
       onPanResponderRelease: (_, g) => {
-        if (g.dx < SWIPE_THRESHOLD) {
-          Animated.spring(translateX, {
-            toValue: -DELETE_BTN_WIDTH,
-            useNativeDriver: true,
-          }).start();
-          isOpen.current = true;
-        } else {
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-          isOpen.current = false;
-        }
+        const shouldOpen = isRtl ? g.dx > SWIPE_THRESHOLD : g.dx < -SWIPE_THRESHOLD;
+        const toValue = shouldOpen ? (isRtl ? DELETE_BTN_WIDTH : -DELETE_BTN_WIDTH) : 0;
+        
+        Animated.spring(translateX, {
+          toValue,
+          useNativeDriver: true,
+        }).start();
+        isOpen.current = shouldOpen;
       },
     })
   ).current;
@@ -95,9 +101,8 @@ function PurchaseCard({
 
   return (
     <View style={styles.cardWrapper}>
-
-      {/* زر Delete خلف الكارد */}
-      <View style={styles.deleteBackground}>
+      {/* خلفية الحذف - تتغير مكانها حسب الاتجاه */}
+      <View style={[styles.deleteBackground, isRtl ? { left: 0 } : { right: 0 }]}>
         <TouchableOpacity
           style={styles.deleteAction}
           onPress={() => {
@@ -105,62 +110,62 @@ function PurchaseCard({
             onDelete(item);
           }}
         >
-          <Text style={styles.deleteActionText}>Delete</Text>
+          <Text style={styles.deleteActionText}>{t('delete').toUpperCase()}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* الكارد قابلة للسحب */}
-      <Animated.View style={{ transform: [{ translateX }] }} {...panResponder.panHandlers}>
+      <Animated.View
+        style={{ transform: [{ translateX }] }}
+        {...panResponder.panHandlers}
+      >
         <TouchableOpacity
-          style={styles.cardContainer}
+          style={[styles.card, isRtl && { flexDirection: 'row-reverse' }]}
           onPress={() => {
-            if (isOpen.current) { closeSwipe(); return; }
+            if (isOpen.current) {
+              closeSwipe();
+              return;
+            }
             onPress?.(item);
           }}
           activeOpacity={0.92}
         >
-          <View style={styles.card}>
+          <View style={[styles.iconContainer, { backgroundColor: meta.bg }, isRtl ? { marginLeft: 16 } : { marginRight: 16 }]}>
+            <Text style={styles.icon}>{meta.icon}</Text>
+          </View>
 
-            <View style={[styles.iconContainer, { backgroundColor: meta.bg }]}>
-              <Text style={styles.icon}>{meta.icon}</Text>
+          <View style={[styles.content, isRtl && { alignItems: 'flex-end' }]}>
+            <View style={[styles.titleRow, isRtl && { flexDirection: 'row-reverse' }]}>
+              <Text style={[styles.title, isRtl && { textAlign: 'right' }]}>{item.title}</Text>
+              {item.isBundle && (
+                <View style={styles.bundleBadge}>
+                  <Text style={styles.bundleText}>BUNDLE</Text>
+                </View>
+              )}
             </View>
+            <Text style={[styles.subtitle, isRtl && { textAlign: 'right' }]}>{subtitle}</Text>
+          </View>
 
-            <View style={styles.content}>
-              <View style={styles.titleRow}>
-                <Text style={styles.title}>{item.title}</Text>
-                {item.isBundle && (
-                  <View style={styles.bundleBadge}>
-                    <Text style={styles.bundleText}>BUNDLE</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.subtitle}>{subtitle}</Text>
-            </View>
-
-            <View style={styles.amountContainer}>
-              <Text style={styles.amount}>{formattedAmount}</Text>
-            </View>
-
+          <View style={styles.amountContainer}>
+            <Text style={styles.amount}>{formattedAmount}</Text>
           </View>
         </TouchableOpacity>
       </Animated.View>
-
     </View>
   );
 }
 
-// ── القائمة الكاملة ───────────────────────────────────────────
+// ====================== TodayPurchasesList ======================
 export default function TodayPurchasesList({
   onPressItem,
 }: {
   onPressItem?: (item: PurchaseItem) => void;
 }) {
+  const { t } = useI18n();
   const [purchases, setPurchases] = useState<PurchaseItem[]>([]);
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const purchasesRef = ref(db, 'purchases');
-
     const unsubscribe = onValue(purchasesRef, (snapshot) => {
       if (!snapshot.exists()) {
         setPurchases([]);
@@ -172,15 +177,15 @@ export default function TodayPurchasesList({
       const items: PurchaseItem[] = [];
 
       snapshot.forEach((child) => {
-        const val      = child.val();
+        const val = child.val();
         const itemDate = val.createdAt?.split('T')[0];
         if (itemDate === today) {
           items.push({ id: child.key!, ...val });
         }
       });
 
-      items.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      items.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
       setPurchases(items);
@@ -190,13 +195,25 @@ export default function TodayPurchasesList({
     return () => unsubscribe();
   }, []);
 
-  // حذف فعلي من Firebase — بدون Alert
   const handleDelete = async (item: PurchaseItem) => {
-    try {
-      await remove(ref(db, `purchases/${item.id}`));
-    } catch {
-      Alert.alert('Error', 'Could not delete. Try again.');
-    }
+    Alert.alert(
+      t('deleteWalletConfirmTitle'), // استخدام ترجمة عنوان الحذف
+      `${t('deleteWalletConfirmMessage')} "${item.title}"?`,
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await remove(ref(db, `purchases/${item.id}`));
+            } catch (error) {
+              Alert.alert(t('error'), t('uploadFailed'));
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (loading) {
@@ -210,49 +227,42 @@ export default function TodayPurchasesList({
   if (purchases.length === 0) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.emptyText}>No purchases today yet 🛒</Text>
+        <Text style={styles.emptyText}>{t('noPendingUsers')} 🛒</Text> 
       </View>
     );
   }
 
   return (
-    <FlatList
-      data={purchases}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
+    <View style={{ paddingBottom: 30 }}>
+      {purchases.map((item) => (
         <PurchaseCard
+          key={item.id}
           item={item}
           onPress={onPressItem}
           onDelete={handleDelete}
         />
-      )}
-      contentContainerStyle={{ paddingBottom: 20 }}
-      showsVerticalScrollIndicator={false}
-      scrollEnabled={false}
-    />
+      ))}
+    </View>
   );
 }
 
-// ── Styles ────────────────────────────────────────────────────
+// ====================== Styles ======================
 const styles = StyleSheet.create({
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 30,
+    paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#8e8e93',
   },
-
-  // Swipe wrapper
   cardWrapper: {
     marginHorizontal: 16,
     marginVertical: 6,
   },
   deleteBackground: {
     position: 'absolute',
-    right: 0,
     top: 0,
     bottom: 0,
     width: DELETE_BTN_WIDTH,
@@ -273,11 +283,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-
-  // الكارد
-  cardContainer: {
-    // margin بالـ wrapper فوق
-  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,7 +301,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
   },
   icon: {
     fontSize: 28,
@@ -325,7 +329,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 10.5,
     fontWeight: '700',
-    letterSpacing: 0.6,
   },
   subtitle: {
     fontSize: 13.8,
@@ -334,7 +337,7 @@ const styles = StyleSheet.create({
   },
   amountContainer: {
     alignItems: 'flex-end',
-    justifyContent: 'center',
+    minWidth: 80,
   },
   amount: {
     fontSize: 19,
