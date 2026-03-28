@@ -197,7 +197,7 @@ export default function TodayPurchasesList({
 
   const handleDelete = async (item: PurchaseItem) => {
     Alert.alert(
-      t('deleteWalletConfirmTitle'), // استخدام ترجمة عنوان الحذف
+      t('deletePurchase'), // استخدام ترجمة عنوان الحذف
       `${t('deleteWalletConfirmMessage')} "${item.title}"?`,
       [
         { text: t('cancel'), style: 'cancel' },
