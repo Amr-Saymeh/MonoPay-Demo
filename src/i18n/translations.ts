@@ -117,8 +117,6 @@ type TranslationKey =
   | "approveUserTitle"
   | "rejectUserTitle"
   | "cancel"
-  // ──────────────────────────────────────────────
-  // الكلمات الجديدة اللي أضفتها من الكومبوننتات اللي بعثتها
   | "advertisement"
   | "goodEvening"
   | "welcomeBack"
@@ -138,9 +136,9 @@ type TranslationKey =
   | "spendingInsights"
   | "spendingInsightsSubtitle"
   | "transactions"
-  | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
-  | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
-  | "changePercent"         // نص إضافي لعرض التغير الشهري في TotalBalance
+  | "settingsSubtitle"
+  | "changeLanguage"
+  | "changePercent"
   | "makeTransaction"
   | "sendMoney"
   | "receiveMoney"
@@ -172,7 +170,27 @@ type TranslationKey =
   | "customization"
   | "Youmustselect3features"
   | "Youcanonlyselect3features"
-  | "dailyPurchases";
+  | "dailyPurchases"
+  | "ofDailyBudget"
+  | "editDailyBudget"
+  | "dailyBudget"
+  | "setDailyLimit"
+  | "addPurchase"
+  | "fieldRequired"
+  | "purchaseAdded"
+  | "foodDrinks"
+  | "groceries"
+  | "transport"
+  | "health"
+  | "shopping"
+  | "entertainment"
+  | "bills"
+  | "education"
+  | "personalCare"
+  | "addNewPurchase"
+  | "fillAllFields"
+  | "success"
+  | "totalExpenses";
 
 export const translations: Record<
   SupportedLanguage,
@@ -295,9 +313,6 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
-
-    // ──────────────────────────────────────────────
-    // الكلمات الجديدة المضافة
     advertisement: "Advertisement",
     goodEvening: "Good Evening",
     welcomeBack: "Welcome back,",
@@ -317,7 +332,7 @@ export const translations: Record<
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
     transactions: "Transactions",
-    settingsSubtitle: "Manage your account preferences",  // ← أضيف هنا
+    settingsSubtitle: "Manage your account preferences",
     changeLanguage: "Change Language",
     changePercent: " from last month",
     makeTransaction: "Make a Transaction",
@@ -331,7 +346,6 @@ export const translations: Record<
     myReceivingWallet: "My Receiving Wallet",
     selectReceivingWallet: "Select wallet to receive",
     recipient: "Recipient",
-    dailyPurchases: "New Purchase",
     selectRecipient: "Select recipient",
     payer: "Payer",
     selectPayer: "Who should pay you?",
@@ -352,7 +366,28 @@ export const translations: Record<
     customization: "Customization",
     Youmustselect3features: "You must select 3 features",
     Youcanonlyselect3features: "You can only select 3 features",
-      
+    dailyPurchases: "Daily Purchases",
+    ofDailyBudget: "OF DAILY BUDGET",
+    editDailyBudget: "Edit Daily Budget",
+    dailyBudget: "Daily Budget",
+    setDailyLimit: "Set your daily spending limit",
+    addPurchase: "Add Purchase",
+    fieldRequired: "This field is required",
+    purchaseAdded: "Purchase added successfully!",
+    foodDrinks: "Food & Drinks",
+    groceries: "Groceries",
+    transport: "Transport",
+    health: "Health",
+    shopping: "Shopping",
+    entertainment: "Entertainment",
+    bills: "Bills",
+    education: "Education",
+    personalCare: "Personal Care",
+    addNewPurchase: "Add New Purchase",
+    fillAllFields: "Please fill all fields",
+    success: "Success",
+    totalExpenses: "Spent Today",
+   
   },
   ar: {
     appName: "MonoPay",
@@ -471,9 +506,6 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
-
-    // ──────────────────────────────────────────────
-    // الكلمات الجديدة المضافة
     advertisement: "إعلان",
     goodEvening: "مساء الخير",
     welcomeBack: "مرحباً بعودتك،",
@@ -493,8 +525,7 @@ export const translations: Record<
     spendingInsights: "رؤى الإنفاق",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
     transactions: "المعاملات",
-    dailyPurchases: "المشتريات اليومية",
-    settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    settingsSubtitle: "إدارة تفضيلات حسابك",
     changeLanguage: "تغيير اللغة",
     changePercent: " من الشهر الماضي",
     makeTransaction: "إجراء معاملة",
@@ -528,7 +559,28 @@ export const translations: Record<
     customization: "التخصيص",
     Youmustselect3features: "يجب اختيار 3 عناصر فقط",
     Youcanonlyselect3features: "يجب اختيار 3 عناصر فقط",
-
+    dailyPurchases: "المشتريات اليومية",
+    ofDailyBudget: "من الميزانية اليومية",
+    editDailyBudget: "تعديل الميزانية اليومية",
+    dailyBudget: "الميزانية اليومية",
+    setDailyLimit: "حدد حد الإنفاق اليومي",
+    addPurchase: "إضافة عملية شراء",
+    fieldRequired: "هذا الحقل مطلوب",
+    purchaseAdded: "تمت إضافة عملية الشراء بنجاح!",
+    foodDrinks: "طعام ومشروبات",
+    groceries: "بقالة",
+    transport: "مواصلات",
+    health: "صحة",
+    shopping: "تسوق",
+    entertainment: "ترفيه",
+    bills: "فواتير",
+    education: "تعليم",
+    personalCare: "عناية شخصية",
+    addNewPurchase: "إضافة مصروف جديد",
+    fillAllFields: "الرجاء ملء جميع الحقول",
+    success: "تم بنجاح",
+    totalExpenses: "إجمالي المصروفات",
+  
   },
 };
 
