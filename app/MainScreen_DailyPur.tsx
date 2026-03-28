@@ -1,4 +1,4 @@
-import DailyTotalCard from '../../components/DailyPurchases/DailyTotalCard';
+import DailyTotalCard from '../components/DailyPurchases/DailyTotalCard';
 
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
