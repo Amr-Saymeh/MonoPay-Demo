@@ -142,7 +142,23 @@ type TranslationKey =
   | "invalidAmount"
   | "successSend"
   | "successRequest"
-  | "fillRequired";
+  | "fillRequired"
+  | "sharedWallet"
+  | "manageSharedWallet"
+  | "walletGoal"
+  | "walletGoalPlaceholder"
+  | "walletBalances"
+  | "noBalance"
+  | "history"
+  | "noHistory"
+  | "onlyOwnerCanEdit"
+  | "changesSaved"
+  | "addMoney"
+  | "spendMoney"
+  | "currency"
+  | "reasonPlaceholder"
+  | "saving"
+  | "confirm";
 
 export const translations: Record<
   SupportedLanguage,
@@ -291,6 +307,22 @@ export const translations: Record<
     successSend: "Money sent successfully! 🎉",
     successRequest: "Request sent! The payer will be notified. ⏳",
     fillRequired: "Please fill all required fields.",
+    sharedWallet: "Shared wallet",
+    manageSharedWallet: "Manage shared wallet",
+    walletGoal: "Wallet goal",
+    walletGoalPlaceholder: "What are you saving for?",
+    walletBalances: "Balances",
+    noBalance: "No balance yet.",
+    history: "History",
+    noHistory: "No activity yet.",
+    onlyOwnerCanEdit: "Only the owner can edit this wallet.",
+    changesSaved: "Changes saved.",
+    addMoney: "Add money",
+    spendMoney: "Spend money",
+    currency: "Currency",
+    reasonPlaceholder: "Why?",
+    saving: "Saving...",
+    confirm: "Confirm",
   },
   ar: {
     appName: "MonoPay",
@@ -435,6 +467,22 @@ export const translations: Record<
     successSend: "تم الإرسال بنجاح! 🎉",
     successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع. ⏳",
     fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
+    sharedWallet: "محفظة مشتركة",
+    manageSharedWallet: "إدارة المحفظة المشتركة",
+    walletGoal: "هدف المحفظة",
+    walletGoalPlaceholder: "ما الهدف من هذه المحفظة؟",
+    walletBalances: "الأرصدة",
+    noBalance: "لا يوجد رصيد بعد.",
+    history: "السجل",
+    noHistory: "لا توجد عمليات بعد.",
+    onlyOwnerCanEdit: "فقط المالك يمكنه تعديل هذه المحفظة.",
+    changesSaved: "تم حفظ التغييرات.",
+    addMoney: "إضافة رصيد",
+    spendMoney: "صرف رصيد",
+    currency: "العملة",
+    reasonPlaceholder: "لماذا؟",
+    saving: "جاري الحفظ...",
+    confirm: "تأكيد",
   },
 };
 
