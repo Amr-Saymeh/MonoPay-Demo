@@ -126,7 +126,7 @@ function RatesModal({ visible, onClose, rates, loading, hasError, onRefresh }: {
         <View style={ratesStyles.sheet}>
           <View style={ratesStyles.handle} />
           <Text style={ratesStyles.title}>📊 {t('exchangeRates' as any)}</Text>
-          <Text style={ratesStyles.sub}>open.er-api.com · {t('updatedEveryHour' as any)}</Text>
+          <Text style={ratesStyles.sub}> {t('updatedEveryHour' as any)}</Text>
 
           {loading ? (
             <ActivityIndicator color={THEME.primary} style={{ marginVertical: 24 }} />
