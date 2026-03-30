@@ -117,13 +117,40 @@ type TranslationKey =
   | "approveUserTitle"
   | "rejectUserTitle"
   | "cancel"
-
-  // transactions
-  | "transfer"
+  // ──────────────────────────────────────────────
+  // الكلمات الجديدة اللي أضفتها من الكومبوننتات اللي بعثتها
+  | "advertisement"
+  | "goodEvening"
+  | "welcomeBack"
+  | "quickActions"
+  | "savingGoals"
+  | "insights"
+  | "cards"
+  | "more"
+  | "totalBalance"
+  | "income"
+  | "expenses"
+  | "features"
+  | "myCards"
+  | "myCardsSubtitle"
+  | "exchangeRates"
+  | "exchangeRatesSubtitle"
+  | "spendingInsights"
+  | "spendingInsightsSubtitle"
+  | "transactions"
+  | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
+  | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
+  | "changePercent"         // نص إضافي لعرض التغير الشهري في TotalBalance
   | "makeTransaction"
   | "sendMoney"
   | "receiveMoney"
   | "amount"
+  | "myWallet"
+  | "selectMyWallet"
+  | "recipientWallet"
+  | "selectRecipientWallet"
+  | "myReceivingWallet"
+  | "selectReceivingWallet"
   | "recipient"
   | "selectRecipient"
   | "payer"
@@ -134,35 +161,76 @@ type TranslationKey =
   | "notePlaceholder"
   | "send"
   | "request"
-  | "sendBtn"
-  | "requestBtn"
-  | "mainWalletNote"
-  | "requestNote"
   | "insufficientFunds"
   | "walletInactive"
   | "senderIsReceiver"
-  | "userNotFound"
   | "successSend"
   | "successRequest"
+  | "selectWalletFirst"
   | "fillRequired"
+  | "transfer"
+  | "customization"
+  | "Youmustselect3features"
+  | "Youcanonlyselect3features"
 
-  // shared wallet & extras
-  | "sharedWallet"
-  | "manageSharedWallet"
-  | "walletGoal"
-  | "walletGoalPlaceholder"
-  | "walletBalances"
-  | "noBalance"
-  | "history"
-  | "noHistory"
-  | "onlyOwnerCanEdit"
-  | "changesSaved"
-  | "addMoney"
-  | "spendMoney"
-  | "currency"
-  | "reasonPlaceholder"
-  | "saving"
-  | "confirm";
+  | "goals.title"
+  | "goals.createTitle"
+  | "goals.editTitle"
+  | "goals.totalSaved"
+  | "goals.goalName"
+  | "goals.targetAmount"
+  | "goals.currentAmount"
+  | "goals.targetDate"
+  | "goals.currency"
+  | "goals.contribute"
+  | "goals.addContribution"
+  | "goals.contributionAmount"
+  | "goals.contributionReason"
+  | "goals.remaining"
+  | "goals.deleteConfirm"
+  | "goals.deleteSuccess"
+  | "goals.createSuccess"
+  | "goals.updateSuccess"
+  | "goals.contributionSuccess"
+  | "incomeSavings.title"
+  | "incomeSavings.addEntry"
+  | "incomeSavings.editEntry"
+  | "incomeSavings.totalIncome"
+  | "incomeSavings.totalOutgoing"
+  | "incomeSavings.sortBy"
+  | "incomeSavings.sortByDate"
+  | "incomeSavings.sortByAmount"
+  | "incomeSavings.type"
+  | "incomeSavings.income"
+  | "incomeSavings.savings"
+  | "incomeSavings.source"
+  | "incomeSavings.amount"
+  | "incomeSavings.notes"
+  | "incomeSavings.regularity"
+  | "incomeSavings.daily"
+  | "incomeSavings.weekly"
+  | "incomeSavings.monthly"
+  | "incomeSavings.yearly"
+  | "incomeSavings.categories.salary"
+  | "incomeSavings.categories.freelance"
+  | "incomeSavings.categories.loan"
+  | "incomeSavings.categories.other"
+  | "incomeSavings.categories.savings"
+  | "incomeSavings.categories.debt"
+  | "incomeSavings.entryTypes.receive"
+  | "incomeSavings.entryTypes.send"
+  | "incomeSavings.deleteConfirm"
+  | "incomeSavings.deleteSuccess"
+  | "incomeSavings.createSuccess"
+  | "incomeSavings.updateSuccess"
+  | "common.cancel"
+  | "common.save"
+  | "common.delete"
+  | "common.edit"
+  | "common.add"
+  | "common.close"
+  | "common.confirm"
+  | "common.loading";
 
 export const translations: Record<
   SupportedLanguage,
@@ -286,11 +354,40 @@ export const translations: Record<
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
 
-    transfer: "Transfer",
+    // ──────────────────────────────────────────────
+    // الكلمات الجديدة المضافة
+    advertisement: "Advertisement",
+    goodEvening: "Good Evening",
+    welcomeBack: "Welcome back,",
+    quickActions: "Quick Actions",
+    savingGoals: "Saving Goals",
+    insights: "Insights",
+    cards: "Cards",
+    more: "More",
+    totalBalance: "Total Balance",
+    income: "Income",
+    expenses: "Expenses",
+    features: "Features",
+    myCards: "My Cards",
+    myCardsSubtitle: "Manage credit & debit cards",
+    exchangeRates: "Exchange Rates",
+    exchangeRatesSubtitle: "View real-time currency exchange rates",
+    spendingInsights: "Spending Insights",
+    spendingInsightsSubtitle: "Track your spending by category",
+    transactions: "Transactions",
+    settingsSubtitle: "Manage your account preferences",  // ← أضيف هنا
+    changeLanguage: "Change Language",
+    changePercent: " from last month",
     makeTransaction: "Make a Transaction",
     sendMoney: "Send Money",
     receiveMoney: "Receive Money",
     amount: "Amount",
+    myWallet: "My Wallet",
+    selectMyWallet: "Select your wallet",
+    recipientWallet: "Recipient's Wallet",
+    selectRecipientWallet: "Select recipient's wallet",
+    myReceivingWallet: "My Receiving Wallet",
+    selectReceivingWallet: "Select wallet to receive",
     recipient: "Recipient",
     selectRecipient: "Select recipient",
     payer: "Payer",
@@ -301,36 +398,77 @@ export const translations: Record<
     notePlaceholder: "Add a note...",
     send: "Send",
     request: "Request",
-    sendBtn: "Send",
-    requestBtn: "Request",
-    mainWalletNote: "Funds will be sent to recipient's main wallet",
-    requestNote: "Payer will receive a request to approve",
-    insufficientFunds: "Insufficient funds in your wallet.",
-    walletInactive: "Your wallet is inactive.",
+    insufficientFunds: "Insufficient funds in the selected wallet.",
+    walletInactive: "Selected wallet is inactive.",
     senderIsReceiver: "You cannot send money to yourself.",
-    userNotFound: "User not found.",
     successSend: "Money sent successfully! 🎉",
-    successRequest: "Request sent! ⏳",
+    successRequest: "Money request sent! ⏳",
+    selectWalletFirst: "Please select your wallet first.",
     fillRequired: "Please fill all required fields.",
-
-    sharedWallet: "Shared wallet",
-    manageSharedWallet: "Manage shared wallet",
-    walletGoal: "Wallet goal",
-    walletGoalPlaceholder: "What are you saving for?",
-    walletBalances: "Balances",
-    noBalance: "No balance yet.",
-    history: "History",
-    noHistory: "No activity yet.",
-    onlyOwnerCanEdit: "Only the owner can edit this wallet.",
-    changesSaved: "Changes saved.",
-    addMoney: "Add money",
-    spendMoney: "Spend money",
-    currency: "Currency",
-    reasonPlaceholder: "Why?",
-    saving: "Saving...",
-    confirm: "Confirm",
+    transfer: "Transfer",
+    customization: "Customization",
+    Youmustselect3features: "You must select 3 features",
+    Youcanonlyselect3features: "You can only select 3 features",
+      
+    "goals.title": "Savings Goals",
+    "goals.createTitle": "Create New Goal",
+    "goals.editTitle": "Edit Goal",
+    "goals.totalSaved": "Total Saved",
+    "goals.goalName": "Goal Name",
+    "goals.targetAmount": "Target Amount",
+    "goals.currentAmount": "Current Amount",
+    "goals.targetDate": "Target Date",
+    "goals.currency": "Currency",
+    "goals.contribute": "Contribute",
+    "goals.addContribution": "Add Contribution",
+    "goals.contributionAmount": "Contribution Amount",
+    "goals.contributionReason": "Reason (Optional)",
+    "goals.remaining": "remaining",
+    "goals.deleteConfirm": "Are you sure you want to delete this goal?",
+    "goals.deleteSuccess": "Goal deleted successfully",
+    "goals.createSuccess": "Goal created successfully",
+    "goals.updateSuccess": "Goal updated successfully",
+    "goals.contributionSuccess": "Contribution added successfully",
+    "incomeSavings.title": "Income & Savings",
+    "incomeSavings.addEntry": "Add Entry",
+    "incomeSavings.editEntry": "Edit Entry",
+    "incomeSavings.totalIncome": "Total Income",
+    "incomeSavings.totalOutgoing": "Total Outgoing",
+    "incomeSavings.sortBy": "Sort by",
+    "incomeSavings.sortByDate": "Date",
+    "incomeSavings.sortByAmount": "Amount",
+    "incomeSavings.type": "Type",
+    "incomeSavings.income": "Income",
+    "incomeSavings.savings": "Savings",
+    "incomeSavings.source": "Source",
+    "incomeSavings.amount": "Amount",
+    "incomeSavings.notes": "Notes",
+    "incomeSavings.regularity": "Regularity",
+    "incomeSavings.daily": "Daily",
+    "incomeSavings.weekly": "Weekly",
+    "incomeSavings.monthly": "Monthly",
+    "incomeSavings.yearly": "Yearly",
+    "incomeSavings.categories.salary": "Salary",
+    "incomeSavings.categories.freelance": "Freelance",
+    "incomeSavings.categories.loan": "Loan",
+    "incomeSavings.categories.other": "Other",
+    "incomeSavings.categories.savings": "Savings",
+    "incomeSavings.categories.debt": "Debt",
+    "incomeSavings.entryTypes.receive": "Income",
+    "incomeSavings.entryTypes.send": "Savings",
+    "incomeSavings.deleteConfirm": "Are you sure you want to delete this entry?",
+    "incomeSavings.deleteSuccess": "Entry deleted successfully",
+    "incomeSavings.createSuccess": "Entry created successfully",
+    "incomeSavings.updateSuccess": "Entry updated successfully",
+    "common.cancel": "Cancel",
+    "common.save": "Save",
+    "common.delete": "Delete",
+    "common.edit": "Edit",
+    "common.add": "Add",
+    "common.close": "Close",
+    "common.confirm": "Confirm",
+    "common.loading": "Loading...",
   },
-
   ar: {
     appName: "MonoPay",
     home: "الرئيسية",
@@ -449,49 +587,120 @@ export const translations: Record<
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
 
-    transfer: "تحويل",
+    // ──────────────────────────────────────────────
+    // الكلمات الجديدة المضافة
+    advertisement: "إعلان",
+    goodEvening: "مساء الخير",
+    welcomeBack: "مرحباً بعودتك،",
+    quickActions: "الإجراءات السريعة",
+    savingGoals: "أهداف التوفير",
+    insights: "الرؤى",
+    cards: "البطاقات",
+    more: "المزيد",
+    totalBalance: "الرصيد الكلي",
+    income: "الدخل",
+    expenses: "المصروفات",
+    features: "الميزات",
+    myCards: "بطاقاتي",
+    myCardsSubtitle: "إدارة بطاقات الائتمان والخصم",
+    exchangeRates: "أسعار الصرف",
+    exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
+    spendingInsights: "رؤى الإنفاق",
+    spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
+    transactions: "المعاملات",
+    settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    changeLanguage: "تغيير اللغة",
+    changePercent: " من الشهر الماضي",
     makeTransaction: "إجراء معاملة",
     sendMoney: "إرسال",
     receiveMoney: "طلب",
     amount: "المبلغ",
+    myWallet: "محفظتي",
+    selectMyWallet: "اختر محفظتك",
+    recipientWallet: "محفظة المستلم",
+    selectRecipientWallet: "اختر محفظة المستلم",
+    myReceivingWallet: "محفظة الاستقبال",
+    selectReceivingWallet: "اختر محفظة للاستقبال",
     recipient: "المستلم",
     selectRecipient: "اختر المستلم",
     payer: "الدافع",
-    selectPayer: "من سيدفع لك؟",
+    selectPayer: "من سيدفع؟",
     category: "الفئة",
     selectCategory: "اختر الفئة",
     noteOptional: "ملاحظة (اختياري)",
     notePlaceholder: "أضف ملاحظة...",
     send: "إرسال",
     request: "طلب",
-    sendBtn: "إرسال",
-    requestBtn: "طلب",
-    mainWalletNote: "سيتم الإرسال للمحفظة الرئيسية للمستلم",
-    requestNote: "سيصل الطلب للدافع للموافقة عليه",
-    insufficientFunds: "الرصيد غير كافٍ في محفظتك.",
-    walletInactive: "محفظتك غير نشطة.",
+    insufficientFunds: "الرصيد غير كافٍ في المحفظة المختارة.",
+    walletInactive: "المحفظة المختارة غير نشطة.",
     senderIsReceiver: "لا يمكنك إرسال المال لنفسك.",
-    userNotFound: "المستخدم غير موجود.",
-    successSend: "تم الإرسال بنجاح! 🎉",
-    successRequest: "تم إرسال الطلب! ⏳",
+    successSend: "تم إرسال المال بنجاح! 🎉",
+    successRequest: "تم إرسال طلب الأموال! ⏳",
+    selectWalletFirst: "الرجاء اختيار محفظتك أولاً.",
     fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
+    transfer: "التحويل",
+    customization: "التخصيص",
+    Youmustselect3features: "يجب اختيار 3 عناصر فقط",
+    Youcanonlyselect3features: "يجب اختيار 3 عناصر فقط",
 
-    sharedWallet: "محفظة مشتركة",
-    manageSharedWallet: "إدارة المحفظة المشتركة",
-    walletGoal: "هدف المحفظة",
-    walletGoalPlaceholder: "ما الهدف من هذه المحفظة؟",
-    walletBalances: "الأرصدة",
-    noBalance: "لا يوجد رصيد بعد.",
-    history: "السجل",
-    noHistory: "لا توجد عمليات بعد.",
-    onlyOwnerCanEdit: "فقط المالك يمكنه تعديل هذه المحفظة.",
-    changesSaved: "تم حفظ التغييرات.",
-    addMoney: "إضافة رصيد",
-    spendMoney: "صرف رصيد",
-    currency: "العملة",
-    reasonPlaceholder: "لماذا؟",
-    saving: "جاري الحفظ...",
-    confirm: "تأكيد",
+    "goals.title": "أهداف التوفير",
+    "goals.createTitle": "إنشاء هدف جديد",
+    "goals.editTitle": "تعديل الهدف",
+    "goals.totalSaved": "إجمالي المدخرات",
+    "goals.goalName": "اسم الهدف",
+    "goals.targetAmount": "المبلغ المستهدف",
+    "goals.currentAmount": "المبلغ الحالي",
+    "goals.targetDate": "تاريخ الانتهاء",
+    "goals.currency": "العملة",
+    "goals.contribute": "ساهم",
+    "goals.addContribution": "إضافة مساهمة",
+    "goals.contributionAmount": "مبلغ المساهمة",
+    "goals.contributionReason": "السبب (اختياري)",
+    "goals.remaining": "متبقي",
+    "goals.deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الهدف؟",
+    "goals.deleteSuccess": "تم حذف الهدف بنجاح",
+    "goals.createSuccess": "تم إنشاء الهدف بنجاح",
+    "goals.updateSuccess": "تم تحديث الهدف بنجاح",
+    "goals.contributionSuccess": "تمت إضافة المساهمة بنجاح",
+    "incomeSavings.title": "الدخل والتوفير",
+    "incomeSavings.addEntry": "إضافة إدخال",
+    "incomeSavings.editEntry": "تعديل الإدخال",
+    "incomeSavings.totalIncome": "إجمالي الدخل",
+    "incomeSavings.totalOutgoing": "إجمالي المنصرف",
+    "incomeSavings.sortBy": "ترتيب حسب",
+    "incomeSavings.sortByDate": "التاريخ",
+    "incomeSavings.sortByAmount": "المبلغ",
+    "incomeSavings.type": "النوع",
+    "incomeSavings.income": "دخل",
+    "incomeSavings.savings": "توفير",
+    "incomeSavings.source": "المصدر",
+    "incomeSavings.amount": "المبلغ",
+    "incomeSavings.notes": "ملاحظات",
+    "incomeSavings.regularity": "الانتظام",
+    "incomeSavings.daily": "يومي",
+    "incomeSavings.weekly": "أسبوعي",
+    "incomeSavings.monthly": "شهري",
+    "incomeSavings.yearly": "سنوي",
+    "incomeSavings.categories.salary": "راتب",
+    "incomeSavings.categories.freelance": "عمل حر",
+    "incomeSavings.categories.loan": "قرض",
+    "incomeSavings.categories.other": "آخر",
+    "incomeSavings.categories.savings": "توفير",
+    "incomeSavings.categories.debt": "دين",
+    "incomeSavings.entryTypes.receive": "دخل",
+    "incomeSavings.entryTypes.send": "توفير",
+    "incomeSavings.deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الإدخال؟",
+    "incomeSavings.deleteSuccess": "تم حذف الإدخال بنجاح",
+    "incomeSavings.createSuccess": "تم إنشاء الإدخال بنجاح",
+    "incomeSavings.updateSuccess": "تم تحديث الإدخال بنجاح",
+    "common.cancel": "إلغاء",
+    "common.save": "حفظ",
+    "common.delete": "حذف",
+    "common.edit": "تعديل",
+    "common.add": "إضافة",
+    "common.close": "إغلاق",
+    "common.confirm": "تأكيد",
+    "common.loading": "جارٍ التحميل...",
   },
 };
 
