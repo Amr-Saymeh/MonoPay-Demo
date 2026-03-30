@@ -2,6 +2,7 @@ import { onValue, ref } from 'firebase/database';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -9,7 +10,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Modal,
 } from 'react-native';
 import CurrencyListItem from '../components/exchange/CurrencyListItem';
 import Header from '../components/exchange/Header';
