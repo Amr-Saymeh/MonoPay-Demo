@@ -1,269 +1,417 @@
-import { FontAwesome } from '@expo/vector-icons';
-import { get, ref, set } from 'firebase/database';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { onValue, ref } from 'firebase/database';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  CurrencySelectorModal,
-  ExchangeCard,
-  RateInfo,
-  StatusMessage,
-  WalletCard,
-  WalletSelectorModal,
-} from '../../src/features/exchange/components';
-import { useExchangeRates, useWalletCurrencies, useWallets } from '../../src/features/exchange/hooks';
-import {
-  denormalizeCurrency,
-  getAvailableToCurrencies,
-  normalizeCurrency,
-} from '../../src/features/exchange/utils';
-import { db } from '../../src/firebaseConfig';
-import { useAuth } from '../../src/providers/AuthProvider';
+  ActivityIndicator,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import CurrencyListItem from '../components/exchange/CurrencyListItem';
+import Header from '../components/exchange/Header';
+import { getCurrencies, getLatestRates } from '../servisec/exchageServices/Currency';
+import { db } from '../src/firebaseConfig';
+import { useAuth } from '../src/providers/AuthProvider';
 
-const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
+interface RatesData {
+  rates: { [key: string]: number };
+}
+
+type WalletCard = {
+  userWalletKey: string;
+  walletid: number;
+  name: string;
+  emoji?: string;
+  color?: string;
+};
+
+type CurrencyEntry = {
+  code: string;
+  balance: number;
+};
+
+const normalizeCurrency = (code: string) => {
+  if (code === 'NIS') return 'ILS';
+  return code;
+};
+
+const denormalizeCurrency = (code: string) => {
+  if (code === 'ILS') return 'NIS';
+  return code;
+};
 
 const Exchange: React.FC = () => {
   const { user } = useAuth();
 
+  const [ratesData, setRatesData] = useState<RatesData | null>(null);
+  const [currencyNames, setCurrencyNames] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(true);
+  const [baseCurrency, setBaseCurrency] = useState('');
+
+  const [wallets, setWallets] = useState<WalletCard[]>([]);
+  const [walletsLoading, setWalletsLoading] = useState(true);
+
   const [selectedWalletId, setSelectedWalletId] = useState<number | null>(null);
-  const [fromCurrency, setFromCurrency] = useState('USD');
-  const [toCurrency, setToCurrency] = useState('EUR');
-  const [amount, setAmount] = useState('');
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [showFromCurrencyModal, setShowFromCurrencyModal] = useState(false);
-  const [showToCurrencyModal, setShowToCurrencyModal] = useState(false);
+  const [walletCurrencies, setWalletCurrencies] = useState<CurrencyEntry[]>([]);
+  const [walletLoading, setWalletLoading] = useState(false);
+
+  const [exchangeModalVisible, setExchangeModalVisible] = useState(false);
+  const [targetCurrency, setTargetCurrency] = useState<string | null>(null);
+  const [targetRate, setTargetRate] = useState<number | null>(null);
+  const [amountInput, setAmountInput] = useState('');
   const [exchangeError, setExchangeError] = useState<string | null>(null);
-  const [exchangeSuccess, setExchangeSuccess] = useState(false);
 
-  const { wallets, loading: walletsLoading } = useWallets(user?.uid);
-  const { currencies, getBalance } = useWalletCurrencies(selectedWalletId);
-  const { getRate, loading: ratesLoading } = useExchangeRates(fromCurrency);
 
-  const selectedWallet = useMemo(
-    () => wallets.find((wallet) => wallet.walletid === selectedWalletId) ?? null,
-    [wallets, selectedWalletId]
-  );
-
-  const parsedAmount = useMemo(() => {
-    if (!amount) return null;
-    const value = parseFloat(amount.replace(',', '.'));
-    return Number.isFinite(value) ? value : null;
-  }, [amount]);
-
-  const isAmountValid = useMemo(
-    () => parsedAmount !== null && parsedAmount > 0,
-    [parsedAmount]
-  );
-
-  const currentRate = useMemo(() => getRate(toCurrency), [getRate, toCurrency]);
-
-  const convertedAmount = useMemo(() => {
-    if (!currentRate || parsedAmount === null) return null;
-    return (parsedAmount * currentRate).toFixed(2);
-  }, [currentRate, parsedAmount]);
-
-  const toCurrencies = useMemo(
-    () => getAvailableToCurrencies(fromCurrency),
-    [fromCurrency]
-  );
-
-  const isLoading = walletsLoading || ratesLoading;
+  const baseCurrencyRef = useRef(baseCurrency);
+  baseCurrencyRef.current = baseCurrency;
 
   useEffect(() => {
-    if (!selectedWalletId && wallets.length > 0) {
-      setSelectedWalletId(wallets[0].walletid);
+    getCurrencies().then(setCurrencyNames);
+  }, []);
+
+  const fetchRates = useCallback(async (currency: string) => {
+    if (!currency) return;
+
+    setLoading(true);
+    const latest = await getLatestRates(normalizeCurrency(currency));
+    setRatesData(latest);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (baseCurrency) {
+      fetchRates(baseCurrency);
     }
-  }, [wallets, selectedWalletId]);
+  }, [baseCurrency, fetchRates]);
 
-  const handleWalletSelect = useCallback((walletId: number) => {
-    setSelectedWalletId(walletId);
-    setShowWalletModal(false);
-  }, []);
+  const handleRefresh = useCallback(() => {
+  // refresh exchange rates
+  fetchRates(baseCurrency);
 
-  const handleAmountChange = useCallback((value: string) => {
-    setAmount(value);
-    setExchangeError(null);
-    setExchangeSuccess(false);
-  }, []);
+  // refresh wallet currencies / balances
+  if (selectedWalletId) {
+    const walletRef = ref(db, `wallets/wallet${selectedWalletId}/currancies`);
 
-  const handleSwap = useCallback(() => {
-    setFromCurrency(toCurrency);
-    setToCurrency(fromCurrency);
-    setAmount('');
-    setExchangeError(null);
-    setExchangeSuccess(false);
-  }, [fromCurrency, toCurrency]);
+    onValue(
+      walletRef,
+      (snap) => {
+        const data = snap.val();
 
-  const handleMax = useCallback(() => {
-    const balance = getBalance(fromCurrency);
-    setAmount(balance.toFixed(2));
-    setExchangeError(null);
-    setExchangeSuccess(false);
-  }, [fromCurrency, getBalance]);
+        if (data) {
+          const list = Object.entries(data).map(([code, balance]: any) => ({
+            code: code.trim().toUpperCase(),
+            balance: Number(balance) || 0,
+          }));
 
-  const handleExchange = useCallback(async () => {
-    if (!user || !selectedWalletId || !fromCurrency || !toCurrency) return;
+          setWalletCurrencies(list);
+        }
+      },
+      { onlyOnce: true }
+    );
+  }
 
-    if (parsedAmount === null || parsedAmount <= 0) {
+  // refresh transactions if you have them
+  // fetchTransactions();  <-- if you created a transaction listener
+}, [baseCurrency, fetchRates, selectedWalletId]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsub = onValue(
+      ref(db, `users/${user.uid}/userwallet`),
+      (snap) => {
+        const data = snap.val() || {};
+
+        const list: WalletCard[] = Object.entries(data)
+          .map(([key, wallet]: [string, any]) => ({
+            userWalletKey: key,
+            walletid: Number(wallet?.walletid),
+            name: wallet?.name?.trim() || `Wallet ${wallet?.walletid}`,
+            emoji: wallet?.emoji?.trim() || '💰',
+            color: wallet?.color?.trim(),
+          }))
+          .filter((w) => Number.isFinite(w.walletid) && w.walletid > 0)
+          .sort((a, b) => a.walletid - b.walletid);
+
+        setWallets(list);
+        setWalletsLoading(false);
+
+        if (list.length > 0) {
+          setSelectedWalletId((prev) => prev ?? list[0].walletid);
+        }
+      },
+      () => {
+        setWallets([]);
+        setWalletsLoading(false);
+      }
+    );
+
+    return () => unsub();
+  }, [user]);
+
+  useEffect(() => {
+    if (!selectedWalletId) {
+      setWalletCurrencies([]);
+      return;
+    }
+
+    setWalletLoading(true);
+
+    const unsub = onValue(
+      ref(db, `wallets/wallet${selectedWalletId}/currancies`),
+      (snap) => {
+        const data = snap.val();
+
+        if (data && typeof data === 'object') {
+          const list: CurrencyEntry[] = Object.entries(data)
+            .filter(([k, v]) => k && Number.isFinite(Number(v)))
+            .map(([code, balance]: [string, any]) => ({
+              code: denormalizeCurrency(code.trim().toUpperCase()),
+              balance: Number(balance) || 0,
+            }))
+            .sort((a, b) => a.code.localeCompare(b.code));
+
+          setWalletCurrencies(list);
+
+          const codes = list.map((c) => c.code);
+
+          if (codes.length > 0 && !codes.includes(baseCurrencyRef.current)) {
+            setBaseCurrency(codes[0]);
+          }
+        } else {
+          setWalletCurrencies([]);
+        }
+
+        setWalletLoading(false);
+      },
+      () => {
+        setWalletCurrencies([]);
+        setWalletLoading(false);
+      }
+    );
+
+    return () => unsub();
+  }, [selectedWalletId]);
+
+
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
+
+const displayEntries = React.useMemo<[string, number][]>(() => {
+  if (!ratesData?.rates) return [];
+
+  let entries = Object.entries(ratesData.rates) as [string, number][];
+
+  // only show supported currencies from the API
+  entries = entries.filter(([code]) =>
+    SUPPORTED_CURRENCIES.includes(code)
+  );
+
+  return entries.map(([code, rate]) => [
+    denormalizeCurrency(code),
+    rate,
+  ]);
+}, [ratesData, currencyNames]);
+
+  const getBalance = useCallback(
+    (code: string): number | undefined =>
+      walletCurrencies.find(
+        (c) =>
+          normalizeCurrency(c.code) === normalizeCurrency(code)
+      )?.balance,
+    [walletCurrencies]
+  );
+
+  const handleOpenExchange = useCallback(
+    (currency: string, rate: number) => {
+      setTargetCurrency(currency);
+      setTargetRate(rate);
+      setAmountInput('');
+      setExchangeError(null);
+      setExchangeModalVisible(true);
+    },
+    []
+  );
+
+  const handleConfirmExchange = useCallback(async () => {
+    if (!user || !selectedWalletId || !targetCurrency || !targetRate) {
+      return;
+    }
+
+    const amount = Number(amountInput.replace(',', '.'));
+    if (!Number.isFinite(amount) || amount <= 0) {
       setExchangeError('Enter a valid amount');
       return;
     }
 
-    const fromBalance = getBalance(fromCurrency);
-    if (parsedAmount > fromBalance) {
-      setExchangeError('Insufficient balance');
+    const fromBalance = getBalance(baseCurrency) ?? 0;
+    if (amount > fromBalance) {
+      setExchangeError('Amount exceeds wallet balance');
       return;
     }
 
-    const rate = currentRate || 0;
-    const converted = parsedAmount * rate;
+    const converted = amount * targetRate;
 
-    const fromKey = denormalizeCurrency(fromCurrency.trim().toUpperCase());
-    const toKey = denormalizeCurrency(toCurrency.trim().toUpperCase());
+    // compute DB keys (NIS <-> ILS special case)
+    const fromKey = denormalizeCurrency(baseCurrency.trim().toUpperCase());
+    const toKey = denormalizeCurrency(targetCurrency.trim().toUpperCase());
 
     try {
       const walletRef = ref(db, `wallets/wallet${selectedWalletId}/currancies`);
-      const snapshot = await get(walletRef);
-      const raw = (snapshot.val() ?? {}) as Record<string, number>;
+      // lazy-load helpers from firebase/database
+      const { get, set } = await import('firebase/database');
+
+      // Read current balances from DB to normalize any legacy keys
+      const snap = await get(walletRef);
+      const raw = (snap.val() ?? {}) as Record<string, number>;
 
       const merged: Record<string, number> = {};
       for (const [rawCode, rawAmount] of Object.entries(raw)) {
         const normalizedKey = denormalizeCurrency(rawCode.trim().toUpperCase());
         const value = Number(rawAmount);
-
         if (!Number.isFinite(value)) continue;
-
-        const previousValue = Number(merged[normalizedKey] ?? 0);
-        merged[normalizedKey] = (Number.isFinite(previousValue) ? previousValue : 0) + value;
+        const prev = Number(merged[normalizedKey] ?? 0);
+        merged[normalizedKey] = (Number.isFinite(prev) ? prev : 0) + value;
       }
 
       const toBalance = Number(merged[toKey] ?? 0);
       if (!Number.isFinite(toBalance)) {
-        setExchangeError('Target currency not available in wallet');
+        setExchangeError('This wallet does not have the target currency.');
         return;
       }
 
-      merged[fromKey] = Number((fromBalance - parsedAmount).toFixed(2));
-      merged[toKey] = Number((toBalance + converted).toFixed(2));
+      const newFromBalance = Number((fromBalance - amount).toFixed(2));
+      const newToBalance = Number((toBalance + converted).toFixed(2));
 
+      merged[fromKey] = newFromBalance;
+      merged[toKey] = newToBalance;
+
+      // overwrite currancies with normalized, merged balances
       await set(walletRef, merged);
 
-      setExchangeSuccess(true);
-      setExchangeError(null);
-      setAmount('');
-
-      setTimeout(() => {
-        setExchangeSuccess(false);
-      }, 2000);
-    } catch (error) {
-      console.error('Exchange failed', error);
-      setExchangeError(error instanceof Error ? error.message : 'Failed to perform exchange');
+      setExchangeModalVisible(false);
+    } catch (e) {
+      console.error('Exchange failed', e);
+      setExchangeError('Failed to perform exchange, please try again.');
     }
-  }, [
-    currentRate,
-    fromCurrency,
-    getBalance,
-    parsedAmount,
-    selectedWalletId,
-    toCurrency,
-    user,
-  ]);
+  }, [user, selectedWalletId, targetCurrency, targetRate, amountInput, baseCurrency, getBalance]);
 
-  if (walletsLoading || !selectedWallet) {
+  if (walletsLoading && wallets.length === 0) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366f1" />
+        <ActivityIndicator size="large" color="#000" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Exchange</Text>
-        <TouchableOpacity onPress={() => setShowWalletModal(true)} style={styles.walletButton}>
-          <Text style={styles.walletEmoji}>{selectedWallet.emoji || '💳'}</Text>
-          <Text style={styles.walletName} numberOfLines={1}>
-            {selectedWallet.name}
-          </Text>
-          <FontAwesome name="chevron-down" size={12} color="#666" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <WalletCard
-          name={selectedWallet.name}
-          emoji={selectedWallet.emoji}
-          currencies={currencies}
-        />
-
-        <ExchangeCard
-          fromCurrency={normalizeCurrency(fromCurrency)}
-          toCurrency={normalizeCurrency(toCurrency)}
-          amount={amount}
-          convertedAmount={convertedAmount}
-          fromBalance={getBalance(fromCurrency)}
-          toBalance={getBalance(toCurrency)}
-          onAmountChange={handleAmountChange}
-          onFromCurrencyPress={() => setShowFromCurrencyModal(true)}
-          onToCurrencyPress={() => setShowToCurrencyModal(true)}
-          onSwap={handleSwap}
-          onMax={handleMax}
-        />
-
-        <RateInfo
-          fromCurrency={normalizeCurrency(fromCurrency)}
-          toCurrency={normalizeCurrency(toCurrency)}
-          rate={currentRate}
-        />
-
-        <StatusMessage error={exchangeError} success={exchangeSuccess} />
-
-        <TouchableOpacity
-          style={[styles.exchangeButton, (!isAmountValid || isLoading) && styles.exchangeButtonDisabled]}
-          onPress={handleExchange}
-          disabled={!isAmountValid || isLoading}
-        >
-          <Text style={styles.exchangeButtonText}>Exchange</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      <WalletSelectorModal
-        visible={showWalletModal}
+      <Header
+        baseCurrency={baseCurrency}
+        onRefresh={handleRefresh}
+        refreshing={loading}
         wallets={wallets}
         selectedWalletId={selectedWalletId}
-        onSelect={handleWalletSelect}
-        onClose={() => setShowWalletModal(false)}
+        onWalletChange={setSelectedWalletId}
+        walletCurrencies={walletCurrencies.map((c) => c.code)}
+        onCurrencyChange={setBaseCurrency}
       />
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+        }
+      >
+        {walletLoading && (
+          <View style={styles.inlineLoader}>
+            <ActivityIndicator size="small" color="#6366f1" />
+            <Text style={styles.inlineLoaderText}>Loading currencies...</Text>
+          </View>
+        )}
 
-      <CurrencySelectorModal
-        visible={showFromCurrencyModal}
-        currencies={SUPPORTED_CURRENCIES}
-        selectedCurrency={normalizeCurrency(fromCurrency)}
-        title="Select Currency"
-        onSelect={(currency) => {
-          setFromCurrency(normalizeCurrency(currency));
-          setShowFromCurrencyModal(false);
-          setExchangeError(null);
-        }}
-        onClose={() => setShowFromCurrencyModal(false)}
-      />
+        {!walletLoading &&
+          displayEntries.map(([currency, rate]) => (
+            <CurrencyListItem
+              key={currency}
+              currency={currency}
+              rate={rate}
+              currencyName={currencyNames[normalizeCurrency(currency)]}
+              baseCurrency={baseCurrency}
+              balance={getBalance(currency)}
+              onPress={() => handleOpenExchange(currency, rate)}
+            />
+          ))}
 
-      <CurrencySelectorModal
-        visible={showToCurrencyModal}
-        currencies={toCurrencies}
-        selectedCurrency={normalizeCurrency(toCurrency)}
-        title="Select Currency"
-        onSelect={(currency) => {
-          setToCurrency(normalizeCurrency(currency));
-          setShowToCurrencyModal(false);
-          setExchangeError(null);
-        }}
-        onClose={() => setShowToCurrencyModal(false)}
-      />
+        {!walletLoading && displayEntries.length === 0 && (
+          <View style={styles.noResultsContainer}>
+            <Text style={styles.noResultsText}>
+              {walletCurrencies.length === 0
+                ? 'This wallet has no currencies yet.'
+                : 'No currencies match your search.'}
+            </Text>
+          </View>
+        )}
+
+        <View style={{ height: 32 }} />
+      </ScrollView>
+
+      <Modal
+        visible={exchangeModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setExchangeModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.exchangeModal}>
+            <Text style={styles.exchangeTitle}>Exchange</Text>
+            {targetCurrency && (
+              <Text style={styles.exchangeSubtitle}>
+                {baseCurrency} → {targetCurrency}
+              </Text>
+            )}
+
+            <Text style={styles.exchangeLabel}>Amount in {baseCurrency}</Text>
+            <Text style={styles.exchangeAvailable}>
+              Available: {(getBalance(baseCurrency) ?? 0).toFixed(2)} {baseCurrency}
+            </Text>
+            <TextInput
+              style={styles.exchangeInput}
+              keyboardType="numeric"
+              value={amountInput}
+              onChangeText={(text) => {
+                setAmountInput(text);
+                setExchangeError(null);
+              }}
+              placeholder="0.00"
+            />
+            {targetRate != null && amountInput.trim() !== '' && (
+              <Text style={styles.exchangePreview}>
+                ≈ {(Number(amountInput.replace(',', '.')) * targetRate || 0).toFixed(2)}{' '}
+                {targetCurrency}
+              </Text>
+            )}
+
+            {exchangeError && <Text style={styles.exchangeError}>{exchangeError}</Text>}
+
+            <View style={styles.exchangeButtonsRow}>
+              <TouchableOpacity
+                style={[styles.exchangeButton, styles.exchangeCancelButton]}
+                onPress={() => setExchangeModalVisible(false)}
+              >
+                <Text style={styles.exchangeCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.exchangeButton, styles.exchangeConfirmButton]}
+                onPress={handleConfirmExchange}
+              >
+                <Text style={styles.exchangeConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -273,74 +421,113 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0f172a',
+  clearButton: {
+    marginLeft: 8,
+    padding: 8,
   },
-  walletButton: {
+  clearText: {
+    fontSize: 18,
+    color: '#888',
+  },
+  inlineLoader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
+    justifyContent: 'center',
+    paddingVertical: 24,
+    gap: 8,
   },
-  walletEmoji: {
+  inlineLoaderText: {
+    color: '#888',
+    fontSize: 14,
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    padding: 24,
+  },
+  noResultsText: {
+    color: '#666',
     fontSize: 16,
   },
-  walletName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#334155',
-    maxWidth: 100,
-  },
-  scrollView: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
   },
-  scrollContent: {
+  exchangeModal: {
+    backgroundColor: '#fff',
     padding: 20,
-    paddingBottom: 40,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  exchangeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  exchangeSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 16,
+  },
+  exchangeLabel: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  exchangeAvailable: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginBottom: 4,
+  },
+  exchangeInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  exchangePreview: {
+    fontSize: 14,
+    color: '#4b5563',
+    marginBottom: 8,
+  },
+  exchangeError: {
+    fontSize: 12,
+    color: '#dc2626',
+    marginBottom: 8,
+  },
+  exchangeButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 8,
   },
   exchangeButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+  exchangeCancelButton: {
+    backgroundColor: '#e5e7eb',
+  },
+  exchangeConfirmButton: {
     backgroundColor: '#6366f1',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginTop: 24,
-    shadowColor: '#6366f1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  exchangeButtonDisabled: {
-    backgroundColor: '#cbd5e1',
-    shadowOpacity: 0,
-    elevation: 0,
+  exchangeCancelText: {
+    color: '#111827',
+    fontWeight: '500',
   },
-  exchangeButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+  exchangeConfirmText: {
     color: '#fff',
+    fontWeight: '600',
   },
 });
 
