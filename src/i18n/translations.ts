@@ -117,6 +117,8 @@ type TranslationKey =
   | "approveUserTitle"
   | "rejectUserTitle"
   | "cancel"
+
+  // transactions
   | "transfer"
   | "makeTransaction"
   | "sendMoney"
@@ -130,6 +132,8 @@ type TranslationKey =
   | "selectCategory"
   | "noteOptional"
   | "notePlaceholder"
+  | "send"
+  | "request"
   | "sendBtn"
   | "requestBtn"
   | "mainWalletNote"
@@ -137,12 +141,12 @@ type TranslationKey =
   | "insufficientFunds"
   | "walletInactive"
   | "senderIsReceiver"
-  | "mainWalletNotFound"
   | "userNotFound"
-  | "invalidAmount"
   | "successSend"
   | "successRequest"
   | "fillRequired"
+
+  // shared wallet & extras
   | "sharedWallet"
   | "manageSharedWallet"
   | "walletGoal"
@@ -281,19 +285,22 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
+
     transfer: "Transfer",
     makeTransaction: "Make a Transaction",
-    sendMoney: "Send",
-    receiveMoney: "Request",
+    sendMoney: "Send Money",
+    receiveMoney: "Receive Money",
     amount: "Amount",
     recipient: "Recipient",
-    selectRecipient: "Who are you sending to?",
+    selectRecipient: "Select recipient",
     payer: "Payer",
     selectPayer: "Who should pay you?",
     category: "Category",
     selectCategory: "Select category",
     noteOptional: "Note (Optional)",
     notePlaceholder: "Add a note...",
+    send: "Send",
+    request: "Request",
     sendBtn: "Send",
     requestBtn: "Request",
     mainWalletNote: "Funds will be sent to recipient's main wallet",
@@ -301,12 +308,11 @@ export const translations: Record<
     insufficientFunds: "Insufficient funds in your wallet.",
     walletInactive: "Your wallet is inactive.",
     senderIsReceiver: "You cannot send money to yourself.",
-    mainWalletNotFound: "Recipient has no active wallet.",
     userNotFound: "User not found.",
-    invalidAmount: "Please enter a valid amount.",
     successSend: "Money sent successfully! 🎉",
-    successRequest: "Request sent! The payer will be notified. ⏳",
+    successRequest: "Request sent! ⏳",
     fillRequired: "Please fill all required fields.",
+
     sharedWallet: "Shared wallet",
     manageSharedWallet: "Manage shared wallet",
     walletGoal: "Wallet goal",
@@ -324,6 +330,7 @@ export const translations: Record<
     saving: "Saving...",
     confirm: "Confirm",
   },
+
   ar: {
     appName: "MonoPay",
     home: "الرئيسية",
@@ -441,19 +448,22 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
+
     transfer: "تحويل",
     makeTransaction: "إجراء معاملة",
     sendMoney: "إرسال",
     receiveMoney: "طلب",
     amount: "المبلغ",
     recipient: "المستلم",
-    selectRecipient: "لمن تريد الإرسال؟",
+    selectRecipient: "اختر المستلم",
     payer: "الدافع",
     selectPayer: "من سيدفع لك؟",
     category: "الفئة",
     selectCategory: "اختر الفئة",
     noteOptional: "ملاحظة (اختياري)",
     notePlaceholder: "أضف ملاحظة...",
+    send: "إرسال",
+    request: "طلب",
     sendBtn: "إرسال",
     requestBtn: "طلب",
     mainWalletNote: "سيتم الإرسال للمحفظة الرئيسية للمستلم",
@@ -461,12 +471,11 @@ export const translations: Record<
     insufficientFunds: "الرصيد غير كافٍ في محفظتك.",
     walletInactive: "محفظتك غير نشطة.",
     senderIsReceiver: "لا يمكنك إرسال المال لنفسك.",
-    mainWalletNotFound: "المستلم ليس لديه محفظة نشطة.",
     userNotFound: "المستخدم غير موجود.",
-    invalidAmount: "الرجاء إدخال مبلغ صحيح.",
     successSend: "تم الإرسال بنجاح! 🎉",
-    successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع. ⏳",
+    successRequest: "تم إرسال الطلب! ⏳",
     fillRequired: "الرجاء ملء جميع الحقول المطلوبة.",
+
     sharedWallet: "محفظة مشتركة",
     manageSharedWallet: "إدارة المحفظة المشتركة",
     walletGoal: "هدف المحفظة",
