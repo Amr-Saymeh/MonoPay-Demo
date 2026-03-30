@@ -22,6 +22,7 @@ export default function WalletsLayout() {
     >
       <Stack.Screen name="index" options={{ title: t("myWallets") }} />
       <Stack.Screen name="add" options={{ title: t("addWallet") }} />
+      <Stack.Screen name="shared" options={{ title: "Shared wallet" }} />
     </Stack>
   );
 }
