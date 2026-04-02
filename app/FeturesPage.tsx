@@ -1,9 +1,8 @@
 import React from 'react';
-import FeturesPage from '@/components/FeturesPage/FeturesPage';
+import { MenuFeature } from '@/src/features/menu';
 
 export default function MenuList() {
   return (
-    <FeturesPage />
-
+    <MenuFeature />
   );
 }
