@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, DataSnapshot } from 'firebase/database';
 import { db } from '@/src/firebaseConfig';
 import { STORAGE, CURRENCIES, CURRENCY_SYMBOL } from '../constants';
 import { Currency } from '../types';
@@ -9,7 +9,9 @@ import { useCurrencyRates } from './useCurrencyRates';
 export function useDailyTotal() {
   const { rates, loading: ratesLoading, hasError: ratesError, toNIS, fromNIS, refresh } = useCurrencyRates();
 
-  const [totalSpentNIS, setTotalSpentNIS] = useState(0);
+  const [purchasesTotalNIS, setPurchasesTotalNIS] = useState(0);
+  const [bundlesTotalNIS, setBundlesTotalNIS] = useState(0);
+  const totalSpentNIS = purchasesTotalNIS + bundlesTotalNIS;
   const [dailyBudgetNIS, setDailyBudgetNIS] = useState(250);
   const [dataLoading, setDataLoading] = useState(true);
   const [displayCurrency, setDisplayCurrency] = useState<Currency>('NIS');
@@ -26,15 +28,18 @@ export function useDailyTotal() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onValue(ref(db, 'purchases'), (snapshot) => {
+    const purchasesRef = ref(db, 'purchases');
+    const bundlesRef = ref(db, 'Bundles');
+
+    const unsubPurchases = onValue(purchasesRef, (snapshot) => {
       if (!snapshot.exists()) {
-        setTotalSpentNIS(0);
+        setPurchasesTotalNIS(0);
         setDataLoading(false);
         return;
       }
       const today = new Date().toISOString().split('T')[0];
       let totalNIS = 0;
-      snapshot.forEach((child) => {
+      snapshot.forEach((child: DataSnapshot) => {
         const item = child.val();
         const itemDate = item.createdAt?.split('T')[0];
         if (itemDate === today) {
@@ -42,10 +47,32 @@ export function useDailyTotal() {
           totalNIS += toNIS(item.amount ?? 0, currency);
         }
       });
-      setTotalSpentNIS(totalNIS);
+      setPurchasesTotalNIS(totalNIS);
       setDataLoading(false);
     });
-    return () => unsubscribe();
+
+    const unsubBundles = onValue(bundlesRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        setBundlesTotalNIS(0);
+        return;
+      }
+      const today = new Date().toISOString().split('T')[0];
+      let totalNIS = 0;
+      snapshot.forEach((child: DataSnapshot) => {
+        const bundle = child.val();
+        const bundleDate = bundle.createdAt?.split('T')[0];
+        if (bundleDate === today) {
+          const currency = (bundle.currency as Currency) ?? 'NIS';
+          totalNIS += toNIS(bundle.totalPrice ?? 0, currency);
+        }
+      });
+      setBundlesTotalNIS(totalNIS);
+    });
+
+    return () => {
+      unsubPurchases();
+      unsubBundles();
+    };
   }, [toNIS]);
 
   const saveBudget = async (amountNIS: number) => {

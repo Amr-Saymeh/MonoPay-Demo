@@ -14,11 +14,16 @@ export default function PurchaseCard({
   const isRtl = I18nManager.isRTL;
   
   const meta = item.category ? (CATEGORY_META[item.category] ?? DEFAULT_META) : DEFAULT_META;
+  const dateObj = new Date(item.createdAt);
+  const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  
   const symbol = item.currency ? (CURRENCY_SYMBOL[item.currency] ?? '$') : '$';
   const formattedAmount = `${symbol}${item.amount.toFixed(2)}`;
   
   const categoryName = item.category ? t(item.category) : '';
-  const subtitle = categoryName ? `${categoryName} • ${item.time}` : item.time;
+  const subtitle = categoryName 
+    ? `${categoryName} • ${formattedDate} • ${item.time}` 
+    : `${formattedDate} • ${item.time}`;
 
   const translateX = useRef(new Animated.Value(0)).current;
   const isOpen = useRef(false);
@@ -95,6 +100,9 @@ export default function PurchaseCard({
 
           <View style={styles.amountContainer}>
             <Text style={styles.amount}>{formattedAmount}</Text>
+            {item.currency && (
+              <Text style={{ fontSize: 11, color: '#8e8e93', fontWeight: '600' }}>{item.currency}</Text>
+            )}
           </View>
         </TouchableOpacity>
       </Animated.View>

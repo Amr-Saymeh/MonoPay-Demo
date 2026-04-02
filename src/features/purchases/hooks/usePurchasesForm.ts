@@ -3,12 +3,13 @@ import { Keyboard } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { ref, push, set, onValue } from 'firebase/database';
 import { db } from '@/src/firebaseConfig';
-import { FormValues, Currency } from '../types';
+import { FormValues, Currency, SuggestionItem } from '../types';
 
 export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: () => void) {
   const [visibleToast, setVisibleToast] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [allPastPurchases, setAllPastPurchases] = useState<string[]>([]);
+  const [pastPurchases, setPastPurchases] = useState<SuggestionItem[]>([]);
+  const [availableBundles, setAvailableBundles] = useState<SuggestionItem[]>([]);
 
   const { control, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
@@ -23,25 +24,63 @@ export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: (
   const selectedCurrency = watch('currency') as Currency;
 
   useEffect(() => {
-    const unsubscribe = onValue(ref(db, 'purchases'), (snapshot) => {
-      if (!snapshot.exists()) {
-        return;
-      }
+    const purchasesRef = ref(db, 'purchases');
+    const bundlesRef = ref(db, 'Bundles');
+
+    const unsubPurchases = onValue(purchasesRef, (snapshot) => {
+      if (!snapshot.exists()) return;
       const data = snapshot.val();
-      const names = Object.values(data)
-        .map((item: any) => item.title)
-        .filter(title => title && typeof title === 'string');
-      setAllPastPurchases(Array.from(new Set(names)) as string[]);
+      const items = Object.values(data).map((item: any) => ({
+        name: item.title,
+        cost: item.amount?.toString(),
+        currency: item.currency as Currency,
+        category: item.category,
+      })).filter(i => i.name && typeof i.name === 'string');
+      
+      // Keep only unique names, prefer most recent
+      const unique = Array.from(new Map(items.map(i => [i.name, i])).values());
+      setPastPurchases(unique);
     });
-    return () => unsubscribe();
+
+    const unsubBundles = onValue(bundlesRef, (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.val();
+      const items = Object.values(data).map((item: any) => ({
+        name: item.name,
+        cost: item.totalPrice?.toString(),
+        currency: (item.items?.[0]?.currency || 'NIS') as Currency,
+        category: item.items?.[0]?.category || 'shopping',
+        isBundle: true,
+      })).filter(i => i.name && typeof i.name === 'string');
+      
+      setAvailableBundles(items);
+    });
+
+    return () => {
+      unsubPurchases();
+      unsubBundles();
+    };
   }, []);
 
   const filteredSuggestions = useMemo(() => {
     if (!nameInput || typeof nameInput !== 'string' || nameInput.trim() === '') return [];
-    return allPastPurchases.filter(n =>
-      n.toLowerCase().includes(nameInput.toLowerCase()) && n !== nameInput
-    ).slice(0, 6);
-  }, [nameInput, allPastPurchases]);
+    
+    const combined = [...availableBundles, ...pastPurchases];
+    // Remove duplicates by name
+    const uniqueMap = new Map();
+    combined.forEach(item => {
+      if (!uniqueMap.has(item.name.toLowerCase())) {
+        uniqueMap.set(item.name.toLowerCase(), item);
+      }
+    });
+
+    return Array.from(uniqueMap.values())
+      .filter(item =>
+        item.name.toLowerCase().includes(nameInput.toLowerCase()) && 
+        item.name.toLowerCase() !== nameInput.toLowerCase()
+      )
+      .slice(0, 6);
+  }, [nameInput, pastPurchases, availableBundles]);
 
   const onSubmit = async (data: FormValues) => {
     if (!data.name.trim() || !data.cost) {

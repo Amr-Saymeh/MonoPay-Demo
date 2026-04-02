@@ -62,6 +62,7 @@ type TranslationKey =
   | "idNumber"
   | "continue"
   | "login"
+  | "refreshNow"
   | "noAccount"
   | "alreadyHaveAccount"
   | "scanYourId"
@@ -195,7 +196,28 @@ type TranslationKey =
   | "deletePurchase"
   | "updatedEveryHour"
   | "errorFetchingRates"
-  | "enterAmountInAnyCurrency";
+  | "enterAmountInAnyCurrency"
+  | "items"
+  | "noItemsInBundle"
+  | "totalCost"
+  | "noBundlesFound"
+  | "edit"
+  | "editBundle"
+  | "createNewBundle"
+  | "bundleName"
+  | "bundleNamePlaceholder"
+  | "cancelAdding"
+  | "addItemToBundle"
+  | "itemNamePlaceholder"
+  | "price"
+  | "confirmItem"
+  | "updateBundle"
+  | "confirmCreateBundle"
+  | "recurring"
+  | "manual"
+  | "myBundles"
+  | "editBudget"
+  | "bundlesSubtitle";
 
 export const translations: Record<
   SupportedLanguage,
@@ -205,6 +227,7 @@ export const translations: Record<
     appName: "MonoPay",
     home: "Home",
     explore: "Explore",
+    refreshNow: "Refresh Now",
     wallets: "Wallets",
     walletManagement: "Wallet Management",
     myWallets: "My Wallets",
@@ -396,12 +419,35 @@ export const translations: Record<
     updatedEveryHour: "Updated every hour",
     errorFetchingRates: "Error fetching rates",
     enterAmountInAnyCurrency: "Enter amount in any currency",
+    items: "Items",
+    noItemsInBundle: "No items in this bundle.",
+    totalCost: "Total Cost",
+    noBundlesFound: "No bundles found.",
+    edit: "Edit",
+    editBundle: "Edit Bundle",
+    createNewBundle: "Create New Bundle",
+    bundleName: "Bundle Name",
+    bundleNamePlaceholder: "e.g., Morning Routine",
+    cancelAdding: "Cancel Adding",
+    addItemToBundle: "+ Add Item to Bundle",
+    itemNamePlaceholder: "Item Name (e.g., Coffee)",
+    price: "Price",
+    confirmItem: "Confirm Item",
+    updateBundle: "Update Bundle",
+    confirmCreateBundle: "Confirm & Create Bundle",
+    recurring: "RECURRING",
+    manual: "MANUAL",
+    myBundles: "My Bundles",
+    editBudget: "Edit Budget",
+    bundlesSubtitle: "Manage your recurring purchase sets and optimize your daily spending flow.",
   },
   ar: {
+    editBudget: "تعديل الميزانية",
     appName: "MonoPay",
     home: "الرئيسية",
     explore: "استكشاف",
     wallets: "المحافظ",
+    refreshNow: "تحديث الآن",
     walletManagement: "إدارة المحافظ",
     myWallets: "محافظي",
     addWallet: "إضافة محفظة",
@@ -593,7 +639,26 @@ export const translations: Record<
     updatedEveryHour: "يتم التحديث كل ساعة",
     errorFetchingRates: "خطأ في جلب الأسعار",
     enterAmountInAnyCurrency: "أدخل المبلغ بأي عملة",
-    
+    items: "العناصر",
+    noItemsInBundle: "لا توجد عناصر في هذه الحزمة.",
+    totalCost: "التكلفة الإجمالية",
+    noBundlesFound: "لم يتم العثور على حزم.",
+    edit: "تعديل",
+    editBundle: "تعديل الحزمة",
+    createNewBundle: "إنشاء حزمة جديدة",
+    bundleName: "اسم الحزمة",
+    bundleNamePlaceholder: "مثال: روتين الصباح",
+    cancelAdding: "إلغاء الإضافة",
+    addItemToBundle: "+ إضافة عنصر للحزمة",
+    itemNamePlaceholder: "اسم العنصر (مثال: قهوة)",
+    price: "السعر",
+    confirmItem: "تأكيد العنصر",
+    updateBundle: "تحديث الحزمة",
+    confirmCreateBundle: "تأكيد وإنشاء الحزمة",
+    recurring: "متكرر",
+    manual: "يدوي",
+    myBundles: "حزمي الخاصة",
+    bundlesSubtitle: "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
   },
 };
 

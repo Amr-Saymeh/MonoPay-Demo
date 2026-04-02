@@ -67,13 +67,18 @@ export default function PurchaseForm({
                     {suggestions.map((item, index) => (
                       <TouchableOpacity 
                         key={index} 
-                        style={styles.suggestionChip}
+                        style={[styles.suggestionChip, item.isBundle && styles.bundleSuggestionChip]}
                         onPress={() => {
-                          setValue('name', item);
+                          setValue('name', item.name);
+                          if (item.cost) setValue('cost', item.cost);
+                          if (item.currency) setValue('currency', item.currency);
+                          if (item.category) setValue('category', item.category);
                           Keyboard.dismiss();
                         }}
                       >
-                        <Text style={styles.suggestionChipText}>{item}</Text>
+                        <Text style={[styles.suggestionChipText, item.isBundle && styles.bundleSuggestionChipText]}>
+                          {item.name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </ScrollView>
