@@ -16,6 +16,7 @@ export function AuthInput({
   onToggleSecure,
   autoCapitalize,
   textContentType,
+  inputAccessoryViewID,
 }: {
   value: string;
   onChangeText: (v: string) => void;
@@ -25,6 +26,7 @@ export function AuthInput({
   onToggleSecure?: () => void;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   textContentType?: any;
+  inputAccessoryViewID?: string;
 }) {
   const { isRtl } = useI18n();
   const backgroundColor = useThemeColor({}, "inputBackground");
@@ -55,6 +57,7 @@ export function AuthInput({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize ?? "none"}
         textContentType={textContentType}
+        inputAccessoryViewID={inputAccessoryViewID}
       />
 
       {showEye ? (

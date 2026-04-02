@@ -9,15 +9,15 @@ import {
   StatusMessage,
   WalletCard,
   WalletSelectorModal,
-} from '../../src/features/exchange/components';
-import { useExchangeRates, useWalletCurrencies, useWallets } from '../../src/features/exchange/hooks';
+} from '../src/features/exchange/components';
+import { useExchangeRates, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
 import {
   denormalizeCurrency,
   getAvailableToCurrencies,
   normalizeCurrency,
-} from '../../src/features/exchange/utils';
-import { db } from '../../src/firebaseConfig';
-import { useAuth } from '../../src/providers/AuthProvider';
+} from '../src/features/exchange/utils';
+import { db } from '../src/firebaseConfig';
+import { useAuth } from '../src/providers/AuthProvider';
 
 const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
 
