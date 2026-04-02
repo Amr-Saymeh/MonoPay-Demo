@@ -147,6 +147,7 @@ export default function DailyTotalCard({
   dailyBudgetNIS,
   onShowRatesModal,
   onEditBudget,
+  onCreateBundle,
 }: DailyTotalCardProps) {
   const { t } = useI18n() as any;
 
@@ -200,11 +201,18 @@ export default function DailyTotalCard({
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={styles.editButton} onPress={onEditBudget}>
-            <Text style={styles.editButtonText}>
-              {t('editDailyBudget')} ({symbol}{displayBudget.toFixed(0)})
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.editButton} onPress={onEditBudget}>
+              <Text style={styles.editButtonText}>
+                {t('editBudget')} ({symbol}{displayBudget.toFixed(0)})
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.bundleActionBtn} onPress={onCreateBundle}>
+              <Ionicons name="layers-outline" size={16} color="#fff" />
+              <Text style={styles.bundleActionText}>{t('createNewBundle')}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </LinearGradient>
     </View>

@@ -14,8 +14,11 @@ export const DailyTotalCardStyles = StyleSheet.create({
   amount:           { fontSize: 42, fontWeight: 'bold', color: '#ffffff', marginBottom: 12 },
   badge:            { alignSelf: 'flex-start', borderRadius: 20, paddingVertical: 6, paddingHorizontal: 16, marginBottom: 2 },
   badgeText:        { fontSize: 11, fontWeight: '700', color: '#fff' },
-  editButton:       { marginTop: 14, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' },
-  editButtonText:   { color: '#ffffff', fontSize: 13, fontWeight: '600' },
+  editButton:       { flex: 1, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center' },
+  editButtonText:   { color: '#ffffff', fontSize: 12, fontWeight: '600' },
+  actionRow:        { flexDirection: 'row', gap: 10, marginTop: 15, width: '100%' },
+  bundleActionBtn:  { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' },
+  bundleActionText: { color: '#ffffff', fontSize: 12, fontWeight: '700' },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -90,6 +93,8 @@ export const FormStyles = StyleSheet.create({
     height: 34,
   },
   suggestionChipText: { color: '#fff', fontWeight: '600', fontSize: 13 },
+  bundleSuggestionChip: { backgroundColor: '#FF9500' }, // Premium Orange/Gold for Bundles
+  bundleSuggestionChipText: { color: '#000', fontWeight: '700' },
   row:                  { flexDirection: 'row', gap: 10, marginBottom: 15 },
   error:                { color: 'red', fontSize: 12, marginTop: 4 },
   radioGroup:           { flex: 1.5, flexDirection: 'row', gap: 6 },

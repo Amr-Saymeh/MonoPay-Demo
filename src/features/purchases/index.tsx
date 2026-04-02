@@ -77,6 +77,7 @@ export default function PurchasesFeature() {
           }
         }}
         onShowRatesModal={() => setShowRatesModal(true)}
+        onCreateBundle={() => router.push('/Bundles')}
       />
 
       <PurchaseForm

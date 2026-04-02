@@ -9,6 +9,14 @@ export type FormValues = {
   category: string;
 };
 
+export type SuggestionItem = {
+  name: string;
+  cost?: string;
+  currency?: Currency;
+  category?: string;
+  isBundle?: boolean;
+};
+
 export type PurchaseItem = {
   id: string;
   title: string;
@@ -38,6 +46,7 @@ export interface DailyTotalCardProps {
   onCycleCurrency: () => void;
   onBack: () => void;
   onShowRatesModal: () => void;
+  onCreateBundle: () => void;
 }
 
 export interface RatesModalProps {
@@ -73,7 +82,7 @@ export interface PurchaseFormProps {
   onSubmit: (e?: any) => void;
   loading: boolean;
   visibleToast: boolean;
-  suggestions: string[];
+  suggestions: SuggestionItem[];
   control: any;
   errors: any;
   setValue: any;
