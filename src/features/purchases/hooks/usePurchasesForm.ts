@@ -5,11 +5,22 @@ import { ref, push, set, onValue } from 'firebase/database';
 import { db } from '@/src/firebaseConfig';
 import { FormValues, Currency, SuggestionItem } from '../types';
 
-export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: () => void) {
+export function usePurchasesForm(
+  dailyBudgetNIS: number,
+  totalSpentNIS: number,
+  toNIS: (amount: number, currency: Currency) => number,
+  onSuccessAction?: () => void, 
+  onErrorAction?: () => void
+) {
   const [visibleToast, setVisibleToast] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pastPurchases, setPastPurchases] = useState<SuggestionItem[]>([]);
   const [availableBundles, setAvailableBundles] = useState<SuggestionItem[]>([]);
+  
+  // For Budget Warning
+  const [showBudgetAlert, setShowBudgetAlert] = useState(false);
+  const [pendingData, setPendingData] = useState<FormValues | null>(null);
+  const [projectedTotal, setProjectedTotal] = useState(0);
 
   const { control, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
@@ -66,7 +77,6 @@ export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: (
     if (!nameInput || typeof nameInput !== 'string' || nameInput.trim() === '') return [];
     
     const combined = [...availableBundles, ...pastPurchases];
-    // Remove duplicates by name
     const uniqueMap = new Map();
     combined.forEach(item => {
       if (!uniqueMap.has(item.name.toLowerCase())) {
@@ -82,11 +92,7 @@ export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: (
       .slice(0, 6);
   }, [nameInput, pastPurchases, availableBundles]);
 
-  const onSubmit = async (data: FormValues) => {
-    if (!data.name.trim() || !data.cost) {
-      if (onErrorAction) onErrorAction();
-      return;
-    }
+  const performSubmit = async (data: FormValues) => {
     setLoading(true);
     try {
       const now = new Date();
@@ -104,6 +110,8 @@ export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: (
       setTimeout(() => setVisibleToast(false), 1500);
 
       reset();
+      setShowBudgetAlert(false);
+      setPendingData(null);
       Keyboard.dismiss();
       if (onSuccessAction) onSuccessAction();
     } catch (e) {
@@ -112,6 +120,25 @@ export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: (
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSubmit = (data: FormValues) => {
+    if (!data.name.trim() || !data.cost) {
+      if (onErrorAction) onErrorAction();
+      return;
+    }
+
+    const newAmountNIS = toNIS(parseFloat(data.cost), data.currency);
+    const newTotal = totalSpentNIS + newAmountNIS;
+
+    if (dailyBudgetNIS > 0 && newTotal > dailyBudgetNIS) {
+      setPendingData(data);
+      setProjectedTotal(newTotal);
+      setShowBudgetAlert(true);
+      return;
+    }
+
+    performSubmit(data);
   };
 
   return {
@@ -123,5 +150,10 @@ export function usePurchasesForm(onSuccessAction?: () => void, onErrorAction?: (
     visibleToast,
     suggestions: filteredSuggestions,
     onSubmit: handleSubmit(onSubmit),
+    // Budget Alert related
+    showBudgetAlert,
+    setShowBudgetAlert,
+    projectedTotal,
+    confirmBudgetWarning: () => pendingData && performSubmit(pendingData),
   };
 }

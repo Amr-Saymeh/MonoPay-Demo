@@ -93,3 +93,12 @@ export interface ToastProps {
   visible: boolean;
   message: string;
 }
+
+export interface BudgetWarningModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  newTotal: number;
+  budget: number;
+  currencySymbol: string;
+}

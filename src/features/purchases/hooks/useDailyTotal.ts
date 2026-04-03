@@ -96,6 +96,7 @@ export function useDailyTotal() {
     ratesError,
     rates,
     fromNIS,
+    toNIS,
     refreshRates: refresh,
     saveBudget,
     cycleCurrency,

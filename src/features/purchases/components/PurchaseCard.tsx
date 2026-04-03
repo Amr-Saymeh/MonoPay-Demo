@@ -1,9 +1,12 @@
 import React, { useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, PanResponder, I18nManager } from 'react-native';
+import { View, Text, TouchableOpacity, I18nManager } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useI18n } from "@/hooks/use-i18n";
 import { PurchaseCardProps } from '../types';
-import { CATEGORY_META, DEFAULT_META, CURRENCY_SYMBOL, DELETE_BTN_WIDTH, SWIPE_THRESHOLD } from '../constants';
+import { CATEGORY_META, DEFAULT_META, CURRENCY_SYMBOL, DELETE_BTN_WIDTH } from '../constants';
 import { PurchaseCardStyles as styles } from '../styles';
+
+import * as Haptics from 'expo-haptics';
 
 export default function PurchaseCard({
   item,
@@ -11,6 +14,7 @@ export default function PurchaseCard({
   onDelete,
 }: PurchaseCardProps) {
   const { t } = useI18n() as any;
+  const swipeableRef = useRef<Swipeable>(null);
   const isRtl = I18nManager.isRTL;
   
   const meta = item.category ? (CATEGORY_META[item.category] ?? DEFAULT_META) : DEFAULT_META;
@@ -25,61 +29,40 @@ export default function PurchaseCard({
     ? `${categoryName} • ${formattedDate} • ${item.time}` 
     : `${formattedDate} • ${item.time}`;
 
-  const translateX = useRef(new Animated.Value(0)).current;
-  const isOpen = useRef(false);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dy) < 20,
-      onPanResponderMove: (_, g) => {
-        const dragAmount = isRtl ? Math.max(0, Math.min(g.dx, DELETE_BTN_WIDTH)) : Math.min(0, Math.max(g.dx, -DELETE_BTN_WIDTH));
-        translateX.setValue(dragAmount);
-      },
-      onPanResponderRelease: (_, g) => {
-        const shouldOpen = isRtl ? g.dx > SWIPE_THRESHOLD : g.dx < -SWIPE_THRESHOLD;
-        const toValue = shouldOpen ? (isRtl ? DELETE_BTN_WIDTH : -DELETE_BTN_WIDTH) : 0;
-        
-        Animated.spring(translateX, {
-          toValue,
-          useNativeDriver: true,
-        }).start();
-        isOpen.current = shouldOpen;
-      },
-    })
-  ).current;
-
-  const closeSwipe = () => {
-    Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
-    isOpen.current = false;
-  };
-
-  return (
-    <View style={styles.cardWrapper}>
-      <View style={[styles.deleteBackground, isRtl ? { left: 0 } : { right: 0 }]}>
+  const renderDeleteAction = () => {
+    return (
+      <View style={[styles.deleteBackground, { width: DELETE_BTN_WIDTH }]}>
         <TouchableOpacity
           style={styles.deleteAction}
           onPress={() => {
-            closeSwipe();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            swipeableRef.current?.close();
             onDelete(item);
           }}
         >
           <Text style={styles.deleteActionText}>{t('delete').toUpperCase()}</Text>
         </TouchableOpacity>
       </View>
+    );
+  };
 
-      <Animated.View
-        style={{ transform: [{ translateX }] }}
-        {...panResponder.panHandlers}
+  return (
+    <View style={styles.cardWrapper}>
+      <Swipeable
+        ref={swipeableRef}
+        friction={1.5}
+        rightThreshold={30}
+        leftThreshold={30}
+        overshootFriction={8}
+        onSwipeableWillOpen={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }}
+        renderRightActions={!isRtl ? renderDeleteAction : undefined}
+        renderLeftActions={isRtl ? renderDeleteAction : undefined}
       >
         <TouchableOpacity
           style={[styles.card, isRtl && { flexDirection: 'row-reverse' }]}
-          onPress={() => {
-            if (isOpen.current) {
-              closeSwipe();
-              return;
-            }
-            onPress?.(item);
-          }}
+          onPress={() => onPress?.(item)}
           activeOpacity={0.92}
         >
           <View style={[styles.iconContainer, { backgroundColor: meta.bg }, isRtl ? { marginLeft: 16 } : { marginRight: 16 }]}>
@@ -105,7 +88,7 @@ export default function PurchaseCard({
             )}
           </View>
         </TouchableOpacity>
-      </Animated.View>
+      </Swipeable>
     </View>
   );
 }
