@@ -78,6 +78,27 @@ export const BudgetModalStyles = StyleSheet.create({
   saveLabel:      { color: '#fff', fontWeight: '700' },
 });
 
+export const WarningModalStyles = StyleSheet.create({
+  overlay:        { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' },
+  card:           { backgroundColor: '#fff', borderRadius: 32, padding: 24, width: '90%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 15 },
+  iconBox:        { width: 80, height: 80, borderRadius: 40, backgroundColor: '#FFF5F5', justifyContent: 'center', alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: '#FFE5E5' },
+  icon:           { fontSize: 40 },
+  title:          { fontSize: 22, fontWeight: '900', color: THEME.danger, marginBottom: 12, textAlign: 'center' },
+  message:        { fontSize: 15, color: '#444', textAlign: 'center', lineHeight: 22, marginBottom: 24, paddingHorizontal: 10 },
+  statsBox:       { width: '100%', backgroundColor: '#F8F9FA', borderRadius: 20, padding: 16, marginBottom: 24 },
+  statRow:        { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  statLabel:      { fontSize: 13, color: '#666', fontWeight: '600' },
+  statValue:      { fontSize: 13, color: '#111', fontWeight: '700' },
+  divider:        { height: 1, backgroundColor: '#EEE', marginVertical: 8 },
+  totalLabel:     { fontSize: 14, color: THEME.danger, fontWeight: '800' },
+  totalValue:     { fontSize: 16, color: THEME.danger, fontWeight: '900' },
+  btnCol:         { width: '100%', gap: 12 },
+  saveBtn:        { width: '100%', backgroundColor: THEME.success || '#4CAF50', paddingVertical: 16, borderRadius: 18, alignItems: 'center', shadowColor: '#4CAF50', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  saveBtnText:    { color: '#fff', fontWeight: '800', fontSize: 16 },
+  proceedBtn:     { width: '100%', paddingVertical: 12, alignItems: 'center' },
+  proceedBtnText: { color: '#888', fontWeight: '600', fontSize: 14, textDecorationLine: 'underline' },
+});
+
 export const FormStyles = StyleSheet.create({
   container:   { padding: 20 },
   inputWrapper: { marginBottom: 15 },
@@ -142,14 +163,12 @@ export const PurchaseCardStyles = StyleSheet.create({
     marginVertical: 6,
   },
   deleteBackground: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
     width: DELETE_BTN_WIDTH,
-    borderRadius: 18,
     backgroundColor: '#FF3B30',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 18,
+    height: '100%',
   },
   deleteAction: {
     flex: 1,

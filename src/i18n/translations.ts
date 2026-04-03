@@ -217,7 +217,13 @@ type TranslationKey =
   | "manual"
   | "myBundles"
   | "editBudget"
-  | "bundlesSubtitle";
+  | "bundlesSubtitle"
+  | "budgetWarningTitle"
+  | "budgetWarningMessage"
+  | "proceedAnyway"
+  | "saveMyMoney"
+  | "remainingBudget"
+  | "newTotalAfter";
 
 export const translations: Record<
   SupportedLanguage,
@@ -440,6 +446,12 @@ export const translations: Record<
     myBundles: "My Bundles",
     editBudget: "Edit Budget",
     bundlesSubtitle: "Manage your recurring purchase sets and optimize your daily spending flow.",
+    budgetWarningTitle: "Budget Warning! ⚠️",
+    budgetWarningMessage: "You are about to exceed your daily budget. Do you really need this purchase? Every bit counts!",
+    proceedAnyway: "Force Add",
+    saveMyMoney: "Save My Money",
+    remainingBudget: "Remaining",
+    newTotalAfter: "New total will be",
   },
   ar: {
     editBudget: "تعديل الميزانية",
@@ -659,6 +671,12 @@ export const translations: Record<
     manual: "يدوي",
     myBundles: "حزمي الخاصة",
     bundlesSubtitle: "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
+    budgetWarningTitle: "تنبيه الميزانية! ⚠️",
+    budgetWarningMessage: "أنت على وشك تجاوز ميزانيتك اليومية. هل هذه العملية ضرورية حقاً؟ كل قرش يهم!",
+    proceedAnyway: "إضافة على أي حال",
+    saveMyMoney: "وفر أموالي",
+    remainingBudget: "المتبقي",
+    newTotalAfter: "سيكون الإجمالي الجديد",
   },
 };
 
