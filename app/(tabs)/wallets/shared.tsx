@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+import { ThemedView } from "@/components/themed-view";
+import { SharedCard } from '@/src/features/shared/SharedCard';
+
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -21,7 +24,6 @@ import {
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
@@ -405,6 +407,15 @@ export default function SharedWalletScreen() {
     finally { setSavingAmount(false); }
   };
 
+
+// __ ca
+const cardCurrencies = useMemo(
+  () =>
+    Object.entries(wallet?.currancies ?? {})
+      .map(([code, balance]) => ({ code, balance: Number(balance) }))
+      .filter(({ balance }) => Number.isFinite(balance)),
+  [wallet?.currancies],
+);
   // ── Guard screens ─────────────────────────────────────────────────────────
   if (!user) return <ThemedView style={styles.screen}><ThemedText type="subtitle">{t("pleaseSignIn")}</ThemedText></ThemedView>;
   if (!Number.isFinite(walletId)) return <ThemedView style={styles.screen}><ThemedText type="subtitle">{t("walletNotFound") ?? "Wallet not found"}</ThemedText></ThemedView>;
@@ -424,50 +435,18 @@ export default function SharedWalletScreen() {
         showsVerticalScrollIndicator={false}
       >
 
-        {/* ── Card — new purple gradient design ── */}
         <View style={styles.cardWrapper}>
-          <LinearGradient
-            colors={["#a855f7", "#7c3aed", "#6d28d9", "#8b5cf6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.cardDetails}
-          >
-            {/* Decorative blobs */}
-            <View style={styles.cardCircleTopRight} />
-            <View style={styles.cardCircleBottomLeft} />
-            {/* Wallet name + goal from Firebase */}
-            <View style={styles.cardBody}>
-              {/* Status + member count badges */}
-              <View style={styles.cardBadgeRow}>
-                <View style={[styles.cardPill, walletState === "active" ? styles.cardPillActive : styles.cardPillInactive]}>
-                  <ThemedText style={styles.cardPillText}>
-                    {walletState === "active" ? t("active") ?? "Active" : t("inactive") ?? "Inactive"}
-                  </ThemedText>
-                </View>
-                <View style={styles.cardPillInfo}>
-                  <MaterialIcons name="groups" size={12} color="#fff" />
-                  <ThemedText style={styles.cardPillText}>
-                    {memberUids.length} {t("members") ?? "members"}
-                  </ThemedText>
-                </View>
-              </View>
-            </View>
 
-            {/* Owner + balance stats */}
-            <View style={styles.cardStatsRow}>
-              <View style={styles.cardStat}>
-                <ThemedText style={styles.cardStatLabel}>{t("walletOwner") ?? "Owner"}</ThemedText>
-                <ThemedText style={styles.cardStatValue} numberOfLines={1}>{ownerLabel}</ThemedText>
-              </View>
-              <View style={styles.cardStat}>
-                <ThemedText style={styles.cardStatLabel}>{t("balance") ?? "Balance"}</ThemedText>
-                <ThemedText style={styles.cardStatValue}>{formatAmount(totalBalance)}</ThemedText>
-              </View>
-            </View>
-          </LinearGradient>
-        </View>
+            <SharedCard
+               name={name}
+               ownerLabel={ownerLabel}
+               memberUids={memberUids}
+               walletState={walletState}
+               currencies={cardCurrencies}
 
-
+          />
+  
+</View>
 
 
         {/* ── Members + Add/Remove money buttons ── */}
