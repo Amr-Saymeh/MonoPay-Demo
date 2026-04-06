@@ -91,7 +91,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
-  },
+    
+    },
   section: {
     marginBottom: 8,
   },

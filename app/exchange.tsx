@@ -1,3 +1,4 @@
+import { SharedCard } from '@/src/features/shared/SharedCard';
 import { FontAwesome } from '@expo/vector-icons';
 import { get, ref, set } from 'firebase/database';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -7,7 +8,6 @@ import {
   ExchangeCard,
   RateInfo,
   StatusMessage,
-  WalletCard,
   WalletSelectorModal,
 } from '../src/features/exchange/components';
 import { useExchangeRates, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
@@ -194,11 +194,13 @@ const Exchange: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <WalletCard
-          name={selectedWallet.name}
-          emoji={selectedWallet.emoji}
-          currencies={currencies}
+        <View style={{ marginBottom: 16 }}>
+        <SharedCard
+         name={selectedWallet.name}
+         emoji={selectedWallet.emoji}
+         currencies={currencies}
         />
+        </View>
 
         <ExchangeCard
           fromCurrency={normalizeCurrency(fromCurrency)}
