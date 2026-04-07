@@ -10,7 +10,7 @@ import {
   StatusMessage,
   WalletSelectorModal,
 } from '../src/features/exchange/components';
-import { useExchangeRates, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
+import { useExchangeRatesQuery, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
 import {
   denormalizeCurrency,
   getAvailableToCurrencies,
@@ -36,7 +36,7 @@ const Exchange: React.FC = () => {
 
   const { wallets, loading: walletsLoading } = useWallets(user?.uid);
   const { currencies, getBalance } = useWalletCurrencies(selectedWalletId);
-  const { getRate, loading: ratesLoading } = useExchangeRates(fromCurrency);
+  const { getRate, loading: ratesLoading } = useExchangeRatesQuery(fromCurrency);
 
   const selectedWallet = useMemo(
     () => wallets.find((wallet) => wallet.walletid === selectedWalletId) ?? null,
