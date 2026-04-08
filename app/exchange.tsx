@@ -1,4 +1,4 @@
-import { SharedCard } from '@/src/features/shared/SharedCard';
+import { SharedCard } from '@/src/features/card/SharedCard';
 import { FontAwesome } from '@expo/vector-icons';
 import { get, ref, set } from 'firebase/database';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -19,7 +19,7 @@ import {
 import { db } from '../src/firebaseConfig';
 import { useAuth } from '../src/providers/AuthProvider';
 
-const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
 
 const Exchange: React.FC = () => {
   const { user } = useAuth();
