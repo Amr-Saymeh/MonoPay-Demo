@@ -1,9 +1,8 @@
-export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
+export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
 
 export const CURRENCY_NAMES: { [key: string]: string } = {
   USD: 'US Dollar',
   EUR: 'Euro',
-  ILS: 'Israeli Shekel',
   NIS: 'Israeli Shekel',
   JOD: 'Jordanian Dinar',
   EGP: 'Egyptian Pound',
@@ -16,13 +15,16 @@ export const CURRENCY_NAMES: { [key: string]: string } = {
 };
 
 export function normalizeCurrency(code: string): string {
-  if (code === 'NIS') return 'ILS';
-  return code;
+  // Always use uppercase for consistency
+  const upper = code.trim().toUpperCase();
+  // Handle legacy ILS codes from database
+  if (upper === 'ILS') return 'NIS';
+  return upper;
 }
 
 export function denormalizeCurrency(code: string): string {
-  if (code === 'ILS') return 'NIS';
-  return code;
+  // Always use uppercase for consistency
+  return code.trim().toUpperCase();
 }
 
 export function getAvailableToCurrencies(fromCurrency: string): string[] {
