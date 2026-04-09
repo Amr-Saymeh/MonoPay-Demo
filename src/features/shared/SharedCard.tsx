@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -76,101 +77,104 @@ export function SharedCard({
   const displayed = nonZero[displayedIndex % Math.max(nonZero.length, 1)];
 
   return (
-    <TouchableOpacity style={styles.container} onPress={handlePress} activeOpacity={0.92}>
-      {/* Glows */}
+    <View style={styles.container}>
       <View style={styles.glowTopRight} />
       <View style={styles.glowBottomLeft} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.emojiContainer}>
-            <Text style={styles.emoji}>{emoji ?? '💳'}</Text>
-          </View>
-          <Text style={styles.name} numberOfLines={1}>{name}</Text>
-        </View>
+      <ScrollView
+        bounces={false}
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <TouchableOpacity onPress={handlePress} activeOpacity={0.92}>
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <View style={styles.emojiContainer}>
+                <Text style={styles.emoji}>{emoji ?? '💳'}</Text>
+              </View>
+              <Text style={styles.name} numberOfLines={1}>{name}</Text>
+            </View>
 
-        {/* Status badge — shared only */}
-        {isShared && walletState && (
-          <View style={[
-            styles.statusBadge,
-            isActive ? styles.statusActive : styles.statusInactive,
-          ]}>
-            <View style={[
-              styles.statusDot,
-              { backgroundColor: isActive ? '#4ade80' : '#f87171' },
-            ]} />
-            <Text style={[
-              styles.statusText,
-              { color: isActive ? '#4ade80' : '#f87171' },
-            ]}>
-              {isActive ? 'Active' : 'Inactive'}
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Balance */}
-      <Text style={styles.label}>Available Balance</Text>
-
-      {nonZero.length === 0 ? (
-        <Text style={styles.balance}>—</Text>
-      ) : displayed ? (
-        <Animated.View style={{ opacity: fadeAnim }}>
-          <Text style={styles.balance}>
-            {displayed.balance.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </Text>
-          <TouchableOpacity
-            style={styles.currencyPill}
-            onPress={handlePress}
-            activeOpacity={0.7}
-          >
-            <View style={styles.currencyDot} />
-            <Text style={styles.currencyCode}>
-              {displayed.code.toUpperCase()}
-            </Text>
-            {nonZero.length > 1 && (
-              <Text style={styles.currencyChevron}>▾</Text>
+            {isShared && walletState && (
+              <View style={[
+                styles.statusBadge,
+                isActive ? styles.statusActive : styles.statusInactive,
+              ]}>
+                <View style={[
+                  styles.statusDot,
+                  { backgroundColor: isActive ? '#4ade80' : '#f87171' },
+                ]} />
+                <Text style={[
+                  styles.statusText,
+                  { color: isActive ? '#4ade80' : '#f87171' },
+                ]}>
+                  {isActive ? 'Active' : 'Inactive'}
+                </Text>
+              </View>
             )}
-          </TouchableOpacity>
-        </Animated.View>
-      ) : null}
-
-      {/* Page indicator chips */}
-      {nonZero.length > 1 && (
-        <View style={styles.chips}>
-          {nonZero.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.chip, i === displayedIndex && styles.chipActive]}
-            />
-          ))}
-        </View>
-      )}
-
-      {/* Footer — shared only */}
-      {isShared && (
-        <>
-          <View style={styles.divider} />
-          <View style={styles.footer}>
-            <View style={styles.metaBlock}>
-              <Text style={styles.metaLabel}>Owner</Text>
-              <Text style={styles.metaValue} numberOfLines={1}>
-                {ownerLabel}
-              </Text>
-            </View>
-            <View style={[styles.metaBlock, styles.metaBlockRight]}>
-              <Text style={styles.metaLabel}>
-                {memberUids!.length} members
-              </Text>
-              <MemberActive memberUids={memberUids!} />
-            </View>
           </View>
-        </>
-      )}
-    </TouchableOpacity>
+
+          <Text style={styles.label}>Available Balance</Text>
+
+          {nonZero.length === 0 ? (
+            <Text style={styles.balance}>—</Text>
+          ) : displayed ? (
+            <Animated.View style={{ opacity: fadeAnim }}>
+              <Text style={styles.balance}>
+                {displayed.balance.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
+              <TouchableOpacity
+                style={styles.currencyPill}
+                onPress={handlePress}
+                activeOpacity={0.7}
+              >
+                <View style={styles.currencyDot} />
+                <Text style={styles.currencyCode}>
+                  {displayed.code.toUpperCase()}
+                </Text>
+                {nonZero.length > 1 && (
+                  <Text style={styles.currencyChevron}>▾</Text>
+                )}
+              </TouchableOpacity>
+            </Animated.View>
+          ) : null}
+
+          {nonZero.length > 1 && (
+            <View style={styles.chips}>
+              {nonZero.map((_, i) => (
+                <View
+                  key={i}
+                  style={[styles.chip, i === displayedIndex && styles.chipActive]}
+                />
+              ))}
+            </View>
+          )}
+        </TouchableOpacity>
+
+        {isShared && (
+          <>
+            <View style={styles.divider} />
+            <View style={styles.footer}>
+              <View style={styles.metaBlock}>
+                <Text style={styles.metaLabel}>Owner</Text>
+                <Text style={styles.metaValue} numberOfLines={1}>
+                  {ownerLabel}
+                </Text>
+              </View>
+              <View style={[styles.metaBlock, styles.metaBlockRight]}>
+                <Text style={styles.metaLabel}>
+                  {memberUids!.length} members
+                </Text>
+                <MemberActive memberUids={memberUids!} />
+              </View>
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }
