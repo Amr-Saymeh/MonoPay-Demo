@@ -1,46 +1,38 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { ThemedView } from "@/components/themed-view";
 import { SharedCard } from "@/src/features/card/SharedCard";
 
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
     ActivityIndicator,
     Alert,
-    Animated,
-    InputAccessoryView,
-    Keyboard,
-    Modal,
-    Platform,
-    Pressable,
     ScrollView,
     StyleSheet,
-    TextInput,
-    TouchableOpacity,
     View
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useI18n } from "@/hooks/use-i18n";
-import { useAuth } from "@/src/providers/AuthProvider";
 import {
-  MemberSection,
-  BalanceActions,
-  HistorySection,
-  AmountModal,
+    AmountModal,
+    BalanceActions,
+    HistorySection,
+    MemberSection,
 } from "@/src/features/shared/components";
 import {
-  useSharedWallet,
-  useSharedWalletLogs,
-  useAllUsersProfiles,
-  useMemberSuggestions,
-  useAmountTransaction,
+    useAllUsersProfiles,
+    useAmountTransaction,
+    useMemberSuggestions,
+    useSharedWallet,
+    useSharedWalletLogs,
 } from "@/src/features/shared/hooks";
 import {
-  getNextUserWalletKey,
+    getNextUserWalletKey,
 } from "@/src/features/shared/utils/walletHelpers";
-import { ref, update } from "firebase/database";
 import { db } from "@/src/firebaseConfig";
+import { useAuth } from "@/src/providers/AuthProvider";
+import { ref, update } from "firebase/database";
 
 function formatAmount(value: number): string {
   return Number(value).toFixed(2);
@@ -50,26 +42,25 @@ function formatCurrency(code: string): string {
   return code.trim().toUpperCase();
 }
 
-function getCurrencyBalance(currancies: Record<string, number> | undefined, currencyCode: string): number {
-  if (!currancies) return 0;
-  const upperCode = currencyCode.toUpperCase();
-  // Try exact match first, then case-insensitive
-  if (currancies[upperCode] !== undefined) {
-    return Number(currancies[upperCode]) || 0;
-  }
-  // Search for case-insensitive match
-  const entry = Object.entries(currancies).find(
-    ([key]) => key.toUpperCase() === upperCode
-  );
-  return entry ? Number(entry[1]) || 0 : 0;
-}
-
 export default function SharedWalletScreen() {
   const { t } = useI18n();
+  const router = useRouter();
   const { user } = useAuth();
-  const params = useLocalSearchParams<{ walletId?: string }>();
+  const params = useLocalSearchParams<{ walletId?: string; walletid?: string }>();
 
-  const walletId = useMemo(() => Number(params.walletId ?? NaN), [params.walletId]);
+  const walletIdParam = useMemo(
+    () => params.walletId ?? params.walletid,
+    [params.walletId, params.walletid],
+  );
+
+  const walletId = useMemo(() => Number(walletIdParam ?? NaN), [walletIdParam]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (!Number.isFinite(walletId)) {
+      router.replace("/wallets" as any);
+    }
+  }, [router, user, walletId]);
 
   const { wallet, loading, name, memberUids } = useSharedWallet(user, walletId);
   const { logs, loading: logsLoading } = useSharedWalletLogs(user, walletId);
@@ -251,7 +242,9 @@ ${t("remainingBalance") ?? "After transaction"}: ${formatAmount(Math.max(0, avai
   if (!Number.isFinite(walletId))
     return (
       <ThemedView style={styles.screen}>
-        <ThemedText type="subtitle">{t("walletNotFound") ?? "Wallet not found"}</ThemedText>
+        <View style={styles.center}>
+          <ActivityIndicator />
+        </View>
       </ThemedView>
     );
 
