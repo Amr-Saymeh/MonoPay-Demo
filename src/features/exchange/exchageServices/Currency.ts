@@ -9,9 +9,7 @@ const STATIC_CURRENCY_NAMES: { [key: string]: string } = {
 };
 
 export async function getCurrencies() {
-  // For now we only need a small, fixed set of currencies.
-  // The free open.er-api endpoint does not expose a public /codes list,
-  // so we return a static map instead of calling the network.
+
   return STATIC_CURRENCY_NAMES;
 }
 
