@@ -29,7 +29,7 @@ export default function SettingsLayout() {
         },
       }}
     >
-      <Stack.Screen name="index" options={{ title: t("settings") }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="edit-profile" options={{ title: t("editProfile") }} />
       <Stack.Screen
         name="change-password"
