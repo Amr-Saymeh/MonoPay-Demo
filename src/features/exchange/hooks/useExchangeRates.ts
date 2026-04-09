@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getLatestRates } from '../../../../servisec/exchageServices/Currency';
+import { getLatestRates } from '../exchageServices/Currency';
 import { normalizeCurrency } from '../utils/currency';
 
 interface RatesData {

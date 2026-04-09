@@ -7,6 +7,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
 import {
@@ -31,10 +32,22 @@ import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
+import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
   anchor: "index",
 };
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 2,
+    },
+  },
+});
 
 function RootLayoutInner() {
   const { colorScheme } = useThemeMode();
@@ -53,31 +66,29 @@ function RootLayoutInner() {
     if (!fontsLoaded) return;
 
     const RNText = Text as any;
+    RNText.defaultProps = {
+      ...(RNText.defaultProps || {}),
+      style: {
+        ...(RNText.defaultProps?.style || {}),
+        fontFamily: "Tajawal_400Regular",
+      },
+    };
+
     const RNTextInput = TextInput as any;
-
-    RNText.defaultProps = RNText.defaultProps || {};
-    RNTextInput.defaultProps = RNTextInput.defaultProps || {};
-
-    RNText.defaultProps.style = [
-      { fontFamily: "Tajawal_400Regular" },
-      RNText.defaultProps.style,
-    ];
-
-    RNTextInput.defaultProps.style = [
-      { fontFamily: "Tajawal_400Regular" },
-      RNTextInput.defaultProps.style,
-    ];
+    RNTextInput.defaultProps = {
+      ...(RNTextInput.defaultProps || {}),
+      style: {
+        ...(RNTextInput.defaultProps?.style || {}),
+        fontFamily: "Tajawal_400Regular",
+      },
+    };
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return (
       <SafeAreaProvider>
         <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <ActivityIndicator size="large" />
           <StatusBar style="auto" />
@@ -89,15 +100,15 @@ function RootLayoutInner() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1 }}>
-       <Stack
-  screenOptions={{
-    headerShown: false,
-    gestureEnabled: true,
-    fullScreenGestureEnabled: true,
-    animation: "slide_from_right",
-    headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
-    headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
-  }}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            animation: "slide_from_right",
+            headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
+            headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
+          }}
         >
           <Stack.Screen name="index" />
           <Stack.Screen
@@ -120,7 +131,6 @@ function RootLayoutInner() {
             options={{ presentation: "modal", title: "Modal" }}
           />
         </Stack>
-
         <StatusBar style="auto" />
       </View>
     </ThemeProvider>
@@ -129,18 +139,22 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <ThemeModeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <SignupFlowProvider>
-              <FeaturesProvider>
-                <RootLayoutInner />
-              </FeaturesProvider>
-            </SignupFlowProvider>
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeModeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeModeProvider>
+            <LanguageProvider>
+              <AuthProvider>
+                <SignupFlowProvider>
+                  <FeaturesProvider>
+                    <RootLayoutInner />
+                  </FeaturesProvider>
+                </SignupFlowProvider>
+              </AuthProvider>
+            </LanguageProvider>
+          </ThemeModeProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
