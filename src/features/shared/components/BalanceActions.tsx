@@ -1,9 +1,8 @@
-import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { ThemedView } from "@/components/themed-view";
 import { ThemedText } from "@/components/themed-text";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import React from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface BalanceActionsProps {
   onAddMoney: () => void;
@@ -62,7 +61,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  btnAdd: { backgroundColor: "#a855f7", shadowColor: "#a855f7" },
-  btnRemove: { backgroundColor: "#c084fc", shadowColor: "#c084fc" },
-  btnText: { color: "#fff", fontSize: 13, fontFamily: Fonts.sansBold, letterSpacing: 0.3 },
+  btnAdd: { 
+    backgroundColor: "#a855f7", 
+    shadowColor: "#a855f7" 
+  },
+  btnRemove: { 
+    backgroundColor: "#c084fc", 
+    shadowColor: "#c084fc" 
+  },
+  btnText: { 
+    color: "#fff", 
+    fontSize: 13, 
+    fontFamily: Fonts.sansBold, 
+    letterSpacing: 0.3 
+  },
 });
