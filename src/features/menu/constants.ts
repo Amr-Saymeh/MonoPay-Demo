@@ -1,4 +1,6 @@
-export const menuItems = [
+import { MenuItem } from './types';
+
+export const menuItems: MenuItem[] = [
   {
     id: '1',
     titleKey: 'myCards',
@@ -6,7 +8,7 @@ export const menuItems = [
     iconName: 'card-outline',
     color: '#FF5722',
     state: false,
-    route: "/wallets"
+    route: '/wallets'
   },
   {
     id: '2',
@@ -15,7 +17,7 @@ export const menuItems = [
     iconName: 'trending-up-outline',
     color: '#2196F3',
     state: false,
-    route: "/exchange"
+    route: '/exchange'
   },
   {
     id: '3',
@@ -24,7 +26,7 @@ export const menuItems = [
     iconName: 'bar-chart-outline',
     color: '#9C27B0',
     state: false,
-    route: "/SpendingInsights"
+    route: '/MainScreen_DailyPur'
   },
   {
     id: '4',
@@ -33,7 +35,7 @@ export const menuItems = [
     iconName: 'wallet-outline',
     color: '#4CAF50',
     state: false,
-    route: "/SavingGoals"
+    route: '/SavingGoals'
   },
   {
     id: '5',
@@ -42,7 +44,7 @@ export const menuItems = [
     iconName: 'receipt-outline',
     color: '#00BCD4',
     state: false,
-    route: "/transfer"
+    route: '/transfer'
   },
   {
     id: '6',
@@ -51,7 +53,7 @@ export const menuItems = [
     iconName: 'settings-outline',
     color: '#607D8B',
     state: false,
-    route: "/settings"
+    route: '/settings'
   },
   {
     id: '7',
@@ -60,6 +62,6 @@ export const menuItems = [
     iconName: 'ellipsis-horizontal',
     color: '#00BCD4',
     state: true,
-    route: "/FeturesPage"
+    route: '/FeturesPage' // will be changed later maybe, but keep backward compatible
   },
 ];
