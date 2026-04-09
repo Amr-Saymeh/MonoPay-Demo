@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     backgroundColor: CARD_BG,
     borderRadius: 24,
+    height: 220,
     padding: 16,
     overflow: 'hidden',
     borderWidth: 0.5,
@@ -16,6 +17,9 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 24,
     elevation: 10,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   glowTopRight: {
     position: 'absolute',

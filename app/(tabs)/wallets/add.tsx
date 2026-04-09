@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { get, ref, update } from "firebase/database";
 import {
-    Alert,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -18,6 +17,7 @@ import { AuthInput } from "@/components/ui/auth-input";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { SharedCard } from "@/src/features/shared/SharedCard";
 import { db } from "@/src/firebaseConfig";
 import { useAuth } from "@/src/providers/AuthProvider";
 
@@ -48,17 +48,6 @@ const TYPE_OPTIONS: Array<{ key: WalletType; icon: any }> = [
   { key: "real", icon: "account-balance-wallet" },
   { key: "credit", icon: "credit-card" },
   { key: "shared", icon: "groups" },
-];
-
-const COLOR_OPTIONS = [
-  "#7C3AED",
-  "#2563EB",
-  "#0EA5E9",
-  "#10B981",
-  "#F59E0B",
-  "#F97316",
-  "#EF4444",
-  "#111827",
 ];
 
 const EMOJI_OPTIONS = [
@@ -102,6 +91,12 @@ function parseAmount(input: string) {
   return n;
 }
 
+function getDefaultColor(type: WalletType) {
+  if (type === "credit") return "#F97316";
+  if (type === "shared") return "#0EA5E9";
+  return "#7C3AED";
+}
+
 export default function AddWalletScreen() {
   const router = useRouter();
   const { t } = useI18n();
@@ -109,7 +104,6 @@ export default function AddWalletScreen() {
 
   const [name, setName] = useState("");
   const [type, setType] = useState<WalletType>("real");
-  const [color, setColor] = useState(COLOR_OPTIONS[0]);
   const [emoji, setEmoji] = useState(EMOJI_OPTIONS[0]);
   const [expiryDate, setExpiryDate] = useState("");
   const [balances, setBalances] = useState<BalanceRow[]>([
@@ -120,11 +114,29 @@ export default function AddWalletScreen() {
   const [selectedMemberUids, setSelectedMemberUids] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
-  const typeLabel = useMemo(() => {
-    if (type === "real") return t("walletTypeReal");
-    if (type === "credit") return t("walletTypeCredit");
-    return t("walletTypeShared");
-  }, [t, type]);
+  const color = useMemo(() => getDefaultColor(type), [type]);
+
+  const previewCurrencies = useMemo(
+    () =>
+      balances.reduce<Array<{ code: string; balance: number }>>((acc, row) => {
+        const code = row.currency.trim().toLowerCase();
+        const balance = Number(row.amount.trim() || 0);
+        if (!code || acc.some((item) => item.code === code)) return acc;
+        acc.push({ code, balance: Number.isFinite(balance) ? balance : 0 });
+        return acc;
+      }, []),
+    [balances],
+  );
+
+  const previewMemberUids = useMemo(() => {
+    if (type !== "shared" || !user) return undefined;
+    return Array.from(new Set([user.uid, ...selectedMemberUids.filter(Boolean)]));
+  }, [selectedMemberUids, type, user]);
+
+  const previewOwnerLabel = useMemo(() => {
+    if (type !== "shared" || !user) return undefined;
+    return allUsers[user.uid]?.name?.trim() || user.uid;
+  }, [allUsers, type, user]);
 
   const canCreate = useMemo(() => {
     return name.trim().length > 0 && Boolean(user);
@@ -314,23 +326,16 @@ export default function AddWalletScreen() {
           {t("addWallet")}
         </ThemedText>
 
-        <LinearGradient
-          colors={[color, "#111827"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.preview}
-        >
-          <View style={styles.previewTop}>
-            <ThemedText style={styles.previewEmoji}>{emoji}</ThemedText>
-            <View style={styles.previewType}>
-              <ThemedText style={styles.previewTypeText}>{typeLabel}</ThemedText>
-            </View>
-          </View>
-          <ThemedText style={styles.previewName}>
-            {name.trim() || t("walletName")}
-          </ThemedText>
-          <ThemedText style={styles.previewMeta}>{t("active").toUpperCase()}</ThemedText>
-        </LinearGradient>
+        <View style={styles.previewWrapper}>
+          <SharedCard
+            name={name.trim() || t("walletName")}
+            emoji={emoji}
+            currencies={previewCurrencies}
+            ownerLabel={previewOwnerLabel}
+            memberUids={previewMemberUids}
+            walletState="active"
+          />
+        </View>
 
         <View style={styles.section}>
           <ThemedText style={styles.sectionTitle}>{t("walletName")}</ThemedText>
@@ -511,27 +516,6 @@ export default function AddWalletScreen() {
         </View>
 
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>{t("chooseCardColor")}</ThemedText>
-          <View style={styles.colorsRow}>
-            {COLOR_OPTIONS.map((c) => {
-              const selected = c === color;
-              return (
-                <Pressable
-                  key={c}
-                  onPress={() => setColor(c)}
-                  style={({ pressed }) => [
-                    styles.colorDot,
-                    { backgroundColor: c },
-                    selected ? styles.colorDotSelected : null,
-                    pressed ? styles.pressed : null,
-                  ]}
-                />
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={styles.section}>
           <ThemedText style={styles.sectionTitle}>{t("chooseEmoji")}</ThemedText>
           <View style={styles.emojiRow}>
             {EMOJI_OPTIONS.map((e) => {
@@ -586,41 +570,8 @@ const styles = StyleSheet.create({
   heading: {
     fontFamily: Fonts.sansBlack,
   },
-  preview: {
-    borderRadius: 22,
-    padding: 16,
-    height: 160,
-    overflow: "hidden",
-  },
-  previewTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  previewEmoji: {
-    fontSize: 22,
-    color: "#fff",
-  },
-  previewType: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.14)",
-  },
-  previewTypeText: {
-    fontSize: 12,
-    color: "#fff",
-    opacity: 0.9,
-  },
-  previewName: {
-    marginTop: 16,
-    fontSize: 18,
-    color: "#fff",
-    fontFamily: Fonts.sansBlack,
-  },
-  previewMeta: {
-    marginTop: 6,
-    color: "rgba(255,255,255,0.78)",
+  previewWrapper: {
+    borderRadius: 24,
   },
   section: {
     gap: 10,
@@ -722,21 +673,6 @@ const styles = StyleSheet.create({
   },
   currencyText: {
     color: "#11181C",
-  },
-  colorsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  colorDot: {
-    width: 34,
-    height: 34,
-    borderRadius: 999,
-  },
-  colorDotSelected: {
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.85)",
-    outlineColor: "rgba(17,24,28,0.2)",
   },
   emojiRow: {
     flexDirection: "row",
