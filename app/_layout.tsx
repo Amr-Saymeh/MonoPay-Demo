@@ -7,6 +7,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
 import {
@@ -31,10 +32,21 @@ import {
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
 import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
   anchor: "index",
 };
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 2,
+    },
+  },
+});
 
 function RootLayoutInner() {
   const { colorScheme } = useThemeMode();
@@ -116,18 +128,25 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
+
+    <GestureHandlerRootView style={{ flex: 1 }}>
+
     <SafeAreaProvider>
-      <ThemeModeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <SignupFlowProvider>
-              <FeaturesProvider>
-                <RootLayoutInner />
-              </FeaturesProvider>
-            </SignupFlowProvider>
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeModeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeModeProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <SignupFlowProvider>
+                <FeaturesProvider>
+                  <RootLayoutInner />
+                </FeaturesProvider>
+              </SignupFlowProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeModeProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
+  </GestureHandlerRootView>
+
   );
 }
