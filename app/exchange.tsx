@@ -4,17 +4,17 @@ import { get, ref, set } from 'firebase/database';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
-  CurrencySelectorModal,
-  ExchangeCard,
-  RateInfo,
-  StatusMessage,
-  WalletSelectorModal,
+    CurrencySelectorModal,
+    ExchangeCard,
+    RateInfo,
+    StatusMessage,
+    WalletSelectorModal,
 } from '../src/features/exchange/components';
 import { useExchangeRatesQuery, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
 import {
-  denormalizeCurrency,
-  getAvailableToCurrencies,
-  normalizeCurrency,
+    denormalizeCurrency,
+    getAvailableToCurrencies,
+    normalizeCurrency,
 } from '../src/features/exchange/utils';
 import { db } from '../src/firebaseConfig';
 import { useAuth } from '../src/providers/AuthProvider';
