@@ -5,13 +5,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { get, onValue, ref, update } from "firebase/database";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -501,6 +501,21 @@ export default function WalletManagementScreen() {
                   </>
                 ) : null}
 
+
+                <View style={styles.divider} />
+
+                <View style={styles.detailRow}>
+                  <ThemedText style={styles.detailLabel}>{t("walletCurrencies")}</ThemedText>
+                  <ThemedText type="defaultSemiBold" style={styles.detailValue}>
+                    {Object.keys(selected?.wallet?.currancies ?? {}).length > 0
+                      ? Object.entries(selected?.wallet?.currancies ?? {})
+                          .map(([k, v]) => `${formatCurrency(k)}: ${v}`)
+                          .join("  ")
+                      : "—"}
+                  </ThemedText>
+                </View>
+
+                
                 {String(selected?.wallet?.type ?? "") === "shared" ? (
                   <>
                     <View style={styles.divider} />
@@ -520,21 +535,28 @@ export default function WalletManagementScreen() {
                           : "—"}
                       </ThemedText>
                     </View>
+
+                    <View style={styles.divider} />
+                    <Pressable
+                      onPress={() => {
+                        if (!selected?.walletid) return;
+                        router.push({
+                          pathname: "/(tabs)/wallets/shared",
+                          params: { walletId: String(selected.walletid) },
+                        } as any);
+                      }}
+                      style={({ pressed }) => [
+                        styles.sharedButton,
+                        pressed ? styles.pressed : null,
+                      ]}
+                    >
+                      <MaterialIcons name="groups" size={18} color="#fff" />
+                      <ThemedText type="defaultSemiBold" style={styles.sharedButtonText}>
+                        Manage shared wallet
+                      </ThemedText>
+                    </Pressable>
                   </>
                 ) : null}
-
-                <View style={styles.divider} />
-
-                <View style={styles.detailRow}>
-                  <ThemedText style={styles.detailLabel}>{t("walletCurrencies")}</ThemedText>
-                  <ThemedText type="defaultSemiBold" style={styles.detailValue}>
-                    {Object.keys(selected?.wallet?.currancies ?? {}).length > 0
-                      ? Object.entries(selected?.wallet?.currancies ?? {})
-                          .map(([k, v]) => `${formatCurrency(k)}: ${v}`)
-                          .join("  ")
-                      : "—"}
-                  </ThemedText>
-                </View>
 
                 <View style={styles.divider} />
 
@@ -763,6 +785,19 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(220,38,38,0.55)",
   },
   deleteButtonText: {
+    color: "#fff",
+  },
+  sharedButton: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#0EA5E9",
+  },
+  sharedButtonText: {
     color: "#fff",
   },
   pressed: {
