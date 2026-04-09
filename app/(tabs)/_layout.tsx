@@ -1,3 +1,4 @@
+import { StyleSheet } from "react-native";
 import { Tabs } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -42,15 +43,18 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "#fff",
+        tabBarInactiveTintColor: "rgba(255, 255, 255, 0.5)",
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarStyle: styles.tabBar,
         tabBarLabelStyle: {
           fontFamily: Fonts.sans,
+          fontSize: 12,
         },
         tabBarBadgeStyle: {
           fontFamily: Fonts.sansBold,
-          backgroundColor: "#dc2626",
+          backgroundColor: "#ff4444",
           color: "#fff",
         },
       }}
@@ -107,11 +111,32 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: t("settings"),
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({color }) => (
             <IconSymbol size={28} name="gearshape" color={color} />
           ),
         }}
       />
+
     </Tabs>
   );
 }
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: "#6e5da9ff",
+    borderTopWidth: 0,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    height: 70,
+    paddingBottom: 12,
+    paddingTop: 8,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  }
+});

@@ -1,5 +1,3 @@
-import React, { useEffect } from "react";
-import "../global.css";
 import {
   DarkTheme,
   DefaultTheme,
@@ -7,7 +5,10 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import React, { useEffect } from "react";
 import "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import "../global.css";
 
 import {
   Tajawal_200ExtraLight,
@@ -30,10 +31,22 @@ import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
+import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
   anchor: "index",
 };
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 2,
+    },
+  },
+});
 
 function RootLayoutInner() {
   const { colorScheme } = useThemeMode();
@@ -76,7 +89,7 @@ function RootLayoutInner() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <ActivityIndicator />
+          <ActivityIndicator size="large" />
           <StatusBar style="auto" />
         </View>
       </SafeAreaProvider>
@@ -85,11 +98,13 @@ function RootLayoutInner() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      
       <View style={{ flex: 1 }}>
         <Stack
           screenOptions={{
             headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            animation: "slide_from_right",
             headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
             headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
           }}
@@ -102,8 +117,6 @@ function RootLayoutInner() {
             options={{ presentation: "modal", title: "Modal" }}
           />
         </Stack>
-
-        
         <StatusBar style="auto" />
       </View>
     </ThemeProvider>
@@ -112,16 +125,22 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <ThemeModeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <SignupFlowProvider>
-              <RootLayoutInner />
-            </SignupFlowProvider>
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeModeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeModeProvider>
+            <LanguageProvider>
+              <AuthProvider>
+                <SignupFlowProvider>
+                  <FeaturesProvider>
+                    <RootLayoutInner />
+                  </FeaturesProvider>
+                </SignupFlowProvider>
+              </AuthProvider>
+            </LanguageProvider>
+          </ThemeModeProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
