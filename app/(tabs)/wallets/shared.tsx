@@ -5,11 +5,19 @@ import { SharedCard } from "@/src/features/card/SharedCard";
 
 import { useLocalSearchParams } from "expo-router";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    InputAccessoryView,
+    Keyboard,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
