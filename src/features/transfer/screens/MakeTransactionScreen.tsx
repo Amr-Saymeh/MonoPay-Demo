@@ -1,6 +1,5 @@
-import { useI18n } from "@/hooks/use-i18n";
-import { useMoneyRequests } from "@/src/features/requests/hooks/useMoneyRequests";
-import { useAuth } from "@/src/providers/AuthProvider";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -10,12 +9,18 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+import { useI18n } from "@/hooks/use-i18n";
+import { useMoneyRequests } from "@/src/features/requests/hooks/useMoneyRequests";
+import { useAuth } from "@/src/providers/AuthProvider";
 import { AmountInput } from "../components/AmountInput";
 import { CategoryPicker } from "../components/CategoryPicker";
 import { ConfirmBottomSheet } from "../components/ConfirmBottomSheet";
@@ -35,7 +40,8 @@ import {
   CURRENCY_SYMBOLS,
   TransactionMode,
 } from "../types/index";
-// ─── Strings محلية للصفحة ─────────────────────────────────────────────────────
+
+// ─── Strings ─────────────────────────────────────────────────────────────────
 const TX_STRINGS = {
   en: {
     title: "Make a Transaction",
@@ -52,11 +58,16 @@ const TX_STRINGS = {
     notePlaceholder: "Add a note...",
     sendBtn: "Send",
     requestBtn: "Request",
+    myWallet: "My Wallet",
+    selectWallet: "Select wallet to send from",
     mainWalletNote: "Funds go to recipient's main wallet automatically",
     requestNote: "Payer will receive a request to approve",
-    successSend: "Money sent successfully! 🎉",
-    successRequest: "Request sent! The payer will be notified. ⏳",
+    successSend: "Money sent successfully!",
+    successRequest: "Request sent! The payer will be notified.",
     fillRequired: "Please select a recipient and enter an amount.",
+    requests: "Requests",
+    payWithQR: "Pay with QR",
+    myQR: "My QR",
     errors: {
       INSUFFICIENT_FUNDS: "Insufficient funds in your wallet.",
       WALLET_INACTIVE: "Your wallet is inactive.",
@@ -82,11 +93,16 @@ const TX_STRINGS = {
     notePlaceholder: "أضف ملاحظة...",
     sendBtn: "إرسال",
     requestBtn: "طلب",
+    myWallet: "محفظتي",
+    selectWallet: "اختر المحفظة للإرسال منها",
     mainWalletNote: "سيتم الإرسال للمحفظة الرئيسية للمستلم تلقائياً",
     requestNote: "سيصل الطلب للدافع للموافقة عليه",
-    successSend: "تم الإرسال بنجاح! 🎉",
-    successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع. ⏳",
+    successSend: "تم الإرسال بنجاح!",
+    successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع.",
     fillRequired: "الرجاء اختيار مستلم وإدخال المبلغ.",
+    requests: "الطلبات",
+    payWithQR: "الدفع بـQR",
+    myQR: "رمز QR الخاص بي",
     errors: {
       INSUFFICIENT_FUNDS: "الرصيد غير كافٍ في محفظتك.",
       WALLET_INACTIVE: "محفظتك غير نشطة.",
@@ -153,27 +169,9 @@ export default function MakeTransactionScreen() {
   // ── Mode animation ────────────────────────────────────────────────────────
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  // const handleModeChange = (newMode: TransactionMode) => {
-  //   Animated.sequence([
-  //     Animated.timing(fadeAnim, {
-  //       toValue: 0,
-  //       duration: 100,
-  //       useNativeDriver: true,
-  //     }),
-  //     Animated.timing(fadeAnim, {
-  //       toValue: 1,
-  //       duration: 200,
-  //       useNativeDriver: true,
-  //     }),
-  //   ]).start();
-  //   setMode(newMode);
-  //   setSelectedUser(null);
-  // };
-
   const handleModeChange = (newMode: TransactionMode) => {
     if (newMode === mode) return;
 
-    // إذا في بيانات مدخلة، اسأل المستخدم
     const hasData = amount || selectedUser || note || category || myWalletSlot;
 
     if (hasData) {
@@ -230,19 +228,6 @@ export default function MakeTransactionScreen() {
     }
   }, [mode, myWalletSlot]);
 
-  // useEffect(() => {
-  //   if (myWalletSlot) {
-  //     Animated.spring(amountAnim, {
-  //       toValue: 1,
-  //       useNativeDriver: true,
-  //       tension: 100,
-  //       friction: 8,
-  //     }).start();
-  //   } else {
-  //     amountAnim.setValue(0);
-  //   }
-  // }, [myWalletSlot]);
-
   // ── Reset ─────────────────────────────────────────────────────────────────
   const resetForm = useCallback(() => {
     setAmount("");
@@ -259,9 +244,7 @@ export default function MakeTransactionScreen() {
     const parsedAmount = parseFloat(amount);
 
     if (!parsedAmount || parsedAmount <= 0) return s.errors.INVALID_AMOUNT;
-
     if (!/^\d+(\.\d{1,2})?$/.test(amount)) return s.errors.INVALID_AMOUNT;
-
     if (parsedAmount < 1) return s.errors.INVALID_AMOUNT;
 
     const max = MAX_AMOUNT[currency] ?? 5000;
@@ -269,7 +252,6 @@ export default function MakeTransactionScreen() {
       return `Maximum amount is ${max} ${currency.toUpperCase()}`;
 
     if (mode === "send" && !myWalletSlot) return s.fillRequired;
-
     if (!selectedUser) return s.fillRequired;
 
     if (note.length > MAX_NOTE_LENGTH)
@@ -285,7 +267,7 @@ export default function MakeTransactionScreen() {
       Alert.alert("", validationError);
       return;
     }
-    setShowConfirm(true); // ← بس هذا، بدون أي await أو executeSend
+    setShowConfirm(true);
   };
 
   // ── Confirm action from bottom sheet ─────────────────────────────────────
@@ -316,7 +298,7 @@ export default function MakeTransactionScreen() {
 
     if (success) {
       setShowConfirm(false);
-      Alert.alert("✅", mode === "send" ? s.successSend : s.successRequest, [
+      Alert.alert("", mode === "send" ? s.successSend : s.successRequest, [
         { text: "OK", onPress: resetForm },
       ]);
     }
@@ -334,92 +316,71 @@ export default function MakeTransactionScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={{ flex: 1, backgroundColor: "#7C3AED" }}>
-        {/* ── Header ── */}
-        <View
-          style={{
-            paddingTop: 56,
-            paddingBottom: 16,
-            paddingHorizontal: 24,
-            flexDirection: isRtl ? "row-reverse" : "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
+      <View style={styles.root}>
+        <StatusBar barStyle="light-content" />
+
+        {/* ── Gradient Header ── */}
+        <LinearGradient
+          colors={["#7C3AED", "#6D28D9", "#5B21B6"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
         >
-          <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>
-            {s.title}
-          </Text>
-          <TouchableOpacity
-            onPress={() => router.push("/requests")}
-            activeOpacity={0.7}
-            style={{
-              backgroundColor: "rgba(255,255,255,0.2)",
-              borderRadius: 20,
-              paddingHorizontal: 14,
-              paddingVertical: 7,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 6,
-            }}
+          <View
+            style={[
+              styles.headerRow,
+              { flexDirection: isRtl ? "row-reverse" : "row" },
+            ]}
           >
-            <View>
-              <Text style={{ fontSize: 14 }}>🔔</Text>
-              {pendingCount > 0 && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    right: -6,
-                    backgroundColor: "#EF4444",
-                    borderRadius: 10,
-                    minWidth: 16,
-                    height: 16,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingHorizontal: 3,
-                  }}
-                >
-                  <Text
-                    style={{ color: "white", fontSize: 9, fontWeight: "bold" }}
-                  >
-                    {pendingCount > 99 ? "99+" : pendingCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-            <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>
-              {language === "ar" ? "الطلبات" : "Requests"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <Text style={styles.headerTitle}>{s.title}</Text>
+            <TouchableOpacity
+              onPress={() => router.push("/requests")}
+              activeOpacity={0.7}
+              style={styles.requestsBtn}
+            >
+              <View>
+                <Ionicons name="notifications-outline" size={18} color="white" />
+                {pendingCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {pendingCount > 99 ? "99+" : pendingCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.requestsBtnText}>{s.requests}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ── Segmented Control inside header ── */}
+          <View style={styles.segmentWrapHeader}>
+            <SegmentedControl
+              options={segmentOptions}
+              value={mode}
+              onChange={handleModeChange}
+              isRtl={isRtl}
+            />
+          </View>
+        </LinearGradient>
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
           <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {/* ── Segmented Control ── */}
-            <View style={{ marginBottom: 24 }}>
-              <SegmentedControl
-                options={segmentOptions}
-                value={mode}
-                onChange={handleModeChange}
-                isRtl={isRtl}
-              />
-            </View>
-
-            <Animated.View style={{ opacity: fadeAnim, gap: 20 }}>
+            <Animated.View style={{ opacity: fadeAnim }}>
               {/* ── My Wallet (Send only) ── */}
               {mode === "send" && (
-                <View style={{ minHeight: 0 }}>
-                  <Label text="My Wallet" isRtl={isRtl} />
+                <View style={styles.section}>
+                  <Label text={s.myWallet} isRtl={isRtl} />
                   <WalletPicker
-                    label="My Wallet"
-                    placeholder="Select wallet to send from"
+                    label={s.myWallet}
+                    placeholder={s.selectWallet}
                     selectedSlot={myWalletSlot}
                     wallets={myWallets}
                     loading={walletsLoading}
@@ -433,20 +394,24 @@ export default function MakeTransactionScreen() {
                   />
                 </View>
               )}
+
               {/* ── Amount ── */}
               {(mode === "receive" || (mode === "send" && myWalletSlot)) && (
                 <Animated.View
-                  style={{
-                    opacity: amountAnim,
-                    transform: [
-                      {
-                        translateY: amountAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [20, 0],
-                        }),
-                      },
-                    ],
-                  }}
+                  style={[
+                    styles.section,
+                    {
+                      opacity: amountAnim,
+                      transform: [
+                        {
+                          translateY: amountAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [20, 0],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
                 >
                   <Label text={s.amount} isRtl={isRtl} />
                   <AmountInput
@@ -465,7 +430,7 @@ export default function MakeTransactionScreen() {
               )}
 
               {/* ── Recipient / Payer ── */}
-              <View>
+              <View style={styles.section}>
                 <Label
                   text={mode === "send" ? s.recipient : s.payer}
                   isRtl={isRtl}
@@ -482,22 +447,30 @@ export default function MakeTransactionScreen() {
                   language={language as "en" | "ar"}
                 />
                 {/* Info note */}
-                <Text
-                  style={{
-                    color: "rgba(255,255,255,0.55)",
-                    fontSize: 12,
-                    marginTop: 6,
-                    marginLeft: isRtl ? 0 : 4,
-                    marginRight: isRtl ? 4 : 0,
-                    textAlign: isRtl ? "right" : "left",
-                  }}
+                <View
+                  style={[
+                    styles.infoBar,
+                    { flexDirection: isRtl ? "row-reverse" : "row" },
+                  ]}
                 >
-                  ℹ️ {mode === "send" ? s.mainWalletNote : s.requestNote}
-                </Text>
+                  <Ionicons
+                    name="information-circle"
+                    size={16}
+                    color="#7C3AED"
+                  />
+                  <Text
+                    style={[
+                      styles.infoText,
+                      { textAlign: isRtl ? "right" : "left" },
+                    ]}
+                  >
+                    {mode === "send" ? s.mainWalletNote : s.requestNote}
+                  </Text>
+                </View>
               </View>
 
               {/* ── Category ── */}
-              <View>
+              <View style={styles.section}>
                 <Label text={s.category} isRtl={isRtl} />
                 <CategoryPicker
                   label={s.selectCategory}
@@ -509,21 +482,9 @@ export default function MakeTransactionScreen() {
               </View>
 
               {/* ── Note ── */}
-              <View>
+              <View style={styles.section}>
                 <Label text={s.noteOptional} isRtl={isRtl} />
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: 16,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    minHeight: 90,
-                    shadowColor: "#000",
-                    shadowOpacity: 0.06,
-                    shadowRadius: 8,
-                    elevation: 2,
-                  }}
-                >
+                <View style={styles.noteBox}>
                   <TextInput
                     value={note}
                     onChangeText={setNote}
@@ -533,16 +494,16 @@ export default function MakeTransactionScreen() {
                     numberOfLines={3}
                     textAlignVertical="top"
                     textAlign={isRtl ? "right" : "left"}
-                    style={{ color: "#1F2937", fontSize: 16, lineHeight: 22 }}
+                    style={styles.noteInput}
                   />
                   <Text
-                    style={{
-                      textAlign: "right",
-                      fontSize: 11,
-                      color:
-                        note.length > MAX_NOTE_LENGTH ? "#EF4444" : "#9CA3AF",
-                      marginTop: 4,
-                    }}
+                    style={[
+                      styles.noteCounter,
+                      {
+                        color:
+                          note.length > MAX_NOTE_LENGTH ? "#EF4444" : "#9CA3AF",
+                      },
+                    ]}
                   >
                     {note.length}/{MAX_NOTE_LENGTH}
                   </Text>
@@ -559,6 +520,7 @@ export default function MakeTransactionScreen() {
             </Animated.View>
           </ScrollView>
         </KeyboardAvoidingView>
+
         <ConfirmBottomSheet
           visible={showConfirm}
           mode={mode}
@@ -574,6 +536,36 @@ export default function MakeTransactionScreen() {
           onConfirm={handleConfirm}
           onCancel={() => setShowConfirm(false)}
         />
+
+        {/* ── Floating QR Bar ── */}
+        <View style={styles.qrBar}>
+          <TouchableOpacity
+            onPress={() => router.push("/my-qr")}
+            activeOpacity={0.8}
+            style={styles.qrBarBtn}
+          >
+            <View style={styles.qrBarIconWrap}>
+              <Ionicons name="qr-code-outline" size={20} color="#7C3AED" />
+            </View>
+            <Text style={styles.qrBarBtnText}>{s.myQR}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push("/scan-qr")}
+            activeOpacity={0.8}
+            style={styles.qrBarBtnPrimary}
+          >
+            <LinearGradient
+              colors={["#7C3AED", "#6D28D9"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.qrBarPrimaryGradient}
+            >
+              <Ionicons name="scan-outline" size={20} color="white" />
+              <Text style={styles.qrBarPrimaryText}>{s.payWithQR}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </View>
     </GestureHandlerRootView>
   );
@@ -584,15 +576,14 @@ export default function MakeTransactionScreen() {
 function Label({ text, isRtl }: { text: string; isRtl: boolean }) {
   return (
     <Text
-      style={{
-        color: "rgba(255,255,255,0.85)",
-        fontSize: 13,
-        fontWeight: "600",
-        marginBottom: 8,
-        marginLeft: isRtl ? 0 : 4,
-        marginRight: isRtl ? 4 : 0,
-        textAlign: isRtl ? "right" : "left",
-      }}
+      style={[
+        styles.label,
+        {
+          textAlign: isRtl ? "right" : "left",
+          marginLeft: isRtl ? 0 : 4,
+          marginRight: isRtl ? 4 : 0,
+        },
+      ]}
     >
       {text}
     </Text>
@@ -611,6 +602,9 @@ function SubmitButton({
   mode: TransactionMode;
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const gradientColors: [string, string] =
+    mode === "send" ? ["#7C3AED", "#6D28D9"] : ["#5B21B6", "#4C1D95"];
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }], marginTop: 8 }}>
@@ -633,32 +627,220 @@ function SubmitButton({
           }).start()
         }
         disabled={loading}
-        style={{
-          backgroundColor: mode === "send" ? "white" : "#5B21B6",
-          borderRadius: 16,
-          height: 64,
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "row",
-          gap: 8,
-          shadowColor: "#000",
-          shadowOpacity: 0.15,
-          shadowRadius: 12,
-          elevation: 4,
-          opacity: loading ? 0.6 : 1,
-        }}
+        style={{ opacity: loading ? 0.6 : 1, borderRadius: 18, overflow: "hidden" }}
       >
-        <Text style={{ fontSize: 20 }}>{mode === "send" ? "➤" : "📥"}</Text>
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 16,
-            color: mode === "send" ? "#7C3AED" : "white",
-          }}
+        <LinearGradient
+          colors={gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.submitBtnGradient}
         >
-          {loading ? "Loading..." : label}
-        </Text>
+          <Ionicons
+            name={mode === "send" ? "send" : "arrow-down-circle"}
+            size={20}
+            color="white"
+          />
+          <Text style={styles.submitBtnText}>
+            {loading ? "..." : label}
+          </Text>
+        </LinearGradient>
       </Pressable>
     </Animated.View>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#F8F5FF",
+  },
+  headerGradient: {
+    paddingTop: Platform.OS === "ios" ? 56 : 44,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 12,
+  },
+  headerRow: {
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerTitle: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "bold",
+    letterSpacing: 0.3,
+  },
+  requestsBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  badge: {
+    position: "absolute",
+    top: -6,
+    right: -8,
+    backgroundColor: "#EF4444",
+    borderRadius: 10,
+    minWidth: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 9,
+    fontWeight: "bold",
+  },
+  requestsBtnText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 13,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  segmentWrapHeader: {
+    marginTop: 16,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  label: {
+    color: "#6B7280",
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 8,
+    letterSpacing: 0.2,
+  },
+  infoBar: {
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  infoText: {
+    color: "#7C3AED",
+    fontSize: 12,
+    flex: 1,
+    lineHeight: 18,
+  },
+  noteBox: {
+    backgroundColor: "white",
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 90,
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(124,58,237,0.06)",
+  },
+  noteInput: {
+    color: "#1F2937",
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  noteCounter: {
+    textAlign: "right",
+    fontSize: 11,
+    marginTop: 6,
+  },
+  submitBtnGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    height: 60,
+    borderRadius: 18,
+  },
+  submitBtnText: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "white",
+    letterSpacing: 0.3,
+  },
+  qrBar: {
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingBottom: Platform.OS === "ios" ? 28 : 12,
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(124,58,237,0.06)",
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: -4 },
+    elevation: 8,
+  },
+  qrBarBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    height: 50,
+    borderRadius: 16,
+    backgroundColor: "#F5F3FF",
+    borderWidth: 1,
+    borderColor: "#EDE9FE",
+  },
+  qrBarIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  qrBarBtnText: {
+    color: "#7C3AED",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+  qrBarBtnPrimary: {
+    flex: 1.5,
+    borderRadius: 16,
+    overflow: "hidden",
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  qrBarPrimaryGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    height: 50,
+    borderRadius: 16,
+  },
+  qrBarPrimaryText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 14,
+    letterSpacing: 0.3,
+  },
+});

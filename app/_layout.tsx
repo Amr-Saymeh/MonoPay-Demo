@@ -41,8 +41,8 @@ export const unstable_settings = {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       retry: 2,
     },
   },
@@ -65,31 +65,29 @@ function RootLayoutInner() {
     if (!fontsLoaded) return;
 
     const RNText = Text as any;
+    RNText.defaultProps = {
+      ...(RNText.defaultProps || {}),
+      style: {
+        ...(RNText.defaultProps?.style || {}),
+        fontFamily: "Tajawal_400Regular",
+      },
+    };
+
     const RNTextInput = TextInput as any;
-
-    RNText.defaultProps = RNText.defaultProps || {};
-    RNTextInput.defaultProps = RNTextInput.defaultProps || {};
-
-    RNText.defaultProps.style = [
-      { fontFamily: "Tajawal_400Regular" },
-      RNText.defaultProps.style,
-    ];
-
-    RNTextInput.defaultProps.style = [
-      { fontFamily: "Tajawal_400Regular" },
-      RNTextInput.defaultProps.style,
-    ];
+    RNTextInput.defaultProps = {
+      ...(RNTextInput.defaultProps || {}),
+      style: {
+        ...(RNTextInput.defaultProps?.style || {}),
+        fontFamily: "Tajawal_400Regular",
+      },
+    };
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return (
       <SafeAreaProvider>
         <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <ActivityIndicator size="large" />
           <StatusBar style="auto" />
@@ -101,15 +99,15 @@ function RootLayoutInner() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1 }}>
-       <Stack
-  screenOptions={{
-    headerShown: false,
-    gestureEnabled: true,
-    fullScreenGestureEnabled: true,
-    animation: "slide_from_right",
-    headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
-    headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
-  }}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            animation: "slide_from_right",
+            headerTitleStyle: { fontFamily: "Tajawal_700Bold" },
+            headerBackTitleStyle: { fontFamily: "Tajawal_400Regular" },
+          }}
         >
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
@@ -119,7 +117,6 @@ function RootLayoutInner() {
             options={{ presentation: "modal", title: "Modal" }}
           />
         </Stack>
-
         <StatusBar style="auto" />
       </View>
     </ThemeProvider>
@@ -128,25 +125,22 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
-
     <GestureHandlerRootView style={{ flex: 1 }}>
-
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeModeProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <SignupFlowProvider>
-                <FeaturesProvider>
-                  <RootLayoutInner />
-                </FeaturesProvider>
-              </SignupFlowProvider>
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeModeProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
-  </GestureHandlerRootView>
-
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeModeProvider>
+            <LanguageProvider>
+              <AuthProvider>
+                <SignupFlowProvider>
+                  <FeaturesProvider>
+                    <RootLayoutInner />
+                  </FeaturesProvider>
+                </SignupFlowProvider>
+              </AuthProvider>
+            </LanguageProvider>
+          </ThemeModeProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
