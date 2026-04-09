@@ -7,6 +7,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
 import {
@@ -127,6 +128,9 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
+
+    <GestureHandlerRootView style={{ flex: 1 }}>
+
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeModeProvider>
@@ -142,5 +146,7 @@ export default function RootLayout() {
         </ThemeModeProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
+  </GestureHandlerRootView>
+
   );
 }
