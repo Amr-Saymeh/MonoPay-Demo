@@ -6,8 +6,8 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import "react-native-reanimated";
 import "../global.css";
 
 import {
@@ -32,6 +32,7 @@ import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
+
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
