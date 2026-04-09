@@ -52,14 +52,22 @@ function RootLayoutInner() {
     if (!fontsLoaded) return;
 
     const RNText = Text as any;
-    RNText.defaultProps = RNText.defaultProps || {};
-    RNText.defaultProps.style = RNText.defaultProps.style || {};
-    RNText.defaultProps.style.fontFamily = "Tajawal_400Regular";
+    RNText.defaultProps = {
+      ...(RNText.defaultProps || {}),
+      style: {
+        ...(RNText.defaultProps?.style || {}),
+        fontFamily: "Tajawal_400Regular",
+      },
+    };
 
     const RNTextInput = TextInput as any;
-    RNTextInput.defaultProps = RNTextInput.defaultProps || {};
-    RNTextInput.defaultProps.style = RNTextInput.defaultProps.style || {};
-    RNTextInput.defaultProps.style.fontFamily = "Tajawal_400Regular";
+    RNTextInput.defaultProps = {
+      ...(RNTextInput.defaultProps || {}),
+      style: {
+        ...(RNTextInput.defaultProps?.style || {}),
+        fontFamily: "Tajawal_400Regular",
+      },
+    };
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
