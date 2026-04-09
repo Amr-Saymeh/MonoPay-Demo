@@ -32,7 +32,7 @@ import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
-import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
