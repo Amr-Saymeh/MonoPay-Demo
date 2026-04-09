@@ -1,9 +1,9 @@
-import React from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
-import { ThemedView } from "@/components/themed-view";
 import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import React from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SharedLog, UserProfile } from "../types";
 import { HistoryRow } from "./HistoryRow";
 
@@ -67,12 +67,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  pillHeaderText: { color: "#f0eff5", fontSize: 13, fontFamily: Fonts.sansBold, letterSpacing: 0.3 },
+  pillHeaderText: { 
+    color: "#f0eff5", 
+    fontSize: 13, 
+    fontFamily: Fonts.sansBold, 
+    letterSpacing: 0.3 
+  },
   leftBorder: {
     borderLeftWidth: 2.5,
     borderLeftColor: "#a78bfa",
     paddingLeft: 14,
   },
-  center: { paddingVertical: 32, alignItems: "center" },
-  emptyText: { opacity: 0.65 },
+  center: { 
+    paddingVertical: 32, 
+    alignItems: "center" 
+  },
+  emptyText: { 
+    opacity: 0.65 
+  },
 });
