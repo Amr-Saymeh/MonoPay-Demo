@@ -101,7 +101,7 @@ export default function SignupDetailsScreen() {
       identityNumber: identityNumber.trim(),
     });
 
-    router.push("/(auth)/id-scan" as any);
+    router.push("/category-suggestions" as any);
   };
 
   return (

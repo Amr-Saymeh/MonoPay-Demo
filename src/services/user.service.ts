@@ -4,6 +4,7 @@ import { db } from "@/src/firebaseConfig";
 
 export type UserProfile = {
   address?: string;
+  categories?: string[];
   email?: string;
   identityImage?: string;
   identityNumber?: number;
@@ -23,6 +24,7 @@ export type CreateUserProfileInput = {
   identityNumber: number;
   identityImageUrl: string;
   personalImageUrl: string;
+  categories?: string[];
 };
 
 export async function createUserProfile(input: CreateUserProfileInput) {
@@ -33,6 +35,7 @@ export async function createUserProfile(input: CreateUserProfileInput) {
     email: input.email,
     number: input.phone,
     address: input.address,
+    categories: Array.isArray(input.categories) ? input.categories : [],
     identityNumber: input.identityNumber,
     identityImage: input.identityImageUrl,
     personalImage: input.personalImageUrl,

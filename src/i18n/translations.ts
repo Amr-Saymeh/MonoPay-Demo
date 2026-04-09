@@ -77,6 +77,13 @@ type TranslationKey =
   | "editProfile"
   | "account"
   | "paymentMethods"
+  | "categories"
+  | "allCategories"
+  | "searchCategories"
+  | "addCustomCategory"
+  | "customCategoryPlaceholder"
+  | "done"
+  | "add"
   | "preferences"
   | "notifications"
   | "darkMode"
@@ -138,9 +145,10 @@ type TranslationKey =
   | "spendingInsights"
   | "spendingInsightsSubtitle"
   | "transactions"
-  | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
-  | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
-  | "changePercent"         // نص إضافي لعرض التغير الشهري في TotalBalance
+  | "settingsSubtitle" // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
+  | "changeLanguage" // اقتراح إضافي لزر تغيير اللغة
+  | "next"
+  | "changePercent" // نص إضافي لعرض التغير الشهري في TotalBalance
   | "makeTransaction"
   | "sendMoney"
   | "receiveMoney"
@@ -172,7 +180,6 @@ type TranslationKey =
   | "customization"
   | "Youmustselect3features"
   | "Youcanonlyselect3features"
-
   | "goals.title"
   | "goals.createTitle"
   | "goals.editTitle"
@@ -313,6 +320,13 @@ export const translations: Record<
     editProfile: "Edit Profile",
     account: "Account",
     paymentMethods: "Payment Methods",
+    categories: "Categories",
+    allCategories: "All Categories",
+    searchCategories: "Search categories...",
+    addCustomCategory: "Add Custom Category",
+    customCategoryPlaceholder: "New category name",
+    done: "Done",
+    add: "Add",
     preferences: "Preferences",
     notifications: "Notifications",
     darkMode: "Dark Mode",
@@ -325,6 +339,7 @@ export const translations: Record<
     retakePhoto: "Retake photo",
     save: "Save",
     saved: "Saved",
+    next: "Next",
     logoutConfirmTitle: "Log out",
     logoutConfirmMessage: "Are you sure you want to log out?",
     logout: "Logout",
@@ -375,7 +390,7 @@ export const translations: Record<
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
     transactions: "Transactions",
-    settingsSubtitle: "Manage your account preferences",  // ← أضيف هنا
+    settingsSubtitle: "Manage your account preferences", // ← أضيف هنا
     changeLanguage: "Change Language",
     changePercent: " from last month",
     makeTransaction: "Make a Transaction",
@@ -409,7 +424,7 @@ export const translations: Record<
     customization: "Customization",
     Youmustselect3features: "You must select 3 features",
     Youcanonlyselect3features: "You can only select 3 features",
-      
+
     "goals.title": "Savings Goals",
     "goals.createTitle": "Create New Goal",
     "goals.editTitle": "Edit Goal",
@@ -456,7 +471,8 @@ export const translations: Record<
     "incomeSavings.categories.debt": "Debt",
     "incomeSavings.entryTypes.receive": "Income",
     "incomeSavings.entryTypes.send": "Savings",
-    "incomeSavings.deleteConfirm": "Are you sure you want to delete this entry?",
+    "incomeSavings.deleteConfirm":
+      "Are you sure you want to delete this entry?",
     "incomeSavings.deleteSuccess": "Entry deleted successfully",
     "incomeSavings.createSuccess": "Entry created successfully",
     "incomeSavings.updateSuccess": "Entry updated successfully",
@@ -546,6 +562,13 @@ export const translations: Record<
     editProfile: "تعديل الملف الشخصي",
     account: "الحساب",
     paymentMethods: "طرق الدفع",
+    categories: "الفئات",
+    allCategories: "جميع الفئات",
+    searchCategories: "ابحث عن فئة...",
+    addCustomCategory: "أضف فئة مخصصة",
+    customCategoryPlaceholder: "اسم الفئة الجديدة",
+    done: "تم",
+    add: "إضافة",
     preferences: "التفضيلات",
     notifications: "الإشعارات",
     darkMode: "الوضع الداكن",
@@ -558,6 +581,7 @@ export const translations: Record<
     retakePhoto: "إعادة التقاط الصورة",
     save: "حفظ",
     saved: "تم الحفظ",
+    next: "التالي",
     logoutConfirmTitle: "تسجيل الخروج",
     logoutConfirmMessage: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
     logout: "تسجيل الخروج",
@@ -594,7 +618,7 @@ export const translations: Record<
     welcomeBack: "مرحباً بعودتك،",
     quickActions: "الإجراءات السريعة",
     savingGoals: "أهداف التوفير",
-    insights: "الرؤى",
+    insights: "الإحصائيات",
     cards: "البطاقات",
     more: "المزيد",
     totalBalance: "الرصيد الكلي",
@@ -605,10 +629,10 @@ export const translations: Record<
     myCardsSubtitle: "إدارة بطاقات الائتمان والخصم",
     exchangeRates: "أسعار الصرف",
     exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
-    spendingInsights: "رؤى الإنفاق",
+    spendingInsights: "الإحصائيات",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
     transactions: "المعاملات",
-    settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    settingsSubtitle: "إدارة تفضيلات حسابك", // ← أضيف هنا
     changeLanguage: "تغيير اللغة",
     changePercent: " من الشهر الماضي",
     makeTransaction: "إجراء معاملة",

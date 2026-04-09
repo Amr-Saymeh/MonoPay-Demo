@@ -24,13 +24,13 @@ import { ActivityIndicator, Text, TextInput, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider } from "@/src/providers/AuthProvider";
+import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
 import { LanguageProvider } from "@/src/providers/LanguageProvider";
 import { SignupFlowProvider } from "@/src/providers/SignupFlowProvider";
 import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
-import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
 
 export const unstable_settings = {
   anchor: "index",
@@ -100,7 +100,20 @@ function RootLayoutInner() {
   }}
         >
           <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              gestureEnabled: false,
+              fullScreenGestureEnabled: false,
+            }}
+          />
+          <Stack.Screen
+            name="category-suggestions"
+            options={{
+              gestureEnabled: false,
+              fullScreenGestureEnabled: false,
+            }}
+          />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen
             name="modal"
