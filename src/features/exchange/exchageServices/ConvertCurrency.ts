@@ -1,10 +1,6 @@
 import { getLatestRates } from './Currency';
 
-/**
- * Convert an amount from one currency to another using live rates.
- *
- * Example: convertCurrency(100, 'USD', 'EUR')
- */
+
 export async function convertCurrency(
   amount: number,
   fromCurrency: string,
