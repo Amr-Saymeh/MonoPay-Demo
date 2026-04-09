@@ -1,9 +1,8 @@
 import React from 'react';
-import Customization from '@/components/HomePageFolder/CustomizationFeture/Customization';
+import { CustomizationFeature } from '@/src/features/home';
 
 export default function CustomaztionFeture() {
   return (
-    <Customization />
-
+    <CustomizationFeature />
   );
 }
