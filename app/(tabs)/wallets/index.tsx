@@ -86,16 +86,20 @@ const WalletCardItem = React.memo(function WalletCardItem({
     type === "shared" ? Object.keys(card.wallet?.members ?? {}) : undefined;
   const ownerLabel = type === "shared" ? card.wallet?.ownerUid : undefined;
 
+  const walletState = card.wallet?.state;          
+  const cardCurrencies = balances;  
+
   return (
     <View style={[styles.cardWrap, selected ? styles.cardSelected : null]}>
-      <SharedCard
-        name={card.name}
-        emoji={card.emoji}
-        currencies={balances}
-        ownerLabel={ownerLabel}
-        memberUids={memberUids}
-        walletState={card.wallet?.state}
-      />
+     <View style={styles.cardWrapper}>
+          <SharedCard
+            name={card.name}
+            ownerLabel={ownerLabel}
+            memberUids={memberUids}
+            walletState={walletState}
+            currencies={cardCurrencies}
+          />
+        </View>
     </View>
   );
 });
