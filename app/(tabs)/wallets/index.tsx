@@ -1,23 +1,26 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { get, onValue, ref, update } from "firebase/database";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    useWindowDimensions,
+    View,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { SharedCard } from "@/src/features/card/SharedCard";
 import { db } from "@/src/firebaseConfig";
 import { useAuth } from "@/src/providers/AuthProvider";
 
@@ -63,101 +66,37 @@ function getBalances(currancies: Record<string, number> | undefined) {
     .sort(([a], [b]) => a.localeCompare(b));
 }
 
+const CARD_WIDTH = 320;
+const CARD_SPACING = 12;
+const CARD_INTERVAL = CARD_WIDTH + CARD_SPACING;
+
 const WalletCardItem = React.memo(function WalletCardItem({
   card,
   selected,
-  onSelect,
 }: {
   card: WalletCard;
   selected: boolean;
-  onSelect: (key: string) => void;
 }) {
-  const { t } = useI18n();
-  const state = (card.wallet?.state ?? "active").toLowerCase();
   const type = (card.wallet?.type ?? "real").toString();
-  const balances = getBalances(card.wallet?.currancies);
-  const membersCount =
-    type === "shared" ? Object.keys(card.wallet?.members ?? {}).length : 0;
-  const infoText =
-    type === "shared"
-      ? `${membersCount} ${t("members")}`
-      : type === "credit" && card.wallet?.expiryDate
-        ? `${t("expShort")} ${card.wallet.expiryDate}`
-        : "";
+  const balances = getBalances(card.wallet?.currancies).map(([code, amount]) => ({
+    code,
+    balance: Number(amount),
+  }));
+  const memberUids =
+    type === "shared" ? Object.keys(card.wallet?.members ?? {}) : undefined;
+  const ownerLabel = type === "shared" ? card.wallet?.ownerUid : undefined;
 
   return (
-    <Pressable
-      onPress={() => onSelect(card.userWalletKey)}
-      style={({ pressed }) => [styles.cardWrap, pressed ? styles.pressed : null]}
-    >
-      <LinearGradient
-        colors={[card.color, "#111827"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.card, selected ? styles.cardSelected : null]}
-      >
-        <View style={styles.cardTop}>
-          <View style={styles.cardTitleRow}>
-            <ThemedText style={styles.cardEmoji}>{card.emoji}</ThemedText>
-            <ThemedText style={styles.cardTitle} numberOfLines={1}>
-              {card.name}
-            </ThemedText>
-          </View>
-
-          <View style={styles.cardTopRight}>
-            <View style={styles.cardTopRightRow}>
-              <MaterialIcons
-                name={
-                  type === "credit"
-                    ? "credit-card"
-                    : type === "shared"
-                      ? "groups"
-                      : "account-balance-wallet"
-                }
-                size={18}
-                color="rgba(255,255,255,0.85)"
-              />
-              <View
-                style={[
-                  styles.pill,
-                  state === "active" ? styles.pillActive : styles.pillInactive,
-                ]}
-              >
-                <ThemedText style={styles.pillText}>
-                  {state === "active" ? t("active") : t("inactive")}
-                </ThemedText>
-              </View>
-            </View>
-
-            {infoText.length > 0 ? (
-              <ThemedText style={styles.cardInfoText} numberOfLines={1}>
-                {infoText}
-              </ThemedText>
-            ) : null}
-
-            <ThemedText style={styles.cardBalanceRightLabel}>
-              {t("balance")}
-            </ThemedText>
-          </View>
-        </View>
-
-        <View style={styles.cardBody}>
-          {balances.length === 0 ? (
-            <ThemedText style={styles.cardValue}>—</ThemedText>
-          ) : (
-            <View style={styles.balancesColumn}>
-              {balances.map(([code, amount]) => (
-                <View key={code} style={styles.balancePill}>
-                  <ThemedText style={styles.balancePillText}>
-                    {formatCurrency(code)} {amount}
-                  </ThemedText>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      </LinearGradient>
-    </Pressable>
+    <View style={[styles.cardWrap, selected ? styles.cardSelected : null]}>
+      <SharedCard
+        name={card.name}
+        emoji={card.emoji}
+        currencies={balances}
+        ownerLabel={ownerLabel}
+        memberUids={memberUids}
+        walletState={card.wallet?.state}
+      />
+    </View>
   );
 });
 
@@ -165,6 +104,8 @@ export default function WalletManagementScreen() {
   const router = useRouter();
   const { t } = useI18n();
   const { user } = useAuth();
+  const { width: screenWidth } = useWindowDimensions();
+  const flatListRef = useRef<FlatList<WalletCard>>(null);
 
   const [loading, setLoading] = useState(true);
   const [userWallets, setUserWallets] = useState<Record<string, UserWalletLink>>(
@@ -259,15 +200,38 @@ export default function WalletManagementScreen() {
   }, [userWallets, wallets]);
 
   useEffect(() => {
-    if (selectedKey) return;
-    if (cards.length === 0) return;
-    setSelectedKey(cards[0].userWalletKey);
+    if (cards.length === 0) {
+      setSelectedKey(null);
+      return;
+    }
+
+    if (!selectedKey || !cards.some((card) => card.userWalletKey === selectedKey)) {
+      setSelectedKey(cards[0].userWalletKey);
+    }
   }, [cards, selectedKey]);
 
   const selected = useMemo(() => {
     if (!selectedKey) return null;
     return cards.find((c) => c.userWalletKey === selectedKey) ?? null;
   }, [cards, selectedKey]);
+
+  const selectedIndex = useMemo(() => {
+    if (!selectedKey) return -1;
+    return cards.findIndex((card) => card.userWalletKey === selectedKey);
+  }, [cards, selectedKey]);
+
+  const sideInset = useMemo(
+    () => Math.max(0, (screenWidth - CARD_WIDTH) / 2),
+    [screenWidth],
+  );
+
+  useEffect(() => {
+    if (selectedIndex < 0) return;
+    flatListRef.current?.scrollToOffset({
+      offset: selectedIndex * CARD_INTERVAL,
+      animated: true,
+    });
+  }, [selectedIndex]);
 
   const selectedTypeLabel = useMemo(() => {
     const type = String(selected?.wallet?.type ?? "").toLowerCase();
@@ -389,9 +353,18 @@ export default function WalletManagementScreen() {
     ]);
   }, [deleteSelectedWallet, selected, t]);
 
-  const onSelect = useCallback((key: string) => {
-    setSelectedKey(key);
-  }, []);
+  const handleCardsScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / CARD_INTERVAL);
+      const boundedIndex = Math.max(0, Math.min(index, cards.length - 1));
+      const card = cards[boundedIndex];
+      if (card && card.userWalletKey !== selectedKey) {
+        setSelectedKey(card.userWalletKey);
+      }
+    },
+    [cards, selectedKey],
+  );
 
   if (!user) {
     return (
@@ -438,19 +411,29 @@ export default function WalletManagementScreen() {
           <View style={styles.content}>
             <View style={styles.cardsContainer}>
               <FlatList
+                ref={flatListRef}
                 horizontal
                 data={cards}
                 extraData={selectedKey}
                 keyExtractor={(item) => item.userWalletKey}
                 showsHorizontalScrollIndicator={false}
                 disableVirtualization
-                contentContainerStyle={styles.cardsRow}
+                contentContainerStyle={[styles.cardsRow, { paddingHorizontal: sideInset }]}
+                snapToInterval={CARD_INTERVAL}
+                snapToAlignment="start"
+                decelerationRate="fast"
+                onMomentumScrollEnd={handleCardsScrollEnd}
+                onScrollEndDrag={handleCardsScrollEnd}
+                getItemLayout={(_, index) => ({
+                  length: CARD_INTERVAL,
+                  offset: CARD_INTERVAL * index,
+                  index,
+                })}
                 ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
                 renderItem={({ item }) => (
                   <WalletCardItem
                     card={item}
                     selected={selectedKey === item.userWalletKey}
-                    onSelect={onSelect}
                   />
                 )}
               />
@@ -629,8 +612,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   cardsRow: {
-    paddingLeft: 2,
-    paddingRight: 16,
+    paddingVertical: 2,
   },
   cardsContainer: {
     height: 240,
@@ -639,109 +621,13 @@ const styles = StyleSheet.create({
     width: 12,
   },
   cardWrap: {
-    width: 290,
-    shadowColor: "#000",
-    shadowOpacity: 0.16,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 5,
-  },
-  card: {
-    borderRadius: 22,
-    padding: 16,
-    height: 230,
+    width: 320,
+    borderRadius: 26,
+    padding: 2,
     overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "transparent",
   },
   cardSelected: {
-    borderColor: "rgba(255,255,255,0.65)",
-  },
-  cardTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  cardTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    flex: 1,
-    paddingRight: 10,
-  },
-  cardTopRight: {
-    alignItems: "flex-end",
-    gap: 6,
-  },
-  cardTopRightRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  cardEmoji: {
-    fontSize: 22,
-    color: "#fff",
-  },
-  cardTitle: {
-    fontSize: 16,
-    color: "#fff",
-    fontFamily: Fonts.sansBlack,
-    flex: 1,
-  },
-  pill: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-  },
-  pillActive: {
-    backgroundColor: "rgba(34,197,94,0.18)",
-  },
-  pillInactive: {
-    backgroundColor: "rgba(239,68,68,0.18)",
-  },
-  pillText: {
-    fontSize: 12,
-    color: "#fff",
-    opacity: 0.9,
-  },
-  cardInfoText: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.8)",
-  },
-  cardBalanceRightLabel: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.75)",
-  },
-  cardBody: {
-    marginTop: 6,
-  },
-  cardLabel: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.75)",
-  },
-  cardValue: {
-    fontSize: 20,
-    color: "#fff",
-    fontFamily: Fonts.sansBold,
-    marginTop: 2,
-  },
-  balancesColumn: {
-    flexDirection: "column",
-    gap: 6,
-    marginTop: 6,
-  },
-  balancePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.14)",
-    alignSelf: "flex-start",
-  },
-  balancePillText: {
-    fontSize: 13,
-    color: "#fff",
-    opacity: 0.95,
-    fontFamily: Fonts.sansBold,
+    backgroundColor: "rgba(124,58,237,0.38)",
   },
   detailsCard: {
     borderRadius: 18,

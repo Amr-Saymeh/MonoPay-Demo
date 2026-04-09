@@ -1,25 +1,25 @@
+import { SharedCard } from '@/src/features/card/SharedCard';
 import { FontAwesome } from '@expo/vector-icons';
 import { get, ref, set } from 'firebase/database';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
-  CurrencySelectorModal,
-  ExchangeCard,
-  RateInfo,
-  StatusMessage,
-  WalletCard,
-  WalletSelectorModal,
+    CurrencySelectorModal,
+    ExchangeCard,
+    RateInfo,
+    StatusMessage,
+    WalletSelectorModal,
 } from '../src/features/exchange/components';
-import { useExchangeRates, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
+import { useExchangeRatesQuery, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
 import {
-  denormalizeCurrency,
-  getAvailableToCurrencies,
-  normalizeCurrency,
+    denormalizeCurrency,
+    getAvailableToCurrencies,
+    normalizeCurrency,
 } from '../src/features/exchange/utils';
 import { db } from '../src/firebaseConfig';
 import { useAuth } from '../src/providers/AuthProvider';
 
-const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
 
 const Exchange: React.FC = () => {
   const { user } = useAuth();
@@ -36,7 +36,7 @@ const Exchange: React.FC = () => {
 
   const { wallets, loading: walletsLoading } = useWallets(user?.uid);
   const { currencies, getBalance } = useWalletCurrencies(selectedWalletId);
-  const { getRate, loading: ratesLoading } = useExchangeRates(fromCurrency);
+  const { getRate, loading: ratesLoading } = useExchangeRatesQuery(fromCurrency);
 
   const selectedWallet = useMemo(
     () => wallets.find((wallet) => wallet.walletid === selectedWalletId) ?? null,
@@ -194,11 +194,13 @@ const Exchange: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <WalletCard
-          name={selectedWallet.name}
-          emoji={selectedWallet.emoji}
-          currencies={currencies}
+        <View style={{ marginBottom: 16 }}>
+        <SharedCard
+         name={selectedWallet.name}
+         emoji={selectedWallet.emoji}
+         currencies={currencies}
         />
+        </View>
 
         <ExchangeCard
           fromCurrency={normalizeCurrency(fromCurrency)}
