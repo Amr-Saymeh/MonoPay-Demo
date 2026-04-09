@@ -32,10 +32,21 @@ import {
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
 import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
   anchor: "index",
 };
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 2,
+    },
+  },
+});
 
 function RootLayoutInner() {
   const { colorScheme } = useThemeMode();
@@ -117,8 +128,11 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
+
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
+
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
         <ThemeModeProvider>
           <LanguageProvider>
             <AuthProvider>
@@ -130,7 +144,9 @@ export default function RootLayout() {
             </AuthProvider>
           </LanguageProvider>
         </ThemeModeProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+      </QueryClientProvider>
+    </SafeAreaProvider>
+  </GestureHandlerRootView>
+
   );
 }

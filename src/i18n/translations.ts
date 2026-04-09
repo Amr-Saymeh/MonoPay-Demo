@@ -225,6 +225,65 @@ type TranslationKey =
   | "remainingBudget"
   | "newTotalAfter";
 
+  | "goals.title"
+  | "goals.createTitle"
+  | "goals.editTitle"
+  | "goals.totalSaved"
+  | "goals.goalName"
+  | "goals.targetAmount"
+  | "goals.currentAmount"
+  | "goals.targetDate"
+  | "goals.currency"
+  | "goals.contribute"
+  | "goals.addContribution"
+  | "goals.contributionAmount"
+  | "goals.contributionReason"
+  | "goals.remaining"
+  | "goals.deleteConfirm"
+  | "goals.deleteSuccess"
+  | "goals.createSuccess"
+  | "goals.updateSuccess"
+  | "goals.contributionSuccess"
+  | "incomeSavings.title"
+  | "incomeSavings.addEntry"
+  | "incomeSavings.editEntry"
+  | "incomeSavings.totalIncome"
+  | "incomeSavings.totalOutgoing"
+  | "incomeSavings.sortBy"
+  | "incomeSavings.sortByDate"
+  | "incomeSavings.sortByAmount"
+  | "incomeSavings.type"
+  | "incomeSavings.income"
+  | "incomeSavings.savings"
+  | "incomeSavings.source"
+  | "incomeSavings.amount"
+  | "incomeSavings.notes"
+  | "incomeSavings.regularity"
+  | "incomeSavings.daily"
+  | "incomeSavings.weekly"
+  | "incomeSavings.monthly"
+  | "incomeSavings.yearly"
+  | "incomeSavings.categories.salary"
+  | "incomeSavings.categories.freelance"
+  | "incomeSavings.categories.loan"
+  | "incomeSavings.categories.other"
+  | "incomeSavings.categories.savings"
+  | "incomeSavings.categories.debt"
+  | "incomeSavings.entryTypes.receive"
+  | "incomeSavings.entryTypes.send"
+  | "incomeSavings.deleteConfirm"
+  | "incomeSavings.deleteSuccess"
+  | "incomeSavings.createSuccess"
+  | "incomeSavings.updateSuccess"
+  | "common.cancel"
+  | "common.save"
+  | "common.delete"
+  | "common.edit"
+  | "common.add"
+  | "common.close"
+  | "common.confirm"
+  | "common.loading";
+
 export const translations: Record<
   SupportedLanguage,
   Record<TranslationKey, string>
@@ -452,6 +511,65 @@ export const translations: Record<
     saveMyMoney: "Save My Money",
     remainingBudget: "Remaining",
     newTotalAfter: "New total will be",
+      
+    "goals.title": "Savings Goals",
+    "goals.createTitle": "Create New Goal",
+    "goals.editTitle": "Edit Goal",
+    "goals.totalSaved": "Total Saved",
+    "goals.goalName": "Goal Name",
+    "goals.targetAmount": "Target Amount",
+    "goals.currentAmount": "Current Amount",
+    "goals.targetDate": "Target Date",
+    "goals.currency": "Currency",
+    "goals.contribute": "Contribute",
+    "goals.addContribution": "Add Contribution",
+    "goals.contributionAmount": "Contribution Amount",
+    "goals.contributionReason": "Reason (Optional)",
+    "goals.remaining": "remaining",
+    "goals.deleteConfirm": "Are you sure you want to delete this goal?",
+    "goals.deleteSuccess": "Goal deleted successfully",
+    "goals.createSuccess": "Goal created successfully",
+    "goals.updateSuccess": "Goal updated successfully",
+    "goals.contributionSuccess": "Contribution added successfully",
+    "incomeSavings.title": "Income & Savings",
+    "incomeSavings.addEntry": "Add Entry",
+    "incomeSavings.editEntry": "Edit Entry",
+    "incomeSavings.totalIncome": "Total Income",
+    "incomeSavings.totalOutgoing": "Total Outgoing",
+    "incomeSavings.sortBy": "Sort by",
+    "incomeSavings.sortByDate": "Date",
+    "incomeSavings.sortByAmount": "Amount",
+    "incomeSavings.type": "Type",
+    "incomeSavings.income": "Income",
+    "incomeSavings.savings": "Savings",
+    "incomeSavings.source": "Source",
+    "incomeSavings.amount": "Amount",
+    "incomeSavings.notes": "Notes",
+    "incomeSavings.regularity": "Regularity",
+    "incomeSavings.daily": "Daily",
+    "incomeSavings.weekly": "Weekly",
+    "incomeSavings.monthly": "Monthly",
+    "incomeSavings.yearly": "Yearly",
+    "incomeSavings.categories.salary": "Salary",
+    "incomeSavings.categories.freelance": "Freelance",
+    "incomeSavings.categories.loan": "Loan",
+    "incomeSavings.categories.other": "Other",
+    "incomeSavings.categories.savings": "Savings",
+    "incomeSavings.categories.debt": "Debt",
+    "incomeSavings.entryTypes.receive": "Income",
+    "incomeSavings.entryTypes.send": "Savings",
+    "incomeSavings.deleteConfirm": "Are you sure you want to delete this entry?",
+    "incomeSavings.deleteSuccess": "Entry deleted successfully",
+    "incomeSavings.createSuccess": "Entry created successfully",
+    "incomeSavings.updateSuccess": "Entry updated successfully",
+    "common.cancel": "Cancel",
+    "common.save": "Save",
+    "common.delete": "Delete",
+    "common.edit": "Edit",
+    "common.add": "Add",
+    "common.close": "Close",
+    "common.confirm": "Confirm",
+    "common.loading": "Loading...",
   },
   ar: {
     editBudget: "تعديل الميزانية",
@@ -677,6 +795,65 @@ export const translations: Record<
     saveMyMoney: "وفر أموالي",
     remainingBudget: "المتبقي",
     newTotalAfter: "سيكون الإجمالي الجديد",
+
+    "goals.title": "أهداف التوفير",
+    "goals.createTitle": "إنشاء هدف جديد",
+    "goals.editTitle": "تعديل الهدف",
+    "goals.totalSaved": "إجمالي المدخرات",
+    "goals.goalName": "اسم الهدف",
+    "goals.targetAmount": "المبلغ المستهدف",
+    "goals.currentAmount": "المبلغ الحالي",
+    "goals.targetDate": "تاريخ الانتهاء",
+    "goals.currency": "العملة",
+    "goals.contribute": "ساهم",
+    "goals.addContribution": "إضافة مساهمة",
+    "goals.contributionAmount": "مبلغ المساهمة",
+    "goals.contributionReason": "السبب (اختياري)",
+    "goals.remaining": "متبقي",
+    "goals.deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الهدف؟",
+    "goals.deleteSuccess": "تم حذف الهدف بنجاح",
+    "goals.createSuccess": "تم إنشاء الهدف بنجاح",
+    "goals.updateSuccess": "تم تحديث الهدف بنجاح",
+    "goals.contributionSuccess": "تمت إضافة المساهمة بنجاح",
+    "incomeSavings.title": "الدخل والتوفير",
+    "incomeSavings.addEntry": "إضافة إدخال",
+    "incomeSavings.editEntry": "تعديل الإدخال",
+    "incomeSavings.totalIncome": "إجمالي الدخل",
+    "incomeSavings.totalOutgoing": "إجمالي المنصرف",
+    "incomeSavings.sortBy": "ترتيب حسب",
+    "incomeSavings.sortByDate": "التاريخ",
+    "incomeSavings.sortByAmount": "المبلغ",
+    "incomeSavings.type": "النوع",
+    "incomeSavings.income": "دخل",
+    "incomeSavings.savings": "توفير",
+    "incomeSavings.source": "المصدر",
+    "incomeSavings.amount": "المبلغ",
+    "incomeSavings.notes": "ملاحظات",
+    "incomeSavings.regularity": "الانتظام",
+    "incomeSavings.daily": "يومي",
+    "incomeSavings.weekly": "أسبوعي",
+    "incomeSavings.monthly": "شهري",
+    "incomeSavings.yearly": "سنوي",
+    "incomeSavings.categories.salary": "راتب",
+    "incomeSavings.categories.freelance": "عمل حر",
+    "incomeSavings.categories.loan": "قرض",
+    "incomeSavings.categories.other": "آخر",
+    "incomeSavings.categories.savings": "توفير",
+    "incomeSavings.categories.debt": "دين",
+    "incomeSavings.entryTypes.receive": "دخل",
+    "incomeSavings.entryTypes.send": "توفير",
+    "incomeSavings.deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الإدخال؟",
+    "incomeSavings.deleteSuccess": "تم حذف الإدخال بنجاح",
+    "incomeSavings.createSuccess": "تم إنشاء الإدخال بنجاح",
+    "incomeSavings.updateSuccess": "تم تحديث الإدخال بنجاح",
+    "common.cancel": "إلغاء",
+    "common.save": "حفظ",
+    "common.delete": "حذف",
+    "common.edit": "تعديل",
+    "common.add": "إضافة",
+    "common.close": "إغلاق",
+    "common.confirm": "تأكيد",
+    "common.loading": "جارٍ التحميل...",
   },
 };
 
