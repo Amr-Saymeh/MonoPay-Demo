@@ -1,12 +1,12 @@
-import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ThemedView } from "@/components/themed-view";
 import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { UserProfile } from "../types";
 import { UserRow } from "./UserRow";
 
@@ -150,9 +150,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(17,24,28,0.06)",
   },
-  suggestionAvatar: { width: 34, height: 34, borderRadius: 999, alignItems: "center", justifyContent: "center" },
-  suggestionInfo: { flex: 1 },
-  suggestionSub: { opacity: 0.6, marginTop: 2, fontSize: 13 },
-  helperText: { opacity: 0.65, fontSize: 13 },
-  emptyText: { opacity: 0.65 },
+  suggestionAvatar: { 
+    width: 34, 
+    height: 34, 
+    borderRadius: 999, 
+    alignItems: "center", 
+    justifyContent: "center" 
+  },
+  suggestionInfo: { 
+    flex: 1 
+  },
+  suggestionSub: { 
+    opacity: 0.6, 
+    marginTop: 2, 
+    fontSize: 13 
+  },
+  helperText: { 
+    opacity: 0.65, 
+    fontSize: 13 
+  },
+  emptyText: { 
+    opacity: 0.65 
+  },
 });
