@@ -442,7 +442,6 @@ export const translations: Record<
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
     transactions: "Transactions",
-    settingsSubtitle: "Manage your account preferences", // ← أضيف هنا
     settingsSubtitle: "Manage your account preferences",
     changeLanguage: "Change Language",
     changePercent: " from last month",
@@ -523,14 +522,16 @@ export const translations: Record<
     manual: "MANUAL",
     myBundles: "My Bundles",
     editBudget: "Edit Budget",
-    bundlesSubtitle: "Manage your recurring purchase sets and optimize your daily spending flow.",
+    bundlesSubtitle:
+      "Manage your recurring purchase sets and optimize your daily spending flow.",
     budgetWarningTitle: "Budget Warning! ⚠️",
-    budgetWarningMessage: "You are about to exceed your daily budget. Do you really need this purchase? Every bit counts!",
+    budgetWarningMessage:
+      "You are about to exceed your daily budget. Do you really need this purchase? Every bit counts!",
     proceedAnyway: "Force Add",
     saveMyMoney: "Save My Money",
     remainingBudget: "Remaining",
     newTotalAfter: "New total will be",
-      
+
     "goals.title": "Savings Goals",
     "goals.createTitle": "Create New Goal",
     "goals.editTitle": "Edit Goal",
@@ -752,7 +753,7 @@ export const translations: Record<
     selectReceivingWallet: "اختر محفظة للاستقبال",
     recipient: "المستلم",
     selectRecipient: "اختر المستلم",
-    
+
     payer: "الدافع",
     selectPayer: "من سيدفع؟",
     category: "الفئة",
@@ -816,9 +817,11 @@ export const translations: Record<
     recurring: "متكرر",
     manual: "يدوي",
     myBundles: "حزمي الخاصة",
-    bundlesSubtitle: "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
+    bundlesSubtitle:
+      "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
     budgetWarningTitle: "تنبيه الميزانية! ⚠️",
-    budgetWarningMessage: "أنت على وشك تجاوز ميزانيتك اليومية. هل هذه العملية ضرورية حقاً؟ كل قرش يهم!",
+    budgetWarningMessage:
+      "أنت على وشك تجاوز ميزانيتك اليومية. هل هذه العملية ضرورية حقاً؟ كل قرش يهم!",
     proceedAnyway: "إضافة على أي حال",
     saveMyMoney: "وفر أموالي",
     remainingBudget: "المتبقي",
