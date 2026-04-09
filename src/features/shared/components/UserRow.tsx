@@ -1,9 +1,9 @@
-import React from "react";
-import { Animated, View, TouchableOpacity, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedText } from "@/components/themed-text";
 import { Fonts } from "@/constants/theme";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useAnimatedListItem } from "../hooks";
 import { UserProfile } from "../types";
 
@@ -67,17 +67,39 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 10,
   },
-  userRowBorder: { borderBottomWidth: 1, borderBottomColor: "#e2dff0" },
-  userInfo: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1 },
-  userAvatar: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  username: { fontSize: 14, flex: 1 },
+  userRowBorder: { 
+    borderBottomWidth: 1, 
+    borderBottomColor: "#e2dff0" 
+  },
+  userInfo: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    gap: 10, 
+    flex: 1 
+  },
+  userAvatar: { 
+    width: 28, 
+    height: 28, 
+    borderRadius: 14, 
+    alignItems: "center", 
+    justifyContent: "center" 
+  },
+  username: { 
+    fontSize: 14, 
+    flex: 1 
+  },
   ownerTag: {
     backgroundColor: "#c084fc",
     borderRadius: 20,
     paddingVertical: 3,
     paddingHorizontal: 10,
   },
-  ownerTagText: { color: "#fff", fontSize: 10, fontFamily: Fonts.sansBold, letterSpacing: 0.5 },
+  ownerTagText: { 
+    color: "#fff", 
+    fontSize: 10, 
+    fontFamily: Fonts.sansBold, 
+    letterSpacing: 0.5 
+  },
   removeBtn: {
     width: 32,
     height: 32,

@@ -1,7 +1,7 @@
-import React from "react";
-import { Animated, View, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { Fonts } from "@/constants/theme";
+import React from "react";
+import { Animated, StyleSheet, View } from "react-native";
 import { useAnimatedListItem } from "../hooks";
 import { SharedLog } from "../types";
 
@@ -50,13 +50,41 @@ export function HistoryRow({
 }
 
 const styles = StyleSheet.create({
-  historyRow: { flexDirection: "row", alignItems: "center", paddingVertical: 10, gap: 10 },
-  historyRowBorder: { borderBottomWidth: 1, borderBottomColor: "#e2dff0" },
-  historyDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  historyInfo: { flex: 1 },
-  historyText: { fontSize: 13 },
-  historySub: { fontSize: 11, opacity: 0.6, marginTop: 2 },
-  historyAmount: { fontSize: 12, fontFamily: Fonts.sansBold },
-  amountPositive: { color: "#7c3aed" },
-  amountNegative: { color: "#c084fc" },
+  historyRow: {
+     flexDirection: "row",
+     alignItems: "center", 
+     paddingVertical: 10, 
+     gap: 10 
+    },
+  historyRowBorder: { 
+    borderBottomWidth: 1, 
+    borderBottomColor: "#e2dff0" 
+  },
+  historyDot: { 
+    width: 8, 
+    height: 8, 
+    borderRadius: 4, 
+    flexShrink: 0 
+  },
+  historyInfo: { 
+    flex: 1 
+  },
+  historyText: { 
+    fontSize: 13 
+  },
+  historySub: { 
+    fontSize: 11, 
+    opacity: 0.6, 
+    marginTop: 2 
+  },
+  historyAmount: { 
+    fontSize: 12, 
+    fontFamily: Fonts.sansBold 
+  },
+  amountPositive: { 
+    color: "#7c3aed" 
+  },
+  amountNegative: { 
+    color: "#c084fc" 
+  },
 });

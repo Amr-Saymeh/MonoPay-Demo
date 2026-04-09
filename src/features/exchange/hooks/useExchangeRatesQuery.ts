@@ -26,8 +26,8 @@ export function useExchangeRatesQuery(fromCurrency: string) {
       return result as RatesData | null;
     },
     enabled: !!normalizedCurrency,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000, 
+    gcTime: 10 * 60 * 1000, 
   });
 
   const getRate = useCallback(
