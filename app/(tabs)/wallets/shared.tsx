@@ -1,26 +1,26 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { ThemedView } from "@/components/themed-view";
-import { SharedCard } from '@/src/features/shared/SharedCard';
+import { SharedCard } from '@/src/features/card/SharedCard';
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { onValue, push, ref, update } from "firebase/database";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  InputAccessoryView,
-  Keyboard,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Animated,
+    InputAccessoryView,
+    Keyboard,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
