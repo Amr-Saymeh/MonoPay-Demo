@@ -77,11 +77,10 @@ export function SharedCard({
 
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress} activeOpacity={0.92}>
-      {/* Glows */}
+     
       <View style={styles.glowTopRight} />
       <View style={styles.glowBottomLeft} />
 
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.emojiContainer}>
@@ -90,7 +89,7 @@ export function SharedCard({
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
         </View>
 
-        {/* Status badge — shared only */}
+    
         {isShared && walletState && (
           <View style={[
             styles.statusBadge,
@@ -110,7 +109,7 @@ export function SharedCard({
         )}
       </View>
 
-      {/* Balance */}
+    
       <Text style={styles.label}>Available Balance</Text>
 
       {nonZero.length === 0 ? (
@@ -139,7 +138,7 @@ export function SharedCard({
         </Animated.View>
       ) : null}
 
-      {/* Page indicator chips */}
+      
       {nonZero.length > 1 && (
         <View style={styles.chips}>
           {nonZero.map((_, i) => (
@@ -151,7 +150,7 @@ export function SharedCard({
         </View>
       )}
 
-      {/* Footer — shared only */}
+      
       {isShared && (
         <>
           <View style={styles.divider} />

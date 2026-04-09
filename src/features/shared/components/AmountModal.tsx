@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  View,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-  InputAccessoryView,
-  Keyboard,
-  StyleSheet,
-} from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedText } from "@/components/themed-text";
 import { AuthInput } from "@/components/ui/auth-input";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React from "react";
+import {
+  InputAccessoryView,
+  Keyboard,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface AmountModalProps {
   visible: boolean;
@@ -176,7 +176,11 @@ export function AmountModal({
 }
 
 const styles = StyleSheet.create({
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: "rgba(0,0,0,0.5)", 
+    justifyContent: "flex-end" 
+  },
   modalCard: {
     backgroundColor: "white",
     borderTopLeftRadius: 28,
@@ -203,10 +207,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  balanceInfoLabel: { fontSize: 13, opacity: 0.7 },
-  balanceInfoValue: { fontSize: 14, fontFamily: Fonts.sansBold, color: "#7c3aed" },
-  sectionTitle: { opacity: 0.65, fontFamily: Fonts.sansBold },
-  currencyChipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 6 },
+  balanceInfoLabel: {
+     fontSize: 13, 
+     opacity: 0.7 
+    },
+  balanceInfoValue: { 
+    fontSize: 14, 
+    fontFamily: Fonts.sansBold, 
+    color: "#7c3aed" 
+  },
+  sectionTitle: { 
+    opacity: 0.65, 
+    fontFamily: Fonts.sansBold 
+  },
+  currencyChipsRow: { 
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    gap: 8, 
+    marginTop: 6 
+  },
   currencyChip: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -215,9 +234,17 @@ const styles = StyleSheet.create({
     borderColor: "rgba(17,24,28,0.12)",
     backgroundColor: "#F8FAFC",
   },
-  currencyChipSelected: { borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,0.09)" },
-  currencyChipText: { fontSize: 13, color: "#111827" },
-  currencyChipTextSelected: { color: "#7c3aed" },
+  currencyChipSelected: { 
+    borderColor: "#7c3aed", 
+    backgroundColor: "rgba(124,58,237,0.09)" 
+  },
+  currencyChipText: { 
+    fontSize: 13, 
+    color: "#111827" 
+  },
+  currencyChipTextSelected: { 
+    color: "#7c3aed" 
+  },
   noteInput: {
     borderWidth: 1,
     borderColor: "rgba(17,24,28,0.10)",
@@ -228,7 +255,9 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     backgroundColor: "#fff",
   },
-  modalPrimaryButton: { marginTop: 16 },
+  modalPrimaryButton: { 
+    marginTop: 16 
+  },
   modalSecondaryButton: {
     height: 48,
     borderRadius: 14,
@@ -239,8 +268,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor: "#fff",
   },
-  modalSecondaryText: { color: "rgba(17,24,28,0.75)", fontFamily: Fonts.sansBold },
-  disabledButton: { opacity: 0.5 },
+  modalSecondaryText: { 
+    color: "rgba(17,24,28,0.75)", 
+    fontFamily: Fonts.sansBold 
+  },
+  disabledButton: { 
+    opacity: 0.5 
+  },
   inputAccessory: {
     backgroundColor: "#F8FAFC",
     alignItems: "flex-end",
