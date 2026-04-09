@@ -159,7 +159,6 @@ type TranslationKey =
   | "selectMyWallet"
   | "recipientWallet"
   | "selectRecipientWallet"
-
   | "myReceivingWallet"
   | "selectReceivingWallet"
   | "recipient"
@@ -234,8 +233,7 @@ type TranslationKey =
   | "proceedAnyway"
   | "saveMyMoney"
   | "remainingBudget"
-  | "newTotalAfter";
-
+  | "newTotalAfter"
   | "goals.title"
   | "goals.createTitle"
   | "goals.editTitle"
