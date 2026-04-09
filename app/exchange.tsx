@@ -1,3 +1,4 @@
+
 import { SharedCard } from '@/src/features/card/SharedCard';
 import { FontAwesome } from '@expo/vector-icons';
 import { get, ref, set } from 'firebase/database';
