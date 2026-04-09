@@ -4,11 +4,11 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { get, ref, update } from "firebase/database";
 import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
+    Alert,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    View,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -17,7 +17,7 @@ import { AuthInput } from "@/components/ui/auth-input";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
-import { SharedCard } from "@/src/features/shared/SharedCard";
+import { SharedCard } from "@/src/features/card/SharedCard";
 import { db } from "@/src/firebaseConfig";
 import { useAuth } from "@/src/providers/AuthProvider";
 
