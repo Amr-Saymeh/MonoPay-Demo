@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -11,10 +12,12 @@ interface BalanceActionsProps {
 
 export function BalanceActions({ onAddMoney, onRemoveMoney }: BalanceActionsProps) {
   const { t } = useI18n();
+  const surfaceColor = useThemeColor({}, 'surface');
+  const textColor = useThemeColor({}, 'text');
 
   return (
     <>
-      <View style={styles.pillHeader}>
+      <View style={[styles.pillHeader, { backgroundColor: surfaceColor }]}>
         <ThemedText style={styles.pillHeaderText}>{t("balance") ?? "Money"}</ThemedText>
       </View>
 
@@ -40,7 +43,6 @@ export function BalanceActions({ onAddMoney, onRemoveMoney }: BalanceActionsProp
 
 const styles = StyleSheet.create({
   pillHeader: {
-    backgroundColor: "#3d3a52",
     borderRadius: 50,
     paddingVertical: 10,
     paddingHorizontal: 18,
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  pillHeaderText: { color: "#f0eff5", fontSize: 13, fontFamily: Fonts.sansBold, letterSpacing: 0.3 },
+  pillHeaderText: { fontSize: 13, fontFamily: Fonts.sansBold, letterSpacing: 0.3 },
   actionBtns: { flexDirection: "row", gap: 10 },
   btn: {
     flex: 1,
@@ -61,18 +63,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  btnAdd: { 
-    backgroundColor: "#a855f7", 
-    shadowColor: "#a855f7" 
+  btnAdd: {
+    backgroundColor: "#a855f7",
+    shadowColor: "#a855f7"
   },
-  btnRemove: { 
-    backgroundColor: "#c084fc", 
-    shadowColor: "#c084fc" 
+  btnRemove: {
+    backgroundColor: "#c084fc",
+    shadowColor: "#c084fc"
   },
-  btnText: { 
-    color: "#fff", 
-    fontSize: 13, 
-    fontFamily: Fonts.sansBold, 
-    letterSpacing: 0.3 
+  btnText: {
+    color: "#fff",
+    fontSize: 13,
+    fontFamily: Fonts.sansBold,
+    letterSpacing: 0.3
   },
 });

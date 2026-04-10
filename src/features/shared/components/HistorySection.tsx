@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SharedLog, UserProfile } from "../types";
@@ -15,10 +16,12 @@ interface HistorySectionProps {
 
 export function HistorySection({ logs, loading, allUsers }: HistorySectionProps) {
   const { t } = useI18n();
+  const surfaceColor = useThemeColor({}, 'surface');
+  const borderColor = useThemeColor({}, 'border');
 
   return (
-    <ThemedView style={styles.sectionCard}>
-      <View style={styles.pillHeader}>
+    <ThemedView style={[styles.sectionCard, { borderColor, backgroundColor: surfaceColor }]}>
+      <View style={[styles.pillHeader, { backgroundColor: surfaceColor }]}>
         <ThemedText style={styles.pillHeaderText}>{t("history") ?? "History"}</ThemedText>
       </View>
 
@@ -29,7 +32,7 @@ export function HistorySection({ logs, loading, allUsers }: HistorySectionProps)
       ) : logs.length === 0 ? (
         <ThemedText style={styles.emptyText}>{t("noHistory") ?? "No activity yet."}</ThemedText>
       ) : (
-        <View style={styles.leftBorder}>
+        <View style={[styles.leftBorder, { borderLeftColor: borderColor }]}>
           {logs.map((item, index) => {
             const actor = allUsers[item.userUid];
             const actorLabel = actor?.name?.trim() || actor?.email?.trim() || item.userUid || "—";
@@ -55,11 +58,8 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.08)",
-    backgroundColor: "rgba(17,24,28,0.03)",
   },
   pillHeader: {
-    backgroundColor: "#3d3a52",
     borderRadius: 50,
     paddingVertical: 10,
     paddingHorizontal: 18,
@@ -67,22 +67,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  pillHeaderText: { 
-    color: "#f0eff5", 
-    fontSize: 13, 
-    fontFamily: Fonts.sansBold, 
-    letterSpacing: 0.3 
+  pillHeaderText: {
+    fontSize: 13,
+    fontFamily: Fonts.sansBold,
+    letterSpacing: 0.3
   },
   leftBorder: {
     borderLeftWidth: 2.5,
-    borderLeftColor: "#a78bfa",
     paddingLeft: 14,
   },
-  center: { 
-    paddingVertical: 32, 
-    alignItems: "center" 
+  center: {
+    paddingVertical: 32,
+    alignItems: "center"
   },
-  emptyText: { 
-    opacity: 0.65 
+  emptyText: {
+    opacity: 0.65
   },
 });
