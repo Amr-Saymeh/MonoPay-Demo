@@ -3,6 +3,7 @@ import { ScrollView, View, Alert, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { useBundles } from './hooks/useBundles';
 import { BundlesStyles as styles } from './styles';
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
 
 // Components
 import BundlesHeader from './components/BundlesHeader';
@@ -19,6 +20,9 @@ export default function BundlesFeature() {
         setSearchQuery, 
         handleDelete 
     } = useBundles();
+
+    const { colorScheme } = useThemeMode();
+    const isDark = colorScheme === 'dark';
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingBundle, setEditingBundle] = useState<Bundle | null>(null);
@@ -55,14 +59,14 @@ export default function BundlesFeature() {
 
     return (
         <ScrollView 
-            style={styles.container} 
+            style={[styles.container, isDark && styles.darkBackground]} 
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 60 }}
         >
             {/* Header section includes "My Bundles" and "Create New Bundle" button */}
             <BundlesHeader 
                 onCreateNew={handleCreateNew} 
-                onBack={() => router.push('/MainScreen_DailyPur')}
+                onBack={() => router.back()}
             />
             
             {/* Show Create/Edit Form if toggled */}
