@@ -1,4 +1,3 @@
-
 export { CurrencySelectorModal } from './CurrencySelectorModal';
 export { ExchangeCard } from './ExchangeCard';
 export { RateInfo } from './RateInfo';
