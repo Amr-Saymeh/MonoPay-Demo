@@ -27,11 +27,14 @@ export const BundlesStyles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: THEME.text,
-    marginLeft: 8,
-    marginTop: -12,
+   fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111',
+    marginLeft: -10,
+    marginBottom:10,
+    textAlign: 'left',
+    paddingHorizontal: 15,
+    paddingVertical: 1,
     
   },
   headerSubtitle: {
