@@ -258,4 +258,40 @@ export const PurchaseListStyles = StyleSheet.create({
     fontSize: 16,
     color: '#8e8e93',
   },
+  darkEmptyText: {
+    color: 'rgba(236, 237, 238, 0.4)',
+  }
 });
+
+// Dark Mode Unified Styles (appended)
+export const DarkThemeStyles = {
+  darkBackground: {
+    backgroundColor: '#000',
+  },
+  darkText: {
+    color: '#ECEDEE',
+  },
+  darkSecondaryText: {
+    color: 'rgba(236, 237, 238, 0.6)',
+  },
+  darkCard: {
+    backgroundColor: '#0f0f14',
+    borderWidth: 0.5,
+    borderColor: 'rgba(255,255,255,0.1)',
+    shadowColor: '#6366f1',
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  darkInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#fff',
+  },
+  darkHeaderTitle: {
+    color: '#a78bfa',
+  },
+  darkLabel: {
+    color: '#a78bfa',
+  }
+};

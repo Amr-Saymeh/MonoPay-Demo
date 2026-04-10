@@ -1,31 +1,39 @@
+import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeMode } from "@/src/providers/ThemeModeProvider";
 
 export default function TabLayout() {
   const { t } = useI18n();
+  const { colorScheme } = useThemeMode();
+
+  const activeColor = colorScheme === "dark" ? "#a78bfa" : "#6e5da9";
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#fff",
-        tabBarInactiveTintColor: "rgba(255, 255, 255, 0.5)",
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: colorScheme === "dark" ? "rgba(255, 255, 255, 0.4)" : "rgba(0, 0, 0, 0.4)",
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: styles.tabBar,
+        tabBarBackground: () => (
+          <BlurView
+            tint={colorScheme === "dark" ? "dark" : "light"}
+            intensity={Platform.OS === 'ios' ? 40 : 80}
+            style={StyleSheet.absoluteFill}
+          />
+        ),
         tabBarLabelStyle: {
           fontFamily: Fonts.sans,
-          fontSize: 12,
-        },
-        tabBarBadgeStyle: {
-          fontFamily: Fonts.sansBold,
-          backgroundColor: "#ff4444",
-          color: "#fff",
+          fontSize: 11,
+          fontWeight: '600',
         },
       }}
     >
@@ -34,7 +42,7 @@ export default function TabLayout() {
         options={{
           title: t("home"),
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={24} name="house.fill" color={color} />
           ),
         }}
       />
@@ -43,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: t("approve"),
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="person.crop.circle" color={color} />
+            <IconSymbol size={24} name="person.crop.circle" color={color} />
           ),
         }}
       />
@@ -52,7 +60,7 @@ export default function TabLayout() {
         options={{
           title: t("settings"),
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="gearshape" color={color} />
+            <IconSymbol size={24} name="gearshape" color={color} />
           ),
         }}
       />
@@ -63,23 +71,22 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: "#6e5da9ff",
-    borderTopWidth: 0,
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    height: 70,
-    paddingBottom: 12,
-    paddingTop: 8,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    borderTopWidth: 0,
+    elevation: 0,
+    height: 64,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    bottom: Platform.OS === 'ios' ? 24 : 12,
+    marginHorizontal: 20,
+    borderRadius: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    paddingBottom: 0,
+    overflow: 'hidden',
   }
 });

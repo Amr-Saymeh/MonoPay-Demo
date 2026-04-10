@@ -4,17 +4,21 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useI18n } from '@/hooks/use-i18n';
 import { DailyTotalCardProps, RatesModalProps, BudgetModalProps, Currency } from '../types';
-import { DailyTotalCardStyles as styles, RatesModalStyles as ratesStyles, BudgetModalStyles as budgetStyles } from '../styles';
+import { DailyTotalCardStyles as styles, RatesModalStyles as ratesStyles, BudgetModalStyles as budgetStyles, DarkThemeStyles } from '../styles';
 import { CURRENCIES, CURRENCY_SYMBOL, THEME, FALLBACK_RATES } from '../constants';
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
 
 export function RatesModal({ visible, onClose, rates, loading, hasError, onRefresh }: RatesModalProps) {
   const { t } = useI18n() as any;
+  const { colorScheme } = useThemeMode();
+  const isDark = colorScheme === 'dark';
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <TouchableOpacity style={ratesStyles.overlay} activeOpacity={1} onPress={onClose}>
-        <View style={ratesStyles.sheet}>
+        <View style={[ratesStyles.sheet, isDark && { backgroundColor: '#1c1c1e' }]}>
           <View style={ratesStyles.handle} />
-          <Text style={ratesStyles.title}>📊 {t('exchangeRates')}</Text>
+          <Text style={[ratesStyles.title, isDark && { color: '#fff' }]}>📊 {t('exchangeRates')}</Text>
           <Text style={ratesStyles.sub}> {t('updatedEveryHour')}</Text>
 
           {loading ? (
@@ -25,26 +29,26 @@ export function RatesModal({ visible, onClose, rates, loading, hasError, onRefre
             </View>
           ) : (
             <View style={ratesStyles.grid}>
-              <View style={ratesStyles.card}>
+              <View style={[ratesStyles.card, isDark && { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
                 <Text style={ratesStyles.flag}>🇺🇸</Text>
-                <Text style={ratesStyles.pair}>1 USD</Text>
-                <Text style={ratesStyles.value}>= ₪{rates.USD?.toFixed(3) || '0.000'}</Text>
+                <Text style={[ratesStyles.pair, isDark && { color: 'rgba(255,255,255,0.7)' }]}>1 USD</Text>
+                <Text style={[ratesStyles.value, isDark && { color: '#a78bfa' }]}>= ₪{rates.USD?.toFixed(3) || '0.000'}</Text>
               </View>
-              <View style={ratesStyles.card}>
+              <View style={[ratesStyles.card, isDark && { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
                 <Text style={ratesStyles.flag}>🇯🇴</Text>
-                <Text style={ratesStyles.pair}>1 JOD</Text>
-                <Text style={ratesStyles.value}>= ₪{rates.JOD?.toFixed(3) || '0.000'}</Text>
+                <Text style={[ratesStyles.pair, isDark && { color: 'rgba(255,255,255,0.7)' }]}>1 JOD</Text>
+                <Text style={[ratesStyles.value, isDark && { color: '#a78bfa' }]}>= ₪{rates.JOD?.toFixed(3) || '0.000'}</Text>
               </View>
-              <View style={ratesStyles.card}>
+              <View style={[ratesStyles.card, isDark && { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
                 <Text style={ratesStyles.flag}>🇵🇸</Text>
-                <Text style={ratesStyles.pair}>1 NIS</Text>
-                <Text style={ratesStyles.value}>= ${rates.USD ? (1 / rates.USD).toFixed(4) : '0.0000'}</Text>
+                <Text style={[ratesStyles.pair, isDark && { color: 'rgba(255,255,255,0.7)' }]}>1 NIS</Text>
+                <Text style={[ratesStyles.value, isDark && { color: '#a78bfa' }]}>= ${rates.USD ? (1 / rates.USD).toFixed(4) : '0.0000'}</Text>
               </View>
             </View>
           )}
 
-          <TouchableOpacity style={ratesStyles.refreshBtn} onPress={onRefresh}>
-            <Text style={ratesStyles.refreshText}>🔄 {t('refreshNow')}</Text>
+          <TouchableOpacity style={[ratesStyles.refreshBtn, isDark && { backgroundColor: 'rgba(255,255,255,0.08)' }]} onPress={onRefresh}>
+            <Text style={[ratesStyles.refreshText, isDark && { color: '#a78bfa' }]}>🔄 {t('refreshNow')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={ratesStyles.closeBtn} onPress={onClose}>
             <Text style={ratesStyles.closeText}>{t('close')}</Text>
@@ -57,6 +61,8 @@ export function RatesModal({ visible, onClose, rates, loading, hasError, onRefre
 
 export function BudgetModal({ visible, onClose, onSave, rates }: BudgetModalProps) {
   const { t } = useI18n() as any;
+  const { colorScheme } = useThemeMode();
+  const isDark = colorScheme === 'dark';
   const [amount, setAmount] = useState('');
   const [inputCurrency, setInputCurrency] = useState<Currency>('NIS');
 
@@ -80,47 +86,48 @@ export function BudgetModal({ visible, onClose, onSave, rates }: BudgetModalProp
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={budgetStyles.overlay}>
-        <View style={budgetStyles.card}>
-          <Text style={budgetStyles.title}>💰 {t('dailyBudget')}</Text>
+        <View style={[budgetStyles.card, isDark && { backgroundColor: '#1c1c1e' }]}>
+          <Text style={[budgetStyles.title, isDark && { color: '#fff' }]}>💰 {t('dailyBudget')}</Text>
           <Text style={budgetStyles.sub}>{t('enterAmountInAnyCurrency')}</Text>
 
           <View style={budgetStyles.currencyRow}>
             {CURRENCIES.map((c) => (
               <TouchableOpacity
                 key={c}
-                style={[budgetStyles.curBtn, inputCurrency === c && budgetStyles.curBtnActive]}
+                style={[budgetStyles.curBtn, inputCurrency === c && budgetStyles.curBtnActive, isDark && inputCurrency !== c && { backgroundColor: 'rgba(255,255,255,0.08)' }]}
                 onPress={() => setInputCurrency(c)}
               >
-                <Text style={[budgetStyles.curLabel, inputCurrency === c && budgetStyles.curLabelActive]}>
+                <Text style={[budgetStyles.curLabel, inputCurrency === c && budgetStyles.curLabelActive, isDark && inputCurrency !== c && { color: 'rgba(255,255,255,0.7)' }]}>
                   {c}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <View style={budgetStyles.inputRow}>
-            <Text style={budgetStyles.symbol}>{CURRENCY_SYMBOL[inputCurrency]}</Text>
+          <View style={[budgetStyles.inputRow, isDark && { borderColor: 'rgba(255,255,255,0.1)' }]}>
+            <Text style={[budgetStyles.symbol, isDark && { color: '#a78bfa' }]}>{CURRENCY_SYMBOL[inputCurrency]}</Text>
             <TextInput
-              style={budgetStyles.input}
+              style={[budgetStyles.input, isDark && { color: '#fff' }]}
               keyboardType="numeric"
               value={amount}
               onChangeText={setAmount}
               placeholder="0.00"
+              placeholderTextColor="rgba(255,255,255,0.3)"
               autoFocus
             />
           </View>
 
           {inputCurrency !== 'NIS' && previewNIS !== null && (
-            <View style={budgetStyles.preview}>
-              <Text style={budgetStyles.previewText}>
+            <View style={[budgetStyles.preview, isDark && { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
+              <Text style={[budgetStyles.previewText, isDark && { color: '#a78bfa' }]}>
                 ≈ ₪{previewNIS.toFixed(2)} {t('willBeSavedInNis')}
               </Text>
             </View>
           )}
 
           <View style={budgetStyles.btnRow}>
-            <TouchableOpacity style={budgetStyles.cancelBtn} onPress={onClose}>
-              <Text style={budgetStyles.cancelLabel}>{t('cancel')}</Text>
+            <TouchableOpacity style={[budgetStyles.cancelBtn, isDark && { backgroundColor: 'rgba(255,255,255,0.08)' }]} onPress={onClose}>
+              <Text style={[budgetStyles.cancelLabel, isDark && { color: '#fff' }]}>{t('cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={budgetStyles.saveBtn} onPress={handleSave}>
               <Text style={budgetStyles.saveLabel}>{t('save')}</Text>
@@ -150,28 +157,30 @@ export default function DailyTotalCard({
   onCreateBundle,
 }: DailyTotalCardProps) {
   const { t } = useI18n() as any;
+  const { colorScheme } = useThemeMode();
+  const isDark = colorScheme === 'dark';
 
   const isOverBudget = totalSpentNIS > dailyBudgetNIS && dailyBudgetNIS > 0;
-  const isNearLimit  = budgetPercent >= 80 && !isOverBudget;
+  const isNearLimit = budgetPercent >= 80 && !isOverBudget;
 
   const badgeColor = isOverBudget ? THEME.danger : isNearLimit ? THEME.warning : THEME.success;
-  const badgeIcon  = isOverBudget ? '🚨' : isNearLimit ? '⚠️' : '✅';
+  const badgeIcon = isOverBudget ? '🚨' : isNearLimit ? '⚠️' : '✅';
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>{t("dailyPurchases")}</Text>
+      <Text style={[styles.headerTitle, isDark && DarkThemeStyles.darkHeaderTitle]}>{t("dailyPurchases")}</Text>
       <Ionicons
         name="arrow-back"
         size={24}
-        color="#111"
+        color={isDark ? "#a78bfa" : "#111"}
         style={styles.backButton}
         onPress={onBack}
       />
       <LinearGradient
-        colors={[THEME.primaryLight, THEME.primary, '#5C2ECC']}
+        colors={isDark ? ['#1a1a2e', '#16213e', '#0f3460'] : [THEME.primaryLight, THEME.primary, '#5C2ECC']}
         start={{ x: 1, y: 1 }}
         end={{ x: 1, y: 0 }}
-        style={styles.gradient}
+        style={[styles.gradient, isDark && DarkThemeStyles.darkCard]}
       >
         <View style={styles.circleTopRight} />
         <View style={styles.circleBottomLeft} />

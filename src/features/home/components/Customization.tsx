@@ -5,11 +5,14 @@ import { router } from 'expo-router';
 import { useI18n } from "@/hooks/use-i18n";
 import { menuItems } from '@/src/features/menu/constants';
 import { useFeatures } from '@/src/providers/FeaturesProvider';
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
 import { homeStyles as styles } from '../styles';
 
 export default function Customization() {
     const { t } = useI18n();
     const { activeFeatures, toggleFeature } = useFeatures();
+    const { colorScheme } = useThemeMode();
+    const isDark = colorScheme === 'dark';
 
     const arrowBack = () => {
         if (activeFeatures.length !== 3) {
@@ -20,13 +23,13 @@ export default function Customization() {
     };
 
     return (
-        <View style={styles.custScreenContainer}>
-            <Text style={styles.custHeaderTitle}>{t("customization")}</Text>
+        <View style={[styles.custScreenContainer, isDark && styles.custScreenContainerDark]}>
+            <Text style={[styles.custHeaderTitle, isDark && styles.custHeaderTitleDark]}>{t("customization")}</Text>
 
             <Ionicons
                 name="arrow-back"
                 size={24}
-                color="#111"
+                color={isDark ? "#a78bfa" : "#111"}
                 style={styles.custBackButton}
                 onPress={arrowBack}
             />
@@ -45,7 +48,8 @@ export default function Customization() {
                                 key={item.id}
                                 style={[
                                     styles.custItem,
-                                    isActive && styles.custActiveItem,
+                                    isDark && styles.custItemDark,
+                                    isActive && (isDark ? styles.custActiveItemDark : styles.custActiveItem),
                                     (index + 1) % 3 !== 0 && { marginRight: '3.5%' }
                                 ]}
                                 activeOpacity={0.7}
@@ -54,7 +58,7 @@ export default function Customization() {
                                 <View
                                     style={[
                                         styles.custIconContainer,
-                                        { backgroundColor: isActive ? '#566CB2' : item.color }
+                                        { backgroundColor: isActive ? (isDark ? '#6366f1' : '#566CB2') : item.color }
                                     ]}
                                 >
                                     <Ionicons
@@ -65,9 +69,9 @@ export default function Customization() {
                                 </View>
 
                                 <View style={styles.custTextContainer}>
-                                    <Text style={styles.custItemTitle}>{t(item.titleKey as any)}</Text>
+                                    <Text style={[styles.custItemTitle, isDark && styles.custTextDark]}>{t(item.titleKey as any)}</Text>
                                     {item.subtitleKey && (
-                                        <Text style={styles.custItemSubtitle}>{t(item.subtitleKey as any)}</Text>
+                                        <Text style={[styles.custItemSubtitle, isDark && styles.darkSecondaryText]}>{t(item.subtitleKey as any)}</Text>
                                     )}
                                 </View>
                                 

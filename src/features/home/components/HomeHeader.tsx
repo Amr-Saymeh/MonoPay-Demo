@@ -1,19 +1,45 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useI18n } from "@/hooks/use-i18n";   
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay
+} from 'react-native-reanimated';
+import { useI18n } from "@/hooks/use-i18n";
 import { useAuth } from '@/src/providers/AuthProvider';
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
 import { homeStyles as styles } from '../styles';
 
 export default function HomeHeader() {
-  const { t } = useI18n();                  
+  const { t } = useI18n();
   const { profile } = useAuth();
+  const { colorScheme } = useThemeMode();
+  const isDark = colorScheme === 'dark';
+
+  const translateY = useSharedValue(-100);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    translateY.value = withSpring(0, {
+      damping: 12,
+      stiffness: 90,
+      mass: 1,
+    });
+    opacity.value = withSpring(1);
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
 
   return (
-    <View style={styles.headerContainer}>
+    <Animated.View style={[styles.headerContainer, animatedStyle]}>
       <LinearGradient
-        colors={['#B166F8', '#9B5DD4', '#566CB2']}
+        colors={isDark ? ['#1a1a2e', '#16213e', '#0f3460'] : ['#B166F8', '#9B5DD4', '#566CB2']}
         start={{ x: 0, y: 1 }}
         end={{ x: 1, y: 0 }}
         style={styles.headerGradient}
@@ -45,8 +71,8 @@ export default function HomeHeader() {
           </View>
         </View>
 
-        <View style={styles.headerBigCircle} />
+        <View style={[styles.headerBigCircle, isDark && { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)' }]} />
       </LinearGradient>
-    </View>
+    </Animated.View>
   );
 }
