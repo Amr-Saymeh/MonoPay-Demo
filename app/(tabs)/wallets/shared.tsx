@@ -1,71 +1,50 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { ThemedView } from "@/components/themed-view";
 import { SharedCard } from "@/src/features/card/SharedCard";
 
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { push, ref, update } from "firebase/database";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useI18n } from "@/hooks/use-i18n";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
-    AmountModal,
-    BalanceActions,
-    HistorySection,
-    MemberSection,
+  AmountModal,
+  BalanceActions,
+  HistorySection,
+  MemberSection,
 } from "@/src/features/shared/components";
 import {
-    useAllUsersProfiles,
-    useAmountTransaction,
-    useMemberSuggestions,
-    useSharedWallet,
-    useSharedWalletLogs,
+  useAllUsersProfiles,
+  useMemberSuggestions,
+  useSharedWallet,
+  useSharedWalletLogs,
 } from "@/src/features/shared/hooks";
 import {
-    getNextUserWalletKey,
+  getNextUserWalletKey
 } from "@/src/features/shared/utils/walletHelpers";
 import { db } from "@/src/firebaseConfig";
 import { useAuth } from "@/src/providers/AuthProvider";
-import { ref, update } from "firebase/database";
-
-function formatAmount(value: number): string {
-  return Number(value).toFixed(2);
-}
-
-function formatCurrency(code: string): string {
-  return code.trim().toUpperCase();
-}
 
 export default function SharedWalletScreen() {
+  const router = useRouter();
+  const { t } = useI18n();
   const surfaceColor = useThemeColor({}, 'surface');
   const borderColor = useThemeColor({}, 'border');
-  const { t } = useI18n();
-  const router = useRouter();
   const { user } = useAuth();
-  const params = useLocalSearchParams<{ walletId?: string; walletid?: string }>();
+  const params = useLocalSearchParams<{ walletId?: string }>();
 
-  const walletIdParam = useMemo(
-    () => params.walletId ?? params.walletid,
-    [params.walletId, params.walletid],
-  );
+  const walletId = useMemo(() => Number(params.walletId ?? NaN), [params.walletId]);
 
-  const walletId = useMemo(() => Number(walletIdParam ?? NaN), [walletIdParam]);
-
-  useEffect(() => {
-    if (!user) return;
-    if (!Number.isFinite(walletId)) {
-      router.replace("/wallets" as any);
-    }
-  }, [router, user, walletId]);
-
-  const { wallet, loading, name, memberUids } = useSharedWallet(user, walletId);
+  const { wallet, loading, name, goal, memberUids, setGoal } = useSharedWallet(user, walletId);
   const { logs, loading: logsLoading } = useSharedWalletLogs(user, walletId);
   const { allUsers } = useAllUsersProfiles(user);
 
@@ -79,21 +58,7 @@ export default function SharedWalletScreen() {
   const [amountCurrency, setAmountCurrency] = useState<string | null>(null);
   const [amountReason, setAmountReason] = useState("");
   const [amountIsAdd, setAmountIsAdd] = useState(true);
-  const [availableBalance, setAvailableBalance] = useState<number | undefined>(undefined);
-
-  const onTransactionSuccess = () => {
-    setAmountModalVisible(false);
-    setAmount("");
-    setAmountReason("");
-    setAvailableBalance(undefined);
-  };
-
-  const { saving: savingAmount, execute, getAvailableBalance } = useAmountTransaction({
-    user,
-    walletId,
-    t,
-    onSuccess: onTransactionSuccess,
-  });
+  const [savingAmount, setSavingAmount] = useState(false);
 
   const memberProfiles = useMemo(
     () => memberUids.map((uid) => ({ uid, profile: allUsers[uid] })),
@@ -109,8 +74,8 @@ export default function SharedWalletScreen() {
   );
 
   const availableCurrencies = useMemo(() => {
-    if (amountIsAdd) return ["USD", "EUR", "NIS", "JOD", "EGP"];
-    return balances.map(([code]) => code.toUpperCase());
+    if (amountIsAdd) return ["usd", "eur", "ils", "jod", "egp"];
+    return balances.map(([code]) => code.toLowerCase());
   }, [amountIsAdd, balances]);
 
   const ownerProfile = useMemo(
@@ -123,7 +88,7 @@ export default function SharedWalletScreen() {
   const cardCurrencies = useMemo(
     () =>
       Object.entries(wallet?.currancies ?? {})
-        .map(([code, balance]) => ({ code: code.toUpperCase(), balance: Number(balance) }))
+        .map(([code, balance]) => ({ code, balance: Number(balance) }))
         .filter(({ balance }) => Number.isFinite(balance)),
     [wallet?.currancies]
   );
@@ -166,73 +131,54 @@ export default function SharedWalletScreen() {
     }
   };
 
-  const openAmountModal = async (isAdd: boolean, currency?: string) => {
+  const openAmountModal = (isAdd: boolean, currency?: string) => {
     setAmountIsAdd(isAdd);
     setAmount("");
     setAmountReason("");
-    const defaultCur = isAdd ? "NIS" : (balances[0]?.[0] ?? null);
-    const selectedCurrency = currency ?? defaultCur;
-    setAmountCurrency(selectedCurrency);
-
-    // Fetch available balance for remove operations
-    if (!isAdd && selectedCurrency) {
-      const balance = await getAvailableBalance(selectedCurrency);
-      setAvailableBalance(balance);
-    } else {
-      setAvailableBalance(undefined);
-    }
-
+    const defaultCur = isAdd ? "ils" : (balances[0]?.[0] ?? null);
+    setAmountCurrency(currency ?? defaultCur);
     setAmountModalVisible(true);
-  };
-
-  const executeSaveAmount = async () => {
-    const result = await execute({
-      amount,
-      currency: amountCurrency,
-      reason: amountReason,
-      isAdd: amountIsAdd,
-    });
-
-    if (!result.success && result.error) {
-      Alert.alert(t("error") ?? "Error", result.error);
-    }
   };
 
   const handleSaveAmount = async () => {
     if (!user || !wallet || !Number.isFinite(walletId) || !amountCurrency) return;
-
-    // Show confirmation dialog for remove operations
-    if (!amountIsAdd && availableBalance !== undefined) {
-      const value = Number(amount.replace(",", "."));
-      if (!Number.isFinite(value) || value <= 0) {
-        await executeSaveAmount();
-        return;
-      }
-
-      const message = `${t("confirmRemove") ?? "Remove"} ${formatAmount(value)} ${formatCurrency(amountCurrency)}?
-
-${t("availableBalance") ?? "Available"}: ${formatAmount(availableBalance)} ${formatCurrency(amountCurrency)}
-${t("remainingBalance") ?? "After transaction"}: ${formatAmount(Math.max(0, availableBalance - value))} ${formatCurrency(amountCurrency)}`;
-
-      Alert.alert(
-        t("confirmRemoveTitle") ?? "Confirm Removal",
-        message,
-        [
-          {
-            text: t("cancel") ?? "Cancel",
-            style: "cancel",
-          },
-          {
-            text: t("remove") ?? "Remove",
-            style: "destructive",
-            onPress: executeSaveAmount,
-          },
-        ]
-      );
+    const value = Number(amount.replace(",", "."));
+    if (!Number.isFinite(value) || value <= 0) {
+      Alert.alert(t("error"), t("invalidAmount") ?? "Enter a valid amount.");
       return;
     }
-
-    await executeSaveAmount();
+    const delta = amountIsAdd ? value : -value;
+    const walletKey = `wallet${walletId}`;
+    setSavingAmount(true);
+    try {
+      const { get } = await import("firebase/database");
+      const snap = await get(ref(db, `wallets/${walletKey}/currancies`));
+      const curr = (snap.val() ?? {}) as Record<string, number>;
+      const key = amountCurrency.toLowerCase();
+      const next = Number(curr[key] ?? 0) + delta;
+      if (next < 0) {
+        Alert.alert(t("error"), t("insufficientFunds") ?? "Not enough balance.");
+        setSavingAmount(false);
+        return;
+      }
+      const logsRef = ref(db, `wallets/${walletKey}/sharedLogs`);
+      const logRef = push(logsRef);
+      await update(ref(db), {
+        [`wallets/${walletKey}/currancies/${key}`]: next,
+        [`wallets/${walletKey}/sharedLogs/${logRef.key}`]: {
+          userUid: user.uid,
+          amount: delta,
+          currency: key,
+          reason: amountReason.trim() || (amountIsAdd ? "Add money" : "Spend"),
+          createdAt: Date.now(),
+        },
+      });
+      setAmountModalVisible(false);
+    } catch (e) {
+      Alert.alert(t("error"), e instanceof Error ? e.message : "Failed");
+    } finally {
+      setSavingAmount(false);
+    }
   };
 
   if (!user)
@@ -245,9 +191,7 @@ ${t("remainingBalance") ?? "After transaction"}: ${formatAmount(Math.max(0, avai
   if (!Number.isFinite(walletId))
     return (
       <ThemedView style={styles.screen}>
-        <View style={styles.center}>
-          <ActivityIndicator />
-        </View>
+        <ThemedText type="subtitle">{t("walletNotFound") ?? "Wallet not found"}</ThemedText>
       </ThemedView>
     );
 
@@ -308,24 +252,17 @@ ${t("remainingBalance") ?? "After transaction"}: ${formatAmount(Math.max(0, avai
 
       <AmountModal
         visible={amountModalVisible}
-        onClose={() => !savingAmount && setAmountModalVisible(false)}
+        onClose={() => setAmountModalVisible(false)}
         isAdd={amountIsAdd}
         amount={amount}
         onAmountChange={setAmount}
         amountCurrency={amountCurrency}
-        onCurrencyChange={async (currency) => {
-          setAmountCurrency(currency);
-          if (!amountIsAdd) {
-            const balance = await getAvailableBalance(currency);
-            setAvailableBalance(balance);
-          }
-        }}
+        onCurrencyChange={setAmountCurrency}
         amountReason={amountReason}
         onReasonChange={setAmountReason}
         availableCurrencies={availableCurrencies}
         saving={savingAmount}
         onConfirm={handleSaveAmount}
-        availableBalance={availableBalance}
       />
     </ThemedView>
   );
