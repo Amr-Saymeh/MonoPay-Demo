@@ -3,6 +3,7 @@ import { ThemedView } from "@/components/themed-view";
 import { AuthInput } from "@/components/ui/auth-input";
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -32,10 +33,14 @@ export function MemberSection({
   onRemoveMember,
 }: MemberSectionProps) {
   const { t } = useI18n();
+  const surfaceColor = useThemeColor({}, 'surface');
+  const backgroundColor = useThemeColor({}, 'background');
+  const borderColor = useThemeColor({}, 'border');
+  const iconColor = useThemeColor({}, 'icon');
 
   return (
-    <ThemedView style={styles.sectionCard}>
-      <View style={styles.pillHeader}>
+    <ThemedView style={[styles.sectionCard, { borderColor, backgroundColor: surfaceColor }]}>
+      <View style={[styles.pillHeader, { backgroundColor: surfaceColor }]}>
         <ThemedText style={styles.pillHeaderText}>{t("members") ?? "Members"}</ThemedText>
       </View>
 
@@ -49,13 +54,13 @@ export function MemberSection({
             placeholder={t("searchByNameOrNumber") ?? "Search by name, phone or email"}
           />
           {suggestions.length > 0 && (
-            <View style={styles.suggestionsBox}>
+            <View style={[styles.suggestionsBox, { borderColor, backgroundColor }]}>
               {suggestions.map(({ uid, profile }) => (
                 <TouchableOpacity
                   activeOpacity={0.8}
                   key={uid}
                   onPress={() => onAddMember(uid)}
-                  style={styles.suggestionRow}
+                  style={[styles.suggestionRow, { borderBottomColor: borderColor }]}
                 >
                   <LinearGradient
                     colors={["#a78bfa", "#7c3aed"]}
@@ -73,7 +78,7 @@ export function MemberSection({
                       {profile?.email ?? profile?.number ?? uid}
                     </ThemedText>
                   </View>
-                  <MaterialIcons name="chevron-right" size={18} color="#94A3B8" />
+                  <MaterialIcons name="chevron-right" size={18} color={iconColor} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -84,7 +89,7 @@ export function MemberSection({
         </View>
       )}
 
-      <View style={styles.leftBorder}>
+      <View style={[styles.leftBorder, { borderLeftColor: borderColor }]}>
         {memberProfiles.length === 0 ? (
           <ThemedText style={styles.emptyText}>No members yet.</ThemedText>
         ) : (
@@ -103,7 +108,7 @@ export function MemberSection({
         )}
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: borderColor }]} />
     </ThemedView>
   );
 }
@@ -114,11 +119,8 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.08)",
-    backgroundColor: "rgba(17,24,28,0.03)",
   },
   pillHeader: {
-    backgroundColor: "#3d3a52",
     borderRadius: 50,
     paddingVertical: 10,
     paddingHorizontal: 18,
@@ -126,20 +128,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  pillHeaderText: { color: "#f0eff5", fontSize: 13, fontFamily: Fonts.sansBold, letterSpacing: 0.3 },
+  pillHeaderText: { fontSize: 13, fontFamily: Fonts.sansBold, letterSpacing: 0.3 },
   leftBorder: {
     borderLeftWidth: 2.5,
-    borderLeftColor: "#a78bfa",
     paddingLeft: 14,
   },
-  divider: { height: 1, backgroundColor: "rgba(17,24,28,0.08)" },
+  divider: { height: 1 },
   memberSearchSection: { gap: 10 },
   suggestionsBox: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.08)",
     overflow: "hidden",
-    backgroundColor: "#fff",
   },
   suggestionRow: {
     flexDirection: "row",
@@ -148,28 +147,27 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(17,24,28,0.06)",
   },
-  suggestionAvatar: { 
-    width: 34, 
-    height: 34, 
-    borderRadius: 999, 
-    alignItems: "center", 
-    justifyContent: "center" 
+  suggestionAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center"
   },
-  suggestionInfo: { 
-    flex: 1 
+  suggestionInfo: {
+    flex: 1
   },
-  suggestionSub: { 
-    opacity: 0.6, 
-    marginTop: 2, 
-    fontSize: 13 
+  suggestionSub: {
+    opacity: 0.6,
+    marginTop: 2,
+    fontSize: 13
   },
-  helperText: { 
-    opacity: 0.65, 
-    fontSize: 13 
+  helperText: {
+    opacity: 0.65,
+    fontSize: 13
   },
-  emptyText: { 
-    opacity: 0.65 
+  emptyText: {
+    opacity: 0.65
   },
 });

@@ -1,5 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 interface RateInfoProps {
   fromCurrency: string;
@@ -8,13 +10,15 @@ interface RateInfoProps {
 }
 
 export const RateInfo: React.FC<RateInfoProps> = ({ fromCurrency, toCurrency, rate }) => {
+  const iconColor = useThemeColor({}, 'icon');
+
   if (!rate) return null;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>
+      <ThemedText style={[styles.text, { color: iconColor }]}>
         1 {fromCurrency} = {rate.toFixed(4)} {toCurrency}
-      </Text>
+      </ThemedText>
     </View>
   );
 };
@@ -27,7 +31,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
-    color: '#64748b',
     fontWeight: '500',
   },
 });
