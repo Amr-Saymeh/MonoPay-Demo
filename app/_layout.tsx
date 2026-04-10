@@ -49,8 +49,12 @@ const queryClient = new QueryClient({
   },
 });
 
+import SplashLoading from "@/src/features/home/components/SplashLoading";
+
 function RootLayoutInner() {
   const { colorScheme } = useThemeMode();
+  const [appReady, setAppReady] = React.useState(false);
+  const [splashVisible, setSplashVisible] = React.useState(true);
 
   const [fontsLoaded] = useFonts({
     Tajawal_200ExtraLight,
@@ -61,6 +65,16 @@ function RootLayoutInner() {
     Tajawal_800ExtraBold,
     Tajawal_900Black,
   });
+
+  useEffect(() => {
+    // Hide splash after minimum 2 seconds and fonts loaded
+    if (fontsLoaded) {
+      const timer = setTimeout(() => {
+        setSplashVisible(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [fontsLoaded]);
 
   useEffect(() => {
     if (!fontsLoaded) return;
@@ -84,17 +98,8 @@ function RootLayoutInner() {
     };
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return (
-      <SafeAreaProvider>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" />
-          <StatusBar style="auto" />
-        </View>
-      </SafeAreaProvider>
-    );
+  if (splashVisible || !fontsLoaded) {
+    return <SplashLoading />;
   }
 
   return (

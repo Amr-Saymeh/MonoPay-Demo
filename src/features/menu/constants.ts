@@ -26,7 +26,7 @@ export const menuItems: MenuItem[] = [
     iconName: 'bar-chart-outline',
     color: '#9C27B0',
     state: false,
-    route: '/MainScreen_DailyPur'
+    route: '/SpendingInsights'
   },
   {
     id: '4',
@@ -55,6 +55,16 @@ export const menuItems: MenuItem[] = [
     state: false,
     route: '/settings'
   },
+  
+  {
+    id: '9',
+    titleKey: 'dailyPurchases',
+    subtitleKey: 'Spending Insights',
+    iconName: 'cart-outline',
+    color: '#FF4D6D',
+    state: false,
+    route: '/MainScreen_DailyPur'
+  },
   {
     id: '7',
     titleKey: 'more',
@@ -62,6 +72,6 @@ export const menuItems: MenuItem[] = [
     iconName: 'ellipsis-horizontal',
     color: '#00BCD4',
     state: true,
-    route: '/FeturesPage' // will be changed later maybe, but keep backward compatible
+    route: '/FeturesPage' 
   },
 ];

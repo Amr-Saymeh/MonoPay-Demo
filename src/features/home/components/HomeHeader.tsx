@@ -19,25 +19,33 @@ export default function HomeHeader() {
   const { colorScheme } = useThemeMode();
   const isDark = colorScheme === 'dark';
 
-  const translateY = useSharedValue(-100);
+  const translateY = useSharedValue(-120);
   const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.92);
 
   useEffect(() => {
     translateY.value = withSpring(0, {
+      damping: 14,
+      stiffness: 95,
+      mass: 0.8,
+    });
+    opacity.value = withSpring(1, { duration: 800 });
+    scale.value = withSpring(1, {
       damping: 12,
       stiffness: 90,
-      mass: 1,
     });
-    opacity.value = withSpring(1);
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
+    transform: [
+      { translateY: translateY.value },
+      { scale: scale.value }
+    ],
     opacity: opacity.value,
   }));
 
   return (
-    <Animated.View style={[styles.headerContainer, animatedStyle]}>
+    <Animated.View style={[styles.headerContainer, isDark && styles.headerContainerDark, animatedStyle]}>
       <LinearGradient
         colors={isDark ? ['#1a1a2e', '#16213e', '#0f3460'] : ['#B166F8', '#9B5DD4', '#566CB2']}
         start={{ x: 0, y: 1 }}
