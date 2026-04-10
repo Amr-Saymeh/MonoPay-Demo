@@ -14,6 +14,7 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { useI18n } from "@/hooks/use-i18n";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import {
     AmountModal,
     BalanceActions,
@@ -43,6 +44,8 @@ function formatCurrency(code: string): string {
 }
 
 export default function SharedWalletScreen() {
+  const surfaceColor = useThemeColor({}, 'surface');
+  const borderColor = useThemeColor({}, 'border');
   const { t } = useI18n();
   const router = useRouter();
   const { user } = useAuth();
@@ -293,7 +296,7 @@ ${t("remainingBalance") ?? "After transaction"}: ${formatAmount(Math.max(0, avai
           onRemoveMember={handleRemoveMember}
         />
 
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: surfaceColor, borderColor }]}>
           <BalanceActions
             onAddMoney={() => openAmountModal(true)}
             onRemoveMoney={() => openAmountModal(false)}
@@ -345,7 +348,5 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: "rgba(17,24,28,0.08)",
-    backgroundColor: "rgba(17,24,28,0.03)",
   },
 });

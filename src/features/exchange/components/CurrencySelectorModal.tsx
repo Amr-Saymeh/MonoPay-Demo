@@ -1,6 +1,8 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { CURRENCY_NAMES, normalizeCurrency } from '../utils/currency';
 
 interface CurrencySelectorModalProps {
@@ -20,38 +22,48 @@ export const CurrencySelectorModal: React.FC<CurrencySelectorModalProps> = ({
   onSelect,
   onClose,
 }) => {
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const tintColor = useThemeColor({}, 'tint');
+  const iconColor = useThemeColor({}, 'icon');
+  const borderColor = useThemeColor({}, 'border');
+  const surfacePressedColor = useThemeColor({}, 'surfacePressed');
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{title}</Text>
+        <View style={[styles.content, { backgroundColor }]}>
+          <View style={[styles.header, { borderBottomColor: borderColor }]}>
+            <ThemedText style={styles.title}>{title}</ThemedText>
             <TouchableOpacity onPress={onClose}>
-              <Text style={styles.close}>×</Text>
+              <ThemedText style={[styles.close, { color: iconColor }]}>×</ThemedText>
             </TouchableOpacity>
           </View>
-          {currencies.map((currency) => (
-            <TouchableOpacity
-              key={currency}
-              style={[
-                styles.option,
-                normalizeCurrency(currency) === normalizeCurrency(selectedCurrency) &&
-                  styles.optionSelected,
-              ]}
-              onPress={() => {
-                onSelect(currency);
-                onClose();
-              }}
-            >
-              <View style={styles.info}>
-                <Text style={styles.code}>{currency}</Text>
-                <Text style={styles.name}>{CURRENCY_NAMES[currency]}</Text>
-              </View>
-              {normalizeCurrency(currency) === normalizeCurrency(selectedCurrency) && (
-                <FontAwesome name="check" size={16} color="#6366f1" />
-              )}
-            </TouchableOpacity>
-          ))}
+          {currencies.map((currency) => {
+            const isSelected = normalizeCurrency(currency) === normalizeCurrency(selectedCurrency);
+            return (
+              <TouchableOpacity
+                key={currency}
+                style={[
+                  styles.option,
+                  { borderBottomColor: borderColor },
+                  isSelected && [styles.optionSelected, { backgroundColor: surfacePressedColor }],
+                ]}
+                onPress={() => {
+                  onSelect(currency);
+                  onClose();
+                }}
+              >
+                <View style={styles.info}>
+                  <ThemedText style={styles.code}>{currency}</ThemedText>
+                  <ThemedText style={[styles.name, { color: iconColor }]}>{CURRENCY_NAMES[currency]}</ThemedText>
+                </View>
+                {isSelected && (
+                  <FontAwesome name="check" size={16} color={tintColor} />
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
     </Modal>
@@ -65,7 +77,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   content: {
-    backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -78,16 +89,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0f172a',
   },
   close: {
     fontSize: 28,
-    color: '#64748b',
     lineHeight: 28,
   },
   option: {
@@ -95,10 +103,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
   },
   optionSelected: {
-    backgroundColor: '#f8fafc',
   },
   info: {
     flex: 1,
@@ -106,11 +112,9 @@ const styles = StyleSheet.create({
   code: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#0f172a',
   },
   name: {
     fontSize: 13,
-    color: '#64748b',
     marginTop: 2,
   },
 });

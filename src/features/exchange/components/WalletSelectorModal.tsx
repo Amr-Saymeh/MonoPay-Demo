@@ -1,6 +1,8 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import type { WalletCard } from '../hooks/useWallets';
 
 interface WalletSelectorModalProps {
@@ -18,14 +20,22 @@ export const WalletSelectorModal: React.FC<WalletSelectorModalProps> = ({
   onSelect,
   onClose,
 }) => {
+  const backgroundColor = useThemeColor({}, 'background');
+  const surfaceColor = useThemeColor({}, 'surface');
+  const textColor = useThemeColor({}, 'text');
+  const tintColor = useThemeColor({}, 'tint');
+  const iconColor = useThemeColor({}, 'icon');
+  const borderColor = useThemeColor({}, 'border');
+  const surfacePressedColor = useThemeColor({}, 'surfacePressed');
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Select Wallet</Text>
+        <View style={[styles.content, { backgroundColor }]}>
+          <View style={[styles.header, { borderBottomColor: borderColor }]}>
+            <ThemedText style={styles.title}>Select Wallet</ThemedText>
             <TouchableOpacity onPress={onClose}>
-              <Text style={styles.close}>×</Text>
+              <ThemedText style={[styles.close, { color: iconColor }]}>×</ThemedText>
             </TouchableOpacity>
           </View>
           {wallets.map((wallet) => (
@@ -33,17 +43,18 @@ export const WalletSelectorModal: React.FC<WalletSelectorModalProps> = ({
               key={wallet.userWalletKey}
               style={[
                 styles.option,
-                wallet.walletid === selectedWalletId && styles.optionSelected,
+                { borderBottomColor: borderColor },
+                wallet.walletid === selectedWalletId && [styles.optionSelected, { backgroundColor: surfacePressedColor }],
               ]}
               onPress={() => {
                 onSelect(wallet.walletid);
                 onClose();
               }}
             >
-              <Text style={styles.emoji}>{wallet.emoji || '💳'}</Text>
-              <Text style={styles.name}>{wallet.name}</Text>
+              <ThemedText style={styles.emoji}>{wallet.emoji || '💳'}</ThemedText>
+              <ThemedText style={styles.name}>{wallet.name}</ThemedText>
               {wallet.walletid === selectedWalletId && (
-                <FontAwesome name="check" size={16} color="#6366f1" />
+                <FontAwesome name="check" size={16} color={tintColor} />
               )}
             </TouchableOpacity>
           ))}
@@ -60,7 +71,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   content: {
-    backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -73,16 +83,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0f172a',
   },
   close: {
     fontSize: 28,
-    color: '#64748b',
     lineHeight: 28,
   },
   option: {
@@ -90,10 +97,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
   },
   optionSelected: {
-    backgroundColor: '#f8fafc',
   },
   emoji: {
     fontSize: 22,
@@ -103,6 +108,5 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '500',
-    color: '#0f172a',
   },
 });
