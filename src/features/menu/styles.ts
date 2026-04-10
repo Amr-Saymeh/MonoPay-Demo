@@ -63,4 +63,25 @@ export const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 3,
   },
+  // Dark Mode Unified Styles
+  darkScreen: {
+    backgroundColor: '#000',
+  },
+  darkHeaderTitle: {
+    color: '#a78bfa',
+  },
+  darkItem: {
+    backgroundColor: '#0f0f14',
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  darkItemTitle: {
+    color: '#fff',
+  },
+  darkItemSubtitle: {
+    color: 'rgba(255,255,255,0.5)',
+  },
+  darkIconContainer: {
+    shadowColor: '#6366f1',
+    shadowOpacity: 0.3,
+  }
 });

@@ -3,11 +3,10 @@ import { StyleSheet } from 'react-native';
 export const homeStyles = StyleSheet.create({
   // HomeHeader styles
   headerContainer: {
-    marginHorizontal: 16,
-    marginTop: 40,
-    marginBottom: 70,         
-    borderBottomEndRadius: 24,
-    borderBottomStartRadius: 24,
+    marginTop: -10,
+    marginBottom: 70,
+    borderBottomEndRadius: 32,
+    borderBottomStartRadius: 32,
     overflow: 'hidden',
     elevation: 6,
     shadowColor: '#000',
@@ -18,7 +17,7 @@ export const homeStyles = StyleSheet.create({
   headerGradient: {
     paddingTop: 40,
     paddingHorizontal: 20,
-    paddingBottom: 10,          
+    paddingBottom: 10,
     position: 'relative',
   },
   headerTopRow: {
@@ -36,8 +35,8 @@ export const homeStyles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.5)',
     marginTop: 50,
-    marginLeft: 10,       
-    marginRight: 12,   
+    marginLeft: 10,
+    marginRight: 12,
   },
   headerTextContainer: {
     flex: 1,
@@ -52,7 +51,7 @@ export const homeStyles = StyleSheet.create({
     color: '#fff',
     opacity: 0.9,
     marginBottom: 30,
-    paddingRight: 25,       
+    paddingRight: 25,
   },
   menuIcon: {
     position: 'absolute',
@@ -72,11 +71,11 @@ export const homeStyles = StyleSheet.create({
   },
   notificationWrapper: {
     position: 'relative',
-    top: -38,               
+    top: -38,
   },
   badge: {
     position: 'absolute',
-    top:-4,
+    top: -4,
     right: -4,
     backgroundColor: '#ef4444',
     minWidth: 18,
@@ -96,7 +95,7 @@ export const homeStyles = StyleSheet.create({
   headerBigCircle: {
     position: 'absolute',
     bottom: -50,
-    right: -60,              
+    right: -60,
     width: 100,
     height: 100,
     backgroundColor: '#A866CC',
@@ -113,7 +112,7 @@ export const homeStyles = StyleSheet.create({
   // TotalBalance styles
   balanceContainer: {
     marginHorizontal: 24,
-    marginTop: -50,            
+    marginTop: -50,
     marginBottom: 40,
     borderRadius: 28,
     overflow: 'hidden',
@@ -152,7 +151,7 @@ export const homeStyles = StyleSheet.create({
   changeText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#00ff9d',           
+    color: '#00ff9d',
     marginLeft: 6,
   },
   incomeExpensesRow: {
@@ -177,13 +176,13 @@ export const homeStyles = StyleSheet.create({
   },
   incomeAmount: {
     color: '#00ff9d',
-    fontSize: 13,  
-    paddingLeft: 20,       
+    fontSize: 13,
+    paddingLeft: 20,
   },
   expensesAmount: {
     color: '#ff4d6d',
     fontSize: 13,
-    paddingLeft: -16,        
+    paddingLeft: -16,
   },
   balanceBigCircleRight: {
     position: 'absolute',
@@ -227,6 +226,9 @@ export const homeStyles = StyleSheet.create({
     marginTop: -15,
     marginLeft: 25,
   },
+  actionsTitleDark: {
+    color: '#a78bfa',
+  },
   actionItem: {
     alignItems: 'center',
     width: 90,
@@ -251,6 +253,9 @@ export const homeStyles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
+  actionLabelDark: {
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
   customizationLink: {
     fontSize: 13,
     textDecorationLine: 'underline',
@@ -260,6 +265,23 @@ export const homeStyles = StyleSheet.create({
     textAlign: 'right',
     fontWeight: '500',
     marginRight: 20,
+  },
+  customizationLinkDark: {
+    color: '#a78bfa',
+  },
+
+  // Dark Mode Unified Styles
+  darkBackground: {
+    backgroundColor: '#000',
+  },
+  darkCard: {
+    backgroundColor: '#0f0f14',
+    borderWidth: 0.5,
+    borderColor: 'rgba(255,255,255,0.1)',
+    shadowColor: '#6366f1',
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
   },
 
   // Advertisement styles
@@ -276,15 +298,15 @@ export const homeStyles = StyleSheet.create({
     shadowRadius: 8,
   },
   adGradient: {
-    paddingVertical: 60,         
+    paddingVertical: 60,
     paddingHorizontal: 20,
     position: 'relative',
-    minHeight: 180,             
+    minHeight: 180,
   },
   adContent: {
     flex: 1,
-    justifyContent: 'center',    
-    alignItems: 'center',         
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   adText: {
     fontSize: 32,
@@ -393,5 +415,26 @@ export const homeStyles = StyleSheet.create({
     fontSize: 11,
     color: '#666',
     textAlign: 'center',
+  },
+  // Dark variations
+  custScreenContainerDark: {
+    backgroundColor: '#000',
+  },
+  custHeaderTitleDark: {
+    color: '#a78bfa',
+  },
+  custItemDark: {
+    backgroundColor: '#0f0f14',
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  custActiveItemDark: {
+    borderColor: '#6366f1',
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  custTextDark: {
+    color: '#ECEDEE',
+  },
+  darkSecondaryText: {
+    color: 'rgba(236, 237, 238, 0.6)',
   },
 });
