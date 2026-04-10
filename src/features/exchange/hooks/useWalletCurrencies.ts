@@ -8,11 +8,7 @@ export interface CurrencyEntry {
   balance: number;
 }
 
-const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
-
-function normalizeCurrencyKey(code: string): string {
-  return code.trim().toUpperCase();
-}
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
 
 export function useWalletCurrencies(
   selectedWalletId: number | null,

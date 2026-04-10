@@ -1,7 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 interface ExchangeCardProps {
@@ -31,60 +30,56 @@ export const ExchangeCard: React.FC<ExchangeCardProps> = ({
   onSwap,
   onMax,
 }) => {
-  const backgroundColor = useThemeColor({}, 'background');
   const surfaceColor = useThemeColor({}, 'surface');
   const textColor = useThemeColor({}, 'text');
-  const placeholderColor = useThemeColor({}, 'placeholder');
-  const tintColor = useThemeColor({}, 'tint');
-  const iconColor = useThemeColor({}, 'icon');
-  const borderColor = useThemeColor({}, 'border');
+  const inputBgColor = useThemeColor({}, 'inputBackground');
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      {/* From Section */}
+    <View style={[styles.container, { backgroundColor: surfaceColor }]}>
+    
       <View style={styles.section}>
-        <ThemedText style={[styles.label, { color: iconColor }]}>From</ThemedText>
+        <Text style={styles.label}>From</Text>
         <View style={styles.amountRow}>
           <TextInput
             style={[styles.input, { color: textColor }]}
             placeholder="0.00"
-            placeholderTextColor={placeholderColor}
+            placeholderTextColor="#9ca3af"
             keyboardType="decimal-pad"
             value={amount}
             onChangeText={onAmountChange}
           />
-          <TouchableOpacity style={[styles.selector, { backgroundColor: surfaceColor }]} onPress={onFromCurrencyPress}>
-            <ThemedText style={styles.code}>{fromCurrency}</ThemedText>
-            <FontAwesome name="chevron-down" size={12} color={iconColor} />
+          <TouchableOpacity style={[styles.selector, { backgroundColor: inputBgColor }]} onPress={onFromCurrencyPress}>
+            <Text style={[styles.code, { color: textColor }]}>{fromCurrency}</Text>
+            <FontAwesome name="chevron-down" size={12} color="#666" />
           </TouchableOpacity>
         </View>
         <View style={styles.balanceRow}>
-          <ThemedText style={[styles.balance, { color: iconColor }]}>Balance: {fromBalance.toFixed(2)}</ThemedText>
+          <Text style={styles.balance}>Balance: {fromBalance.toFixed(2)}</Text>
           <TouchableOpacity onPress={onMax}>
-            <ThemedText style={[styles.maxButton, { color: tintColor }]}>MAX</ThemedText>
+            <Text style={styles.maxButton}>MAX</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Swap Button */}
+    
       <View style={styles.swapContainer}>
         <TouchableOpacity style={styles.swapButton} onPress={onSwap}>
           <FontAwesome name="exchange" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* To Section */}
+   
       <View style={styles.section}>
-        <ThemedText style={[styles.label, { color: iconColor }]}>To</ThemedText>
+        <Text style={styles.label}>To</Text>
         <View style={styles.amountRow}>
-          <ThemedText style={[styles.output, { color: textColor }]}>{convertedAmount || '0.00'}</ThemedText>
-          <TouchableOpacity style={[styles.selector, { backgroundColor: surfaceColor }]} onPress={onToCurrencyPress}>
-            <ThemedText style={styles.code}>{toCurrency}</ThemedText>
-            <FontAwesome name="chevron-down" size={12} color={iconColor} />
+          <Text style={[styles.output, { color: textColor }]}>{convertedAmount || '0.00'}</Text>
+          <TouchableOpacity style={[styles.selector, { backgroundColor: inputBgColor }]} onPress={onToCurrencyPress}>
+            <Text style={[styles.code, { color: textColor }]}>{toCurrency}</Text>
+            <FontAwesome name="chevron-down" size={12} color="#666" />
           </TouchableOpacity>
         </View>
         <View style={styles.balanceRow}>
-          <ThemedText style={[styles.balance, { color: iconColor }]}>Balance: {toBalance.toFixed(2)}</ThemedText>
+          <Text style={styles.balance}>Balance: {toBalance.toFixed(2)}</Text>
         </View>
       </View>
     </View>
@@ -100,12 +95,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
-  },
+    
+    },
   section: {
     marginBottom: 8,
   },
   label: {
     fontSize: 13,
+    color: '#64748b',
     fontWeight: '500',
     marginBottom: 8,
     textTransform: 'uppercase',
@@ -148,10 +145,12 @@ const styles = StyleSheet.create({
   },
   balance: {
     fontSize: 13,
+    color: '#94a3b8',
   },
   maxButton: {
     fontSize: 13,
     fontWeight: '600',
+    color: '#6366f1',
   },
   swapContainer: {
     alignItems: 'center',
