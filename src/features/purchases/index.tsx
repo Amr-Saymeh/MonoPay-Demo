@@ -6,6 +6,8 @@ import { router } from 'expo-router';
 import { useDailyTotal } from './hooks/useDailyTotal';
 import { usePurchasesForm } from './hooks/usePurchasesForm';
 import { usePurchasesList } from './hooks/usePurchasesList';
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
+import { DarkThemeStyles } from './styles';
 
 // Components
 import DailyTotalCard, { RatesModal, BudgetModal } from './components/DailyTotalCard';
@@ -16,6 +18,8 @@ import PurchaseList from './components/PurchaseList';
 export default function PurchasesFeature() {
   const [showRatesModal, setShowRatesModal] = useState(false);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const { colorScheme } = useThemeMode();
+  const isDark = colorScheme === 'dark';
 
   const {
     totalSpentNIS,
@@ -62,7 +66,7 @@ export default function PurchasesFeature() {
   const isGlobalLoading = dataLoading || ratesLoading;
 
   return (
-      <ScrollView>
+      <ScrollView style={[isDark && DarkThemeStyles.darkBackground]}>
         <DailyTotalCard
           totalSpentNIS={totalSpentNIS}
           dailyBudgetNIS={dailyBudgetNIS}
