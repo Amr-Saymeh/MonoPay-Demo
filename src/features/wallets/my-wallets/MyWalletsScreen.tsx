@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
@@ -25,7 +25,7 @@ import { WalletCarousel } from "./components/WalletCarousel";
 import { WalletDetailsCard } from "./components/WalletDetailsCard";
 import { useWalletCards } from "./hooks/useWalletCards";
 import { styles } from "./styles";
-import type { WalletCard, UserWalletLink, WalletRecord } from "./types";
+import type { UserWalletLink, WalletCard, WalletRecord } from "./types";
 import { CARD_INTERVAL, CARD_WIDTH } from "./utils";
 
 export default function MyWalletsScreen() {
@@ -33,7 +33,7 @@ export default function MyWalletsScreen() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { width: screenWidth } = useWindowDimensions();
-  const flatListRef = useRef<FlatList<WalletCard>>(null);
+  const [flatListRef] = useState(() => React.createRef<FlatList<WalletCard>>());
   const [deleting, setDeleting] = useState(false);
 
   const {
@@ -47,22 +47,22 @@ export default function MyWalletsScreen() {
     userWallets,
   } = useWalletCards({ userId: user?.uid });
 
-  const selectedTypeLabel = useMemo(() => {
+  const selectedTypeLabel = (() => {
     const type = String(selected?.wallet?.type ?? "").toLowerCase();
     if (type === "real") return t("walletTypeReal");
     if (type === "credit") return t("walletTypeCredit");
     if (type === "shared") return t("walletTypeShared");
     return String(selected?.wallet?.type ?? "—");
-  }, [selected?.wallet?.type, t]);
+  })();
 
-  const selectedStatusLabel = useMemo(() => {
+  const selectedStatusLabel = (() => {
     const state = String(selected?.wallet?.state ?? "").toLowerCase();
     if (state === "active") return t("active");
     if (state === "inactive") return t("inactive");
     return String(selected?.wallet?.state ?? "—");
-  }, [selected?.wallet?.state, t]);
+  })();
 
-  const sideInset = useMemo(() => Math.max(0, (screenWidth - CARD_WIDTH) / 2), [screenWidth]);
+  const sideInset = Math.max(0, (screenWidth - CARD_WIDTH) / 2);
 
   useEffect(() => {
     if (selectedIndex < 0) return;
@@ -70,9 +70,9 @@ export default function MyWalletsScreen() {
       offset: selectedIndex * CARD_INTERVAL,
       animated: true,
     });
-  }, [selectedIndex]);
+  }, [flatListRef, selectedIndex]);
 
-  const deleteSelectedWallet = useCallback(async () => {
+  async function deleteSelectedWallet() {
     if (!user || !selected) return;
     if (!mainWallet) {
       Alert.alert(t("error"), t("mainWalletNotFound"));
@@ -84,7 +84,6 @@ export default function MyWalletsScreen() {
     }
 
     setDeleting(true);
-
     try {
       const deleteWalletId = selected.walletid;
       const mainWalletId = mainWallet.walletid;
@@ -148,14 +147,14 @@ export default function MyWalletsScreen() {
       await update(ref(db), updates);
       setSelectedKey(mainWallet.userWalletKey);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed";
+      const message = error instanceof Error ? error.message : String(error);
       Alert.alert(t("error"), message);
     } finally {
       setDeleting(false);
     }
-  }, [mainWallet, selected, setSelectedKey, t, user, userWallets]);
+  }
 
-  const confirmDelete = useCallback(() => {
+  function confirmDelete() {
     if (!selected) return;
 
     Alert.alert(
@@ -172,21 +171,18 @@ export default function MyWalletsScreen() {
         },
       ],
     );
-  }, [deleteSelectedWallet, selected, t]);
+  }
 
-  const handleCardsScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetX = event.nativeEvent.contentOffset.x;
-      const index = Math.round(offsetX / CARD_INTERVAL);
-      const boundedIndex = Math.max(0, Math.min(index, cards.length - 1));
-      const card = cards[boundedIndex];
+  function handleCardsScrollEnd(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / CARD_INTERVAL);
+    const boundedIndex = Math.max(0, Math.min(index, cards.length - 1));
+    const card = cards[boundedIndex];
 
-      if (card && card.userWalletKey !== selectedKey) {
-        setSelectedKey(card.userWalletKey);
-      }
-    },
-    [cards, selectedKey, setSelectedKey],
-  );
+    if (card && card.userWalletKey !== selectedKey) {
+      setSelectedKey(card.userWalletKey);
+    }
+  }
 
   const handleManageShared = () => {
     if (!selected?.walletid) return;

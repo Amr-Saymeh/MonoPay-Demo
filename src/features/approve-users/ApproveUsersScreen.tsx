@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 import { ActivityIndicator, Alert, Platform, View } from "react-native";
 
@@ -20,35 +20,15 @@ export default function ApproveUsersScreen() {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   const pendingCount = pendingUsers.length;
-  const labels = useMemo(
-    () => ({
-      address: t("address"),
-      approve: t("approveAction"),
-      email: t("email"),
-      identity: t("identity"),
-      identityNumber: t("identityNumberLabel"),
-      personal: t("personal"),
-      phone: t("phone"),
-      reject: t("rejectAction"),
-    }),
-    [t],
-  );
-
-  const showError = (message: string) => {
-    const title = t("error");
-
-    if (Platform.OS === "web") {
-      const alertFn = (globalThis as any).alert;
-      if (typeof alertFn === "function") {
-        alertFn(`${title}\n\n${message}`);
-      } else {
-        // eslint-disable-next-line no-console
-        console.error(title, message);
-      }
-      return;
-    }
-
-    Alert.alert(title, message);
+  const labels = {
+    address: t("address"),
+    approve: t("approveAction"),
+    email: t("email"),
+    identity: t("identity"),
+    identityNumber: t("identityNumberLabel"),
+    personal: t("personal"),
+    phone: t("phone"),
+    reject: t("rejectAction"),
   };
 
   const confirmWeb = (title: string, message: string) => {
@@ -62,13 +42,7 @@ export default function ApproveUsersScreen() {
     const message = `${labels.approve} ${userName ?? userId}?`;
 
     const run = async () => {
-      try {
-        await approveUser(userId);
-      } catch (error) {
-        const base = t("uploadFailed");
-        const details = error instanceof Error ? error.message : String(error);
-        showError(details && details !== "[object Object]" ? `${base}\n${details}` : base);
-      }
+      await approveUser(userId);
     };
 
     if (Platform.OS === "web") {
@@ -90,23 +64,14 @@ export default function ApproveUsersScreen() {
   const handleReject = (userId: string, userName?: string) => {
     const title = t("rejectUserTitle");
     const message = `${labels.reject} ${userName ?? userId}?`;
-
     const run = async () => {
-      try {
-        await rejectUser(userId);
-      } catch (error) {
-        const base = t("uploadFailed");
-        const details = error instanceof Error ? error.message : String(error);
-        showError(details && details !== "[object Object]" ? `${base}\n${details}` : base);
-      }
+      await rejectUser(userId);
     };
-
     if (Platform.OS === "web") {
       if (!confirmWeb(title, message)) return;
       void run();
       return;
     }
-
     Alert.alert(title, message, [
       { text: t("cancel"), style: "cancel" },
       {
