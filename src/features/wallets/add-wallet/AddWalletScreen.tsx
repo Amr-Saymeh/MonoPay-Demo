@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 import { useRouter } from "expo-router";
 import { get, ref, update } from "firebase/database";
@@ -55,31 +55,25 @@ export default function AddWalletScreen() {
     currentUserId: user?.uid,
   });
 
-  const color = useMemo(() => getDefaultColor(type), [type]);
-  const previewCurrencies = useMemo(() => buildPreviewCurrencies(balances), [balances]);
-  const previewMemberUids = useMemo(() => {
-    if (type !== "shared" || !user) return undefined;
-    return Array.from(new Set([user.uid, ...selectedMemberUids.filter(Boolean)]));
-  }, [selectedMemberUids, type, user]);
-  const previewOwnerLabel = useMemo(() => {
-    if (type !== "shared" || !user) return undefined;
-    return allUsers[user.uid]?.name?.trim() || user.uid;
-  }, [allUsers, type, user]);
-  const canCreate = useMemo(() => name.trim().length > 0 && Boolean(user), [name, user]);
+  const color = getDefaultColor(type);
+  const previewCurrencies = buildPreviewCurrencies(balances);
+  const previewMemberUids =
+    type !== "shared" || !user
+      ? undefined
+      : Array.from(new Set([user.uid, ...selectedMemberUids.filter(Boolean)]));
+  const previewOwnerLabel =
+    type !== "shared" || !user ? undefined : allUsers[user.uid]?.name?.trim() || user.uid;
+  const canCreate = name.trim().length > 0 && Boolean(user);
 
-  const walletTypeOptions = useMemo(
-    () =>
-      TYPE_OPTIONS.map((option) => ({
-        ...option,
-        label:
-          option.key === "real"
-            ? t("walletTypeReal")
-            : option.key === "credit"
-              ? t("walletTypeCredit")
-              : t("walletTypeShared"),
-      })),
-    [t],
-  );
+  const walletTypeOptions = TYPE_OPTIONS.map((option) => ({
+    ...option,
+    label:
+      option.key === "real"
+        ? t("walletTypeReal")
+        : option.key === "credit"
+          ? t("walletTypeCredit")
+          : t("walletTypeShared"),
+  }));
 
   const handleAddBalance = () => {
     setBalances((current) => [
@@ -149,6 +143,7 @@ export default function AddWalletScreen() {
     }
 
     setSaving(true);
+    let created = false;
 
     try {
       const walletsSnapshot = await get(ref(db, "wallets"));
@@ -219,12 +214,16 @@ export default function AddWalletScreen() {
       }
 
       await update(ref(db), updates);
-      router.back();
+      created = true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed";
+      const message = error instanceof Error ? error.message : String(error);
       Alert.alert(t("error"), message);
     } finally {
       setSaving(false);
+    }
+
+    if (created) {
+      router.back();
     }
   };
 

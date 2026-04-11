@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { get, ref } from "firebase/database";
 
@@ -43,7 +43,7 @@ export function useSharedMembers({ enabled, currentUserId }: UseSharedMembersPar
     setSelectedMemberUids([]);
   }, [enabled]);
 
-  const sharedSuggestions = useMemo<SharedSuggestion[]>(() => {
+  const sharedSuggestions: SharedSuggestion[] = (() => {
     if (!enabled || !currentUserId) return [];
 
     const query = sharedSearch.trim().toLowerCase();
@@ -63,7 +63,7 @@ export function useSharedMembers({ enabled, currentUserId }: UseSharedMembersPar
       })
       .slice(0, 8)
       .map(([uid, profile]) => ({ uid, profile }));
-  }, [allUsers, currentUserId, enabled, selectedMemberUids, sharedSearch]);
+  })();
 
   return {
     allUsers,
