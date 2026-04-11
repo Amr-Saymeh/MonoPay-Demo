@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { onValue, ref } from "firebase/database";
 
@@ -9,9 +9,9 @@ import type { PendingUser, UserRecord } from "../types";
 export function usePendingUsers() {
   const [loading, setLoading] = useState(true);
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
-  const usersRef = useMemo(() => ref(db, "users"), []);
 
   useEffect(() => {
+    const usersRef = ref(db, "users");
     const unsubscribe = onValue(
       usersRef,
       (snapshot) => {
@@ -29,7 +29,7 @@ export function usePendingUsers() {
     );
 
     return () => unsubscribe();
-  }, [usersRef]);
+  }, []);
 
   return {
     loading,

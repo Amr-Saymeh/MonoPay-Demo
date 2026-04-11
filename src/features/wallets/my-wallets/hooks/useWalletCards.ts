@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { onValue, ref } from "firebase/database";
 
@@ -87,7 +87,7 @@ export function useWalletCards({ userId }: UseWalletCardsParams) {
     };
   }, [userWallets]);
 
-  const cards = useMemo<WalletCard[]>(() => {
+  const cards: WalletCard[] = (() => {
     const list = Object.entries(userWallets)
       .map(([userWalletKey, link]) => {
         const walletid = Number(link?.walletid);
@@ -108,11 +108,11 @@ export function useWalletCards({ userId }: UseWalletCardsParams) {
 
     list.sort((a, b) => a.walletid - b.walletid);
     return list;
-  }, [userWallets, wallets]);
+  })();
 
   useEffect(() => {
     if (cards.length === 0) {
-      setSelectedKey(null);
+      if (selectedKey !== null) setSelectedKey(null);
       return;
     }
 
@@ -121,17 +121,13 @@ export function useWalletCards({ userId }: UseWalletCardsParams) {
     }
   }, [cards, selectedKey]);
 
-  const selected = useMemo(() => {
-    if (!selectedKey) return null;
-    return cards.find((card) => card.userWalletKey === selectedKey) ?? null;
-  }, [cards, selectedKey]);
+  const selected =
+    !selectedKey ? null : (cards.find((card) => card.userWalletKey === selectedKey) ?? null);
 
-  const selectedIndex = useMemo(() => {
-    if (!selectedKey) return -1;
-    return cards.findIndex((card) => card.userWalletKey === selectedKey);
-  }, [cards, selectedKey]);
+  const selectedIndex =
+    !selectedKey ? -1 : cards.findIndex((card) => card.userWalletKey === selectedKey);
 
-  const mainWallet = useMemo(() => {
+  const mainWallet = (() => {
     const byKey = cards.find((card) => card.userWalletKey === "wallet1");
     if (byKey) return byKey;
 
@@ -139,7 +135,7 @@ export function useWalletCards({ userId }: UseWalletCardsParams) {
     if (byName) return byName;
 
     return cards[0] ?? null;
-  }, [cards]);
+  })();
 
   return {
     cards,
