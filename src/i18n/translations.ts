@@ -284,6 +284,16 @@ type TranslationKey =
   | "incomeSavings.deleteSuccess"
   | "incomeSavings.createSuccess"
   | "incomeSavings.updateSuccess"
+  | "addMoney"
+  | "spendMoney"
+  | "availableBalance"
+  | "currency"
+  | "reasonPlaceholder"
+  | "saving"
+  | "confirm"
+  | "history"
+  | "noHistory"
+  | "noResults"
   | "common.cancel"
   | "common.save"
   | "common.delete"
@@ -583,6 +593,16 @@ export const translations: Record<
     "incomeSavings.deleteSuccess": "Entry deleted successfully",
     "incomeSavings.createSuccess": "Entry created successfully",
     "incomeSavings.updateSuccess": "Entry updated successfully",
+    addMoney: "Add money",
+    spendMoney: "Spend money",
+    availableBalance: "Available",
+    currency: "Currency",
+    reasonPlaceholder: "Why?",
+    saving: "Saving...",
+    confirm: "Confirm",
+    history: "History",
+    noHistory: "No activity yet.",
+    noResults: "No matching users found.",
     "common.cancel": "Cancel",
     "common.save": "Save",
     "common.delete": "Delete",
@@ -877,6 +897,16 @@ export const translations: Record<
     "incomeSavings.deleteSuccess": "تم حذف الإدخال بنجاح",
     "incomeSavings.createSuccess": "تم إنشاء الإدخال بنجاح",
     "incomeSavings.updateSuccess": "تم تحديث الإدخال بنجاح",
+    addMoney: "إضافة مال",
+    spendMoney: "إنفاق مال",
+    availableBalance: "المتاح",
+    currency: "العملة",
+    reasonPlaceholder: "لماذا؟",
+    saving: "جارٍ الحفظ...",
+    confirm: "تأكيد",
+    history: "السجل",
+    noHistory: "لا يوجد نشاط بعد.",
+    noResults: "لا يوجد مستخدمون مطابقون.",
     "common.cancel": "إلغاء",
     "common.save": "حفظ",
     "common.delete": "حذف",
