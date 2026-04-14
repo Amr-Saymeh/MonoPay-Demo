@@ -79,6 +79,7 @@ export default function SettingsScreen() {
   const avatarUri = profile?.personalImage;
   const userName = profile?.name ?? "User";
   const userEmail = user?.email ?? profile?.email ?? "";
+  const bottomClearance = Math.max(160, insets.bottom + 64);
 
   const languageValue = language === "ar" ? "العربية" : "English (US)";
 
@@ -105,7 +106,7 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top + 8 },
+          { paddingTop: insets.top + 8, paddingBottom: bottomClearance },
         ]}
       >
         {/* Header */}
