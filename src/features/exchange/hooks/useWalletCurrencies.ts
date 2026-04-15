@@ -8,7 +8,7 @@ export interface CurrencyEntry {
   balance: number;
 }
 
-const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'ILS', 'JOD', 'EGP'];
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
 
 export function useWalletCurrencies(
   selectedWalletId: number | null,
