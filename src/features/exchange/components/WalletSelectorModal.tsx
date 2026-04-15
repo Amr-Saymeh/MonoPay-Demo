@@ -1,8 +1,8 @@
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import type { WalletCard } from '../hooks/useWallets';
 
 interface WalletSelectorModalProps {
@@ -21,7 +21,6 @@ export const WalletSelectorModal: React.FC<WalletSelectorModalProps> = ({
   onClose,
 }) => {
   const backgroundColor = useThemeColor({}, 'background');
-  const surfaceColor = useThemeColor({}, 'surface');
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
   const iconColor = useThemeColor({}, 'icon');
