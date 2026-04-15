@@ -62,6 +62,7 @@ type TranslationKey =
   | "idNumber"
   | "continue"
   | "login"
+  | "refreshNow"
   | "noAccount"
   | "alreadyHaveAccount"
   | "scanYourId"
@@ -77,6 +78,13 @@ type TranslationKey =
   | "editProfile"
   | "account"
   | "paymentMethods"
+  | "categories"
+  | "allCategories"
+  | "searchCategories"
+  | "addCustomCategory"
+  | "customCategoryPlaceholder"
+  | "done"
+  | "add"
   | "preferences"
   | "notifications"
   | "darkMode"
@@ -117,8 +125,6 @@ type TranslationKey =
   | "approveUserTitle"
   | "rejectUserTitle"
   | "cancel"
-  // ──────────────────────────────────────────────
-  // الكلمات الجديدة اللي أضفتها من الكومبوننتات اللي بعثتها
   | "advertisement"
   | "goodEvening"
   | "welcomeBack"
@@ -138,9 +144,13 @@ type TranslationKey =
   | "spendingInsights"
   | "spendingInsightsSubtitle"
   | "transactions"
-  | "settingsSubtitle"      // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
-  | "changeLanguage"        // اقتراح إضافي لزر تغيير اللغة
-  | "changePercent"         // نص إضافي لعرض التغير الشهري في TotalBalance
+  | "settingsSubtitle" // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
+  | "changeLanguage" // اقتراح إضافي لزر تغيير اللغة
+  | "next"
+  | "changePercent" // نص إضافي لعرض التغير الشهري في TotalBalance
+  | "settingsSubtitle"
+  | "changeLanguage"
+  | "changePercent"
   | "makeTransaction"
   | "sendMoney"
   | "receiveMoney"
@@ -172,7 +182,58 @@ type TranslationKey =
   | "customization"
   | "Youmustselect3features"
   | "Youcanonlyselect3features"
-
+  | "dailyPurchases"
+  | "ofDailyBudget"
+  | "editDailyBudget"
+  | "dailyBudget"
+  | "setDailyLimit"
+  | "addPurchase"
+  | "fieldRequired"
+  | "purchaseAdded"
+  | "foodDrinks"
+  | "groceries"
+  | "transport"
+  | "health"
+  | "shopping"
+  | "entertainment"
+  | "bills"
+  | "education"
+  | "personalCare"
+  | "addNewPurchase"
+  | "fillAllFields"
+  | "success"
+  | "totalExpenses"
+  | "deletePurchase"
+  | "updatedEveryHour"
+  | "errorFetchingRates"
+  | "enterAmountInAnyCurrency"
+  | "items"
+  | "noItemsInBundle"
+  | "totalCost"
+  | "noBundlesFound"
+  | "edit"
+  | "editBundle"
+  | "createNewBundle"
+  | "bundleName"
+  | "bundleNamePlaceholder"
+  | "cancelAdding"
+  | "addItemToBundle"
+  | "itemNamePlaceholder"
+  | "price"
+  | "confirmItem"
+  | "updateBundle"
+  | "confirmCreateBundle"
+  | "recurring"
+  | "manual"
+  | "myBundles"
+  | "editBudget"
+  | "bundlesSubtitle"
+  | "budgetWarningTitle"
+  | "budgetWarningMessage"
+  | "proceedAnyway"
+  | "saveMyMoney"
+  | "remainingBudget"
+  | "newTotalAfter"
   | "goals.title"
   | "goals.createTitle"
   | "goals.editTitle"
@@ -303,6 +364,16 @@ type TranslationKey =
   | "incomeSavings.modal.saving"
   | "incomeSavings.modal.saveAndAddBalance"
   | "incomeSavings.categories.investment"
+  | "addMoney"
+  | "spendMoney"
+  | "availableBalance"
+  | "currency"
+  | "reasonPlaceholder"
+  | "saving"
+  | "confirm"
+  | "history"
+  | "noHistory"
+  | "noResults"
   | "common.cancel"
   | "common.save"
   | "common.delete"
@@ -320,6 +391,7 @@ export const translations: Record<
     appName: "MonoPay",
     home: "Home",
     explore: "Explore",
+    refreshNow: "Refresh Now",
     wallets: "Wallets",
     walletManagement: "Wallet Management",
     myWallets: "My Wallets",
@@ -393,6 +465,13 @@ export const translations: Record<
     editProfile: "Edit Profile",
     account: "Account",
     paymentMethods: "Payment Methods",
+    categories: "Categories",
+    allCategories: "All Categories",
+    searchCategories: "Search categories...",
+    addCustomCategory: "Add Custom Category",
+    customCategoryPlaceholder: "New category name",
+    done: "Done",
+    add: "Add",
     preferences: "Preferences",
     notifications: "Notifications",
     darkMode: "Dark Mode",
@@ -405,6 +484,7 @@ export const translations: Record<
     retakePhoto: "Retake photo",
     save: "Save",
     saved: "Saved",
+    next: "Next",
     logoutConfirmTitle: "Log out",
     logoutConfirmMessage: "Are you sure you want to log out?",
     logout: "Logout",
@@ -433,9 +513,6 @@ export const translations: Record<
     approveUserTitle: "Approve user",
     rejectUserTitle: "Reject user",
     cancel: "Cancel",
-
-    // ──────────────────────────────────────────────
-    // الكلمات الجديدة المضافة
     advertisement: "Advertisement",
     goodEvening: "Good Evening",
     welcomeBack: "Welcome back,",
@@ -455,7 +532,7 @@ export const translations: Record<
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
     transactions: "Transactions",
-    settingsSubtitle: "Manage your account preferences",  // ← أضيف هنا
+    settingsSubtitle: "Manage your account preferences",
     changeLanguage: "Change Language",
     changePercent: " from last month",
     makeTransaction: "Make a Transaction",
@@ -489,7 +566,62 @@ export const translations: Record<
     customization: "Customization",
     Youmustselect3features: "You must select 3 features",
     Youcanonlyselect3features: "You can only select 3 features",
-      
+
+    dailyPurchases: "Daily Purchases",
+    ofDailyBudget: "OF DAILY BUDGET",
+    editDailyBudget: "Edit Daily Budget",
+    dailyBudget: "Daily Budget",
+    setDailyLimit: "Set your daily spending limit",
+    addPurchase: "Add Purchase",
+    fieldRequired: "This field is required",
+    purchaseAdded: "Purchase added successfully!",
+    foodDrinks: "Food & Drinks",
+    groceries: "Groceries",
+    transport: "Transport",
+    health: "Health",
+    shopping: "Shopping",
+    entertainment: "Entertainment",
+    bills: "Bills",
+    education: "Education",
+    personalCare: "Personal Care",
+    addNewPurchase: "Add New Purchase",
+    fillAllFields: "Please fill all fields",
+    success: "Success",
+    totalExpenses: "Spent Today",
+    deletePurchase: "Delete Purchase",
+    updatedEveryHour: "Updated every hour",
+    errorFetchingRates: "Error fetching rates",
+    enterAmountInAnyCurrency: "Enter amount in any currency",
+    items: "Items",
+    noItemsInBundle: "No items in this bundle.",
+    totalCost: "Total Cost",
+    noBundlesFound: "No bundles found.",
+    edit: "Edit",
+    editBundle: "Edit Bundle",
+    createNewBundle: "Create New Bundle",
+    bundleName: "Bundle Name",
+    bundleNamePlaceholder: "e.g., Morning Routine",
+    cancelAdding: "Cancel Adding",
+    addItemToBundle: "+ Add Item to Bundle",
+    itemNamePlaceholder: "Item Name (e.g., Coffee)",
+    price: "Price",
+    confirmItem: "Confirm Item",
+    updateBundle: "Update Bundle",
+    confirmCreateBundle: "Confirm & Create Bundle",
+    recurring: "RECURRING",
+    manual: "MANUAL",
+    myBundles: "My Bundles",
+    editBudget: "Edit Budget",
+    bundlesSubtitle:
+      "Manage your recurring purchase sets and optimize your daily spending flow.",
+    budgetWarningTitle: "Budget Warning! ⚠️",
+    budgetWarningMessage:
+      "You are about to exceed your daily budget. Do you really need this purchase? Every bit counts!",
+    proceedAnyway: "Force Add",
+    saveMyMoney: "Save My Money",
+    remainingBudget: "Remaining",
+    newTotalAfter: "New total will be",
+
     "goals.title": "Savings Goals",
     "goals.createTitle": "Create New Goal",
     "goals.editTitle": "Edit Goal",
@@ -587,7 +719,8 @@ export const translations: Record<
     "incomeSavings.categories.debt": "Debt",
     "incomeSavings.entryTypes.receive": "Income",
     "incomeSavings.entryTypes.send": "Savings",
-    "incomeSavings.deleteConfirm": "Are you sure you want to delete this entry?",
+    "incomeSavings.deleteConfirm":
+      "Are you sure you want to delete this entry?",
     "incomeSavings.deleteSuccess": "Entry deleted successfully",
     "incomeSavings.createSuccess": "Entry created successfully",
     "incomeSavings.updateSuccess": "Entry updated successfully",
@@ -620,6 +753,16 @@ export const translations: Record<
     "incomeSavings.modal.notesPlaceholder": "e.g. Main monthly salary",
     "incomeSavings.modal.saving": "Saving...",
     "incomeSavings.modal.saveAndAddBalance": "Save & Add Balance",
+    addMoney: "Add money",
+    spendMoney: "Spend money",
+    availableBalance: "Available",
+    currency: "Currency",
+    reasonPlaceholder: "Why?",
+    saving: "Saving...",
+    confirm: "Confirm",
+    history: "History",
+    noHistory: "No activity yet.",
+    noResults: "No matching users found.",
     "common.cancel": "Cancel",
     "common.save": "Save",
     "common.delete": "Delete",
@@ -630,10 +773,12 @@ export const translations: Record<
     "common.loading": "Loading...",
   },
   ar: {
+    editBudget: "تعديل الميزانية",
     appName: "MonoPay",
     home: "الرئيسية",
     explore: "استكشاف",
     wallets: "المحافظ",
+    refreshNow: "تحديث الآن",
     walletManagement: "إدارة المحافظ",
     myWallets: "محافظي",
     addWallet: "إضافة محفظة",
@@ -706,6 +851,13 @@ export const translations: Record<
     editProfile: "تعديل الملف الشخصي",
     account: "الحساب",
     paymentMethods: "طرق الدفع",
+    categories: "الفئات",
+    allCategories: "جميع الفئات",
+    searchCategories: "ابحث عن فئة...",
+    addCustomCategory: "أضف فئة مخصصة",
+    customCategoryPlaceholder: "اسم الفئة الجديدة",
+    done: "تم",
+    add: "إضافة",
     preferences: "التفضيلات",
     notifications: "الإشعارات",
     darkMode: "الوضع الداكن",
@@ -718,6 +870,7 @@ export const translations: Record<
     retakePhoto: "إعادة التقاط الصورة",
     save: "حفظ",
     saved: "تم الحفظ",
+    next: "التالي",
     logoutConfirmTitle: "تسجيل الخروج",
     logoutConfirmMessage: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
     logout: "تسجيل الخروج",
@@ -746,15 +899,12 @@ export const translations: Record<
     approveUserTitle: "قبول المستخدم",
     rejectUserTitle: "رفض المستخدم",
     cancel: "إلغاء",
-
-    // ──────────────────────────────────────────────
-    // الكلمات الجديدة المضافة
     advertisement: "إعلان",
     goodEvening: "مساء الخير",
     welcomeBack: "مرحباً بعودتك،",
     quickActions: "الإجراءات السريعة",
     savingGoals: "أهداف التوفير",
-    insights: "الرؤى",
+    insights: "الإحصائيات",
     cards: "البطاقات",
     more: "المزيد",
     totalBalance: "الرصيد الكلي",
@@ -765,10 +915,10 @@ export const translations: Record<
     myCardsSubtitle: "إدارة بطاقات الائتمان والخصم",
     exchangeRates: "أسعار الصرف",
     exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
-    spendingInsights: "رؤى الإنفاق",
+    spendingInsights: "الإحصائيات",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
     transactions: "المعاملات",
-    settingsSubtitle: "إدارة تفضيلات حسابك",           // ← أضيف هنا
+    settingsSubtitle: "إدارة تفضيلات حسابك",
     changeLanguage: "تغيير اللغة",
     changePercent: " من الشهر الماضي",
     makeTransaction: "إجراء معاملة",
@@ -783,6 +933,7 @@ export const translations: Record<
     selectReceivingWallet: "اختر محفظة للاستقبال",
     recipient: "المستلم",
     selectRecipient: "اختر المستلم",
+
     payer: "الدافع",
     selectPayer: "من سيدفع؟",
     category: "الفئة",
@@ -802,6 +953,59 @@ export const translations: Record<
     customization: "التخصيص",
     Youmustselect3features: "يجب اختيار 3 عناصر فقط",
     Youcanonlyselect3features: "يجب اختيار 3 عناصر فقط",
+    dailyPurchases: "المشتريات اليومية",
+    ofDailyBudget: "من الميزانية اليومية",
+    editDailyBudget: "تعديل الميزانية اليومية",
+    dailyBudget: "الميزانية اليومية",
+    setDailyLimit: "حدد حد الإنفاق اليومي",
+    addPurchase: "إضافة عملية شراء",
+    fieldRequired: "هذا الحقل مطلوب",
+    purchaseAdded: "تمت إضافة عملية الشراء بنجاح!",
+    foodDrinks: "طعام ومشروبات",
+    groceries: "بقالة",
+    transport: "مواصلات",
+    health: "صحة",
+    shopping: "تسوق",
+    entertainment: "ترفيه",
+    bills: "فواتير",
+    education: "تعليم",
+    personalCare: "عناية شخصية",
+    addNewPurchase: "إضافة مصروف جديد",
+    fillAllFields: "الرجاء ملء جميع الحقول",
+    success: "تم بنجاح",
+    totalExpenses: "إجمالي المصروفات",
+    deletePurchase: "حذف المصروف",
+    updatedEveryHour: "يتم التحديث كل ساعة",
+    errorFetchingRates: "خطأ في جلب الأسعار",
+    enterAmountInAnyCurrency: "أدخل المبلغ بأي عملة",
+    items: "العناصر",
+    noItemsInBundle: "لا توجد عناصر في هذه الحزمة.",
+    totalCost: "التكلفة الإجمالية",
+    noBundlesFound: "لم يتم العثور على حزم.",
+    edit: "تعديل",
+    editBundle: "تعديل الحزمة",
+    createNewBundle: "إنشاء حزمة جديدة",
+    bundleName: "اسم الحزمة",
+    bundleNamePlaceholder: "مثال: روتين الصباح",
+    cancelAdding: "إلغاء الإضافة",
+    addItemToBundle: "+ إضافة عنصر للحزمة",
+    itemNamePlaceholder: "اسم العنصر (مثال: قهوة)",
+    price: "السعر",
+    confirmItem: "تأكيد العنصر",
+    updateBundle: "تحديث الحزمة",
+    confirmCreateBundle: "تأكيد وإنشاء الحزمة",
+    recurring: "متكرر",
+    manual: "يدوي",
+    myBundles: "حزمي الخاصة",
+    bundlesSubtitle:
+      "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
+    budgetWarningTitle: "تنبيه الميزانية! ⚠️",
+    budgetWarningMessage:
+      "أنت على وشك تجاوز ميزانيتك اليومية. هل هذه العملية ضرورية حقاً؟ كل قرش يهم!",
+    proceedAnyway: "إضافة على أي حال",
+    saveMyMoney: "وفر أموالي",
+    remainingBudget: "المتبقي",
+    newTotalAfter: "سيكون الإجمالي الجديد",
 
     "goals.title": "أهداف التوفير",
     "goals.createTitle": "إنشاء هدف جديد",
@@ -933,6 +1137,16 @@ export const translations: Record<
     "incomeSavings.modal.notesPlaceholder": "مثال: الراتب الشهري الأساسي",
     "incomeSavings.modal.saving": "جارٍ الحفظ...",
     "incomeSavings.modal.saveAndAddBalance": "حفظ وإضافة الرصيد",
+    addMoney: "إضافة مال",
+    spendMoney: "إنفاق مال",
+    availableBalance: "المتاح",
+    currency: "العملة",
+    reasonPlaceholder: "لماذا؟",
+    saving: "جارٍ الحفظ...",
+    confirm: "تأكيد",
+    history: "السجل",
+    noHistory: "لا يوجد نشاط بعد.",
+    noResults: "لا يوجد مستخدمون مطابقون.",
     "common.cancel": "إلغاء",
     "common.save": "حفظ",
     "common.delete": "حذف",

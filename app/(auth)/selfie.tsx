@@ -26,6 +26,7 @@ export default function SelfieScreen() {
   const {
     details,
     identityImageUri,
+    categories,
     setPersonalImageUri,
     personalImageUri,
     clear,
@@ -80,6 +81,7 @@ export default function SelfieScreen() {
         identityNumber: Number(details.identityNumber),
         identityImageUri,
         personalImageUri: photoUri,
+        categories,
       });
 
       clear();

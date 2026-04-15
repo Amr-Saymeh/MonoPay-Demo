@@ -1,31 +1,32 @@
-import React, { useMemo } from "react";
+import React, { forwardRef, useMemo } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, TextInput, type TextInputProps, View } from "react-native";
 
 import { Fonts } from "@/constants/theme";
 import { useI18n } from "@/hooks/use-i18n";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
-export function AuthInput({
-  value,
-  onChangeText,
-  placeholder,
-  secureTextEntry,
-  keyboardType,
-  onToggleSecure,
-  autoCapitalize,
-  textContentType,
-}: {
+export type AuthInputProps = {
   value: string;
   onChangeText: (v: string) => void;
   placeholder: string;
-  secureTextEntry?: boolean;
-  keyboardType?: any;
   onToggleSecure?: () => void;
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  textContentType?: any;
-}) {
+} & Omit<TextInputProps, "value" | "onChangeText" | "placeholder">;
+
+export const AuthInput = forwardRef<TextInput, AuthInputProps>(function AuthInput(
+  {
+    value,
+    onChangeText,
+    placeholder,
+    secureTextEntry,
+    onToggleSecure,
+    autoCapitalize,
+    style,
+    ...rest
+  },
+  ref,
+) {
   const { isRtl } = useI18n();
   const backgroundColor = useThemeColor({}, "inputBackground");
   const borderColor = useThemeColor({}, "inputBorder");
@@ -41,6 +42,7 @@ export function AuthInput({
   return (
     <View style={styles.container}>
       <TextInput
+        ref={ref}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -50,11 +52,11 @@ export function AuthInput({
           isRtl ? styles.rtl : null,
           showEye ? styles.withIcon : null,
           { backgroundColor, borderColor, color: textColor },
+          style,
         ]}
         secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
         autoCapitalize={autoCapitalize ?? "none"}
-        textContentType={textContentType}
+        {...rest}
       />
 
       {showEye ? (
@@ -68,7 +70,7 @@ export function AuthInput({
       ) : null}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

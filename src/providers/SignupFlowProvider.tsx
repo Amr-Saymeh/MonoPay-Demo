@@ -20,9 +20,11 @@ type SignupFlowContextValue = {
   details: SignupDetails | null;
   identityImageUri: string | null;
   personalImageUri: string | null;
+  categories: string[];
   setDetails: (details: SignupDetails) => void;
   setIdentityImageUri: (uri: string) => void;
   setPersonalImageUri: (uri: string) => void;
+  setCategories: (categories: string[]) => void;
   clear: () => void;
 };
 
@@ -40,6 +42,7 @@ export function SignupFlowProvider({
   const [personalImageUri, setPersonalImageUriState] = useState<string | null>(
     null,
   );
+  const [categories, setCategoriesState] = useState<string[]>([]);
 
   const setDetails = useCallback((v: SignupDetails) => {
     setDetailsState(v);
@@ -53,10 +56,15 @@ export function SignupFlowProvider({
     setPersonalImageUriState(uri);
   }, []);
 
+  const setCategories = useCallback((next: string[]) => {
+    setCategoriesState(next);
+  }, []);
+
   const clear = useCallback(() => {
     setDetailsState(null);
     setIdentityImageUriState(null);
     setPersonalImageUriState(null);
+    setCategoriesState([]);
   }, []);
 
   const value = useMemo<SignupFlowContextValue>(
@@ -64,18 +72,22 @@ export function SignupFlowProvider({
       details,
       identityImageUri,
       personalImageUri,
+      categories,
       setDetails,
       setIdentityImageUri,
       setPersonalImageUri,
+      setCategories,
       clear,
     }),
     [
       details,
       identityImageUri,
       personalImageUri,
+      categories,
       setDetails,
       setIdentityImageUri,
       setPersonalImageUri,
+      setCategories,
       clear,
     ],
   );
