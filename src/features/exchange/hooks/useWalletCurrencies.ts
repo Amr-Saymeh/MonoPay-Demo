@@ -10,10 +10,6 @@ export interface CurrencyEntry {
 
 const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
 
-function normalizeCurrencyKey(code: string): string {
-  return code.trim().toUpperCase();
-}
-
 export function useWalletCurrencies(
   selectedWalletId: number | null,
   onFirstCurrencyLoaded?: (currency: string) => void

@@ -7,7 +7,7 @@ interface ProgressBarProps {
   color?: string;
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({ progress, color = '#FFFFFF' }) => {
+export const ProgressBar = ({ progress, color = '#FFFFFF' }: ProgressBarProps) => {
   const clampedProgress = Math.min(Math.max(progress, 0), 1);
   
   return (

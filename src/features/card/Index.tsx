@@ -1,3 +1,3 @@
-export { WalletCard } from './WalletCard';
-export type { WalletCardProps } from './WalletCard';
+export { SharedCard } from './SharedCard';
+export type { SharedCardProps } from './SharedCard';
 

@@ -78,6 +78,13 @@ type TranslationKey =
   | "editProfile"
   | "account"
   | "paymentMethods"
+  | "categories"
+  | "allCategories"
+  | "searchCategories"
+  | "addCustomCategory"
+  | "customCategoryPlaceholder"
+  | "done"
+  | "add"
   | "preferences"
   | "notifications"
   | "darkMode"
@@ -137,6 +144,10 @@ type TranslationKey =
   | "spendingInsights"
   | "spendingInsightsSubtitle"
   | "transactions"
+  | "settingsSubtitle" // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
+  | "changeLanguage" // اقتراح إضافي لزر تغيير اللغة
+  | "next"
+  | "changePercent" // نص إضافي لعرض التغير الشهري في TotalBalance
   | "settingsSubtitle"
   | "changeLanguage"
   | "changePercent"
@@ -148,7 +159,6 @@ type TranslationKey =
   | "selectMyWallet"
   | "recipientWallet"
   | "selectRecipientWallet"
-
   | "myReceivingWallet"
   | "selectReceivingWallet"
   | "recipient"
@@ -223,8 +233,7 @@ type TranslationKey =
   | "proceedAnyway"
   | "saveMyMoney"
   | "remainingBudget"
-  | "newTotalAfter";
-
+  | "newTotalAfter"
   | "goals.title"
   | "goals.createTitle"
   | "goals.editTitle"
@@ -244,6 +253,56 @@ type TranslationKey =
   | "goals.createSuccess"
   | "goals.updateSuccess"
   | "goals.contributionSuccess"
+  | "goals.overallProgress"
+  | "goals.remainingToReachAllGoals"
+  | "goals.searchPlaceholder"
+  | "goals.sortGoals"
+  | "goals.sort.progress"
+  | "goals.sort.amountSaved"
+  | "goals.sort.soonestFirst"
+  | "goals.sort.latestFirst"
+  | "goals.sort.lowestFirst"
+  | "goals.sort.highestFirst"
+  | "goals.sort.ascending"
+  | "goals.sort.descending"
+  | "goals.emptyTitle"
+  | "goals.emptySubtext"
+  | "goals.emptySearchTitle"
+  | "goals.emptySearchSubtext"
+  | "goals.deleteTitle"
+  | "goals.contributionAddedTitle"
+  | "goals.goalDeletedTitle"
+  | "goals.goalCreatedTitle"
+  | "goals.goalUpdatedTitle"
+  | "goals.invalidCurrentAmount"
+  | "goals.currentLessThanTarget"
+  | "goals.titlePlaceholder"
+  | "goals.datePlaceholder"
+  | "goals.progress"
+  | "goals.amountSaved"
+  | "goals.selectWallet"
+  | "goals.loadingWallets"
+  | "goals.noWalletsForCurrencyTitle"
+  | "goals.noWalletsForCurrencySubtext"
+  | "goals.noWalletsAvailableTitle"
+  | "goals.noWalletsAvailableDescription"
+  | "goals.invalidInputTitle"
+  | "goals.invalidContributionAmount"
+  | "goals.amountMustBeGreaterThanZero"
+  | "goals.noWalletSelectedTitle"
+  | "goals.selectWalletToContribute"
+  | "goals.insufficientBalanceTitle"
+  | "goals.insufficientBalanceDescription"
+  | "goals.exceedsGoalTitle"
+  | "goals.exceedsGoalDescription"
+  | "goals.emptyWalletTitle"
+  | "goals.emptyWalletDescription"
+  | "goals.remainingToReachGoal"
+  | "goals.goalReached"
+  | "goals.inProgress"
+  | "goals.hideContributionHistory"
+  | "goals.showContributionHistory"
+  | "goals.yourContributions"
   | "incomeSavings.title"
   | "incomeSavings.addEntry"
   | "incomeSavings.editEntry"
@@ -275,6 +334,46 @@ type TranslationKey =
   | "incomeSavings.deleteSuccess"
   | "incomeSavings.createSuccess"
   | "incomeSavings.updateSuccess"
+  | "incomeSavings.searchPlaceholder"
+  | "incomeSavings.emptyTitle"
+  | "incomeSavings.emptySubtext"
+  | "incomeSavings.emptySearchTitle"
+  | "incomeSavings.emptySearchSubtext"
+  | "incomeSavings.deleteTitle"
+  | "incomeSavings.deletePrompt"
+  | "incomeSavings.deletePromptGeneric"
+  | "incomeSavings.noWalletsTitle"
+  | "incomeSavings.noWalletsDescription"
+  | "incomeSavings.selectWalletTitle"
+  | "incomeSavings.selectWalletDescription"
+  | "incomeSavings.invalidAmountTitle"
+  | "incomeSavings.invalidAmountDescription"
+  | "incomeSavings.addedTitle"
+  | "incomeSavings.addedDescription"
+  | "incomeSavings.walletLabel"
+  | "incomeSavings.summaryRegularSources"
+  | "incomeSavings.summaryEstimatedMonthlyInflow"
+  | "incomeSavings.modal.addRegularSource"
+  | "incomeSavings.modal.sourceType"
+  | "incomeSavings.modal.wallet"
+  | "incomeSavings.modal.regularity"
+  | "incomeSavings.modal.currency"
+  | "incomeSavings.modal.amount"
+  | "incomeSavings.modal.notesOptional"
+  | "incomeSavings.modal.notesPlaceholder"
+  | "incomeSavings.modal.saving"
+  | "incomeSavings.modal.saveAndAddBalance"
+  | "incomeSavings.categories.investment"
+  | "addMoney"
+  | "spendMoney"
+  | "availableBalance"
+  | "currency"
+  | "reasonPlaceholder"
+  | "saving"
+  | "confirm"
+  | "history"
+  | "noHistory"
+  | "noResults"
   | "common.cancel"
   | "common.save"
   | "common.delete"
@@ -366,6 +465,13 @@ export const translations: Record<
     editProfile: "Edit Profile",
     account: "Account",
     paymentMethods: "Payment Methods",
+    categories: "Categories",
+    allCategories: "All Categories",
+    searchCategories: "Search categories...",
+    addCustomCategory: "Add Custom Category",
+    customCategoryPlaceholder: "New category name",
+    done: "Done",
+    add: "Add",
     preferences: "Preferences",
     notifications: "Notifications",
     darkMode: "Dark Mode",
@@ -378,6 +484,7 @@ export const translations: Record<
     retakePhoto: "Retake photo",
     save: "Save",
     saved: "Saved",
+    next: "Next",
     logoutConfirmTitle: "Log out",
     logoutConfirmMessage: "Are you sure you want to log out?",
     logout: "Logout",
@@ -459,6 +566,7 @@ export const translations: Record<
     customization: "Customization",
     Youmustselect3features: "You must select 3 features",
     Youcanonlyselect3features: "You can only select 3 features",
+
     dailyPurchases: "Daily Purchases",
     ofDailyBudget: "OF DAILY BUDGET",
     editDailyBudget: "Edit Daily Budget",
@@ -504,14 +612,16 @@ export const translations: Record<
     manual: "MANUAL",
     myBundles: "My Bundles",
     editBudget: "Edit Budget",
-    bundlesSubtitle: "Manage your recurring purchase sets and optimize your daily spending flow.",
+    bundlesSubtitle:
+      "Manage your recurring purchase sets and optimize your daily spending flow.",
     budgetWarningTitle: "Budget Warning! ⚠️",
-    budgetWarningMessage: "You are about to exceed your daily budget. Do you really need this purchase? Every bit counts!",
+    budgetWarningMessage:
+      "You are about to exceed your daily budget. Do you really need this purchase? Every bit counts!",
     proceedAnyway: "Force Add",
     saveMyMoney: "Save My Money",
     remainingBudget: "Remaining",
     newTotalAfter: "New total will be",
-      
+
     "goals.title": "Savings Goals",
     "goals.createTitle": "Create New Goal",
     "goals.editTitle": "Edit Goal",
@@ -531,6 +641,56 @@ export const translations: Record<
     "goals.createSuccess": "Goal created successfully",
     "goals.updateSuccess": "Goal updated successfully",
     "goals.contributionSuccess": "Contribution added successfully",
+    "goals.overallProgress": "Overall Progress",
+    "goals.remainingToReachAllGoals": "remaining to reach all goals",
+    "goals.searchPlaceholder": "Search goals by name",
+    "goals.sortGoals": "Sort Goals",
+    "goals.sort.progress": "Progress",
+    "goals.sort.amountSaved": "Amount Saved",
+    "goals.sort.soonestFirst": "Soonest first",
+    "goals.sort.latestFirst": "Latest first",
+    "goals.sort.lowestFirst": "Lowest first",
+    "goals.sort.highestFirst": "Highest first",
+    "goals.sort.ascending": "Ascending",
+    "goals.sort.descending": "Descending",
+    "goals.emptyTitle": "No goals yet",
+    "goals.emptySubtext": "Tap + to create your first savings goal",
+    "goals.emptySearchTitle": "No matching goals",
+    "goals.emptySearchSubtext": "Try a different goal name.",
+    "goals.deleteTitle": "Delete goal",
+    "goals.contributionAddedTitle": "Contribution Added",
+    "goals.goalDeletedTitle": "Goal Deleted",
+    "goals.goalCreatedTitle": "Goal Created",
+    "goals.goalUpdatedTitle": "Goal Updated",
+    "goals.invalidCurrentAmount": "Current amount cannot be negative.",
+    "goals.currentLessThanTarget": "Current amount must be less than the target amount.",
+    "goals.titlePlaceholder": "e.g. Dream Vacation, New Car",
+    "goals.datePlaceholder": "MM/DD/YYYY",
+    "goals.progress": "Progress",
+    "goals.amountSaved": "Amount Saved",
+    "goals.selectWallet": "Select Wallet",
+    "goals.loadingWallets": "Loading wallets...",
+    "goals.noWalletsForCurrencyTitle": "No {{currency}} wallets found",
+    "goals.noWalletsForCurrencySubtext": "Add {{currency}} balance to one of your wallets first.",
+    "goals.noWalletsAvailableTitle": "No Wallets Available",
+    "goals.noWalletsAvailableDescription": "You don't have any {{currency}} wallet with available balance. Add funds first, then try again.",
+    "goals.invalidInputTitle": "Invalid Input",
+    "goals.invalidContributionAmount": "Please enter a valid amount.",
+    "goals.amountMustBeGreaterThanZero": "Amount must be greater than zero.",
+    "goals.noWalletSelectedTitle": "No Wallet",
+    "goals.selectWalletToContribute": "Please select a wallet to contribute from.",
+    "goals.insufficientBalanceTitle": "Insufficient Balance",
+    "goals.insufficientBalanceDescription": "\"{{wallet}}\" only has {{balance}} {{currency}}. Please enter a smaller amount.",
+    "goals.exceedsGoalTitle": "Exceeds Goal",
+    "goals.exceedsGoalDescription": "You only need {{remaining}} {{currency}} to complete this goal.",
+    "goals.emptyWalletTitle": "Empty Wallet",
+    "goals.emptyWalletDescription": "\"{{wallet}}\" has no {{currency}} balance.",
+    "goals.remainingToReachGoal": "remaining to reach goal",
+    "goals.goalReached": "Goal Reached",
+    "goals.inProgress": "In Progress",
+    "goals.hideContributionHistory": "Hide Contribution History",
+    "goals.showContributionHistory": "Show Contribution History",
+    "goals.yourContributions": "Your Contributions",
     "incomeSavings.title": "Income & Savings",
     "incomeSavings.addEntry": "Add Entry",
     "incomeSavings.editEntry": "Edit Entry",
@@ -554,14 +714,55 @@ export const translations: Record<
     "incomeSavings.categories.freelance": "Freelance",
     "incomeSavings.categories.loan": "Loan",
     "incomeSavings.categories.other": "Other",
+    "incomeSavings.categories.investment": "Investment",
     "incomeSavings.categories.savings": "Savings",
     "incomeSavings.categories.debt": "Debt",
     "incomeSavings.entryTypes.receive": "Income",
     "incomeSavings.entryTypes.send": "Savings",
-    "incomeSavings.deleteConfirm": "Are you sure you want to delete this entry?",
+    "incomeSavings.deleteConfirm":
+      "Are you sure you want to delete this entry?",
     "incomeSavings.deleteSuccess": "Entry deleted successfully",
     "incomeSavings.createSuccess": "Entry created successfully",
     "incomeSavings.updateSuccess": "Entry updated successfully",
+    "incomeSavings.searchPlaceholder": "Search income sources",
+    "incomeSavings.emptyTitle": "No income sources yet",
+    "incomeSavings.emptySubtext": "Tap + to add salary, loan, or any regular source and assign it to a wallet.",
+    "incomeSavings.emptySearchTitle": "No matching sources",
+    "incomeSavings.emptySearchSubtext": "Try a different source name, wallet, or note.",
+    "incomeSavings.deleteTitle": "Delete income source",
+    "incomeSavings.deletePrompt": "Delete {{type}} source from {{wallet}}?",
+    "incomeSavings.deletePromptGeneric": "Delete this income source?",
+    "incomeSavings.noWalletsTitle": "No Wallets",
+    "incomeSavings.noWalletsDescription": "Create a wallet first before adding a regular income source.",
+    "incomeSavings.selectWalletTitle": "Select Wallet",
+    "incomeSavings.selectWalletDescription": "Please select a wallet for this source.",
+    "incomeSavings.invalidAmountTitle": "Invalid Amount",
+    "incomeSavings.invalidAmountDescription": "Please enter a valid amount greater than zero.",
+    "incomeSavings.addedTitle": "Saving Added",
+    "incomeSavings.addedDescription": "Income source saved and wallet balance updated.",
+    "incomeSavings.walletLabel": "Wallet",
+    "incomeSavings.summaryRegularSources": "Regular Sources",
+    "incomeSavings.summaryEstimatedMonthlyInflow": "Estimated monthly inflow",
+    "incomeSavings.modal.addRegularSource": "Add Regular Source",
+    "incomeSavings.modal.sourceType": "Source Type",
+    "incomeSavings.modal.wallet": "Wallet",
+    "incomeSavings.modal.regularity": "Regularity",
+    "incomeSavings.modal.currency": "Currency",
+    "incomeSavings.modal.amount": "Amount",
+    "incomeSavings.modal.notesOptional": "Notes (Optional)",
+    "incomeSavings.modal.notesPlaceholder": "e.g. Main monthly salary",
+    "incomeSavings.modal.saving": "Saving...",
+    "incomeSavings.modal.saveAndAddBalance": "Save & Add Balance",
+    addMoney: "Add money",
+    spendMoney: "Spend money",
+    availableBalance: "Available",
+    currency: "Currency",
+    reasonPlaceholder: "Why?",
+    saving: "Saving...",
+    confirm: "Confirm",
+    history: "History",
+    noHistory: "No activity yet.",
+    noResults: "No matching users found.",
     "common.cancel": "Cancel",
     "common.save": "Save",
     "common.delete": "Delete",
@@ -650,6 +851,13 @@ export const translations: Record<
     editProfile: "تعديل الملف الشخصي",
     account: "الحساب",
     paymentMethods: "طرق الدفع",
+    categories: "الفئات",
+    allCategories: "جميع الفئات",
+    searchCategories: "ابحث عن فئة...",
+    addCustomCategory: "أضف فئة مخصصة",
+    customCategoryPlaceholder: "اسم الفئة الجديدة",
+    done: "تم",
+    add: "إضافة",
     preferences: "التفضيلات",
     notifications: "الإشعارات",
     darkMode: "الوضع الداكن",
@@ -662,6 +870,7 @@ export const translations: Record<
     retakePhoto: "إعادة التقاط الصورة",
     save: "حفظ",
     saved: "تم الحفظ",
+    next: "التالي",
     logoutConfirmTitle: "تسجيل الخروج",
     logoutConfirmMessage: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
     logout: "تسجيل الخروج",
@@ -695,7 +904,7 @@ export const translations: Record<
     welcomeBack: "مرحباً بعودتك،",
     quickActions: "الإجراءات السريعة",
     savingGoals: "أهداف التوفير",
-    insights: "الرؤى",
+    insights: "الإحصائيات",
     cards: "البطاقات",
     more: "المزيد",
     totalBalance: "الرصيد الكلي",
@@ -706,7 +915,7 @@ export const translations: Record<
     myCardsSubtitle: "إدارة بطاقات الائتمان والخصم",
     exchangeRates: "أسعار الصرف",
     exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
-    spendingInsights: "رؤى الإنفاق",
+    spendingInsights: "الإحصائيات",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
     transactions: "المعاملات",
     settingsSubtitle: "إدارة تفضيلات حسابك",
@@ -724,7 +933,7 @@ export const translations: Record<
     selectReceivingWallet: "اختر محفظة للاستقبال",
     recipient: "المستلم",
     selectRecipient: "اختر المستلم",
-    
+
     payer: "الدافع",
     selectPayer: "من سيدفع؟",
     category: "الفئة",
@@ -788,9 +997,11 @@ export const translations: Record<
     recurring: "متكرر",
     manual: "يدوي",
     myBundles: "حزمي الخاصة",
-    bundlesSubtitle: "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
+    bundlesSubtitle:
+      "قم بإدارة مجموعات الشراء المتكررة وحسن تدفق الإنفاق اليومي الخاص بك.",
     budgetWarningTitle: "تنبيه الميزانية! ⚠️",
-    budgetWarningMessage: "أنت على وشك تجاوز ميزانيتك اليومية. هل هذه العملية ضرورية حقاً؟ كل قرش يهم!",
+    budgetWarningMessage:
+      "أنت على وشك تجاوز ميزانيتك اليومية. هل هذه العملية ضرورية حقاً؟ كل قرش يهم!",
     proceedAnyway: "إضافة على أي حال",
     saveMyMoney: "وفر أموالي",
     remainingBudget: "المتبقي",
@@ -815,6 +1026,56 @@ export const translations: Record<
     "goals.createSuccess": "تم إنشاء الهدف بنجاح",
     "goals.updateSuccess": "تم تحديث الهدف بنجاح",
     "goals.contributionSuccess": "تمت إضافة المساهمة بنجاح",
+    "goals.overallProgress": "التقدم الإجمالي",
+    "goals.remainingToReachAllGoals": "متبقي للوصول إلى كل الأهداف",
+    "goals.searchPlaceholder": "ابحث عن الأهداف بالاسم",
+    "goals.sortGoals": "ترتيب الأهداف",
+    "goals.sort.progress": "نسبة التقدم",
+    "goals.sort.amountSaved": "المبلغ المدخر",
+    "goals.sort.soonestFirst": "الأقرب أولًا",
+    "goals.sort.latestFirst": "الأبعد أولًا",
+    "goals.sort.lowestFirst": "الأقل أولًا",
+    "goals.sort.highestFirst": "الأعلى أولًا",
+    "goals.sort.ascending": "تصاعدي",
+    "goals.sort.descending": "تنازلي",
+    "goals.emptyTitle": "لا توجد أهداف بعد",
+    "goals.emptySubtext": "اضغط + لإنشاء أول هدف توفير لك",
+    "goals.emptySearchTitle": "لا توجد أهداف مطابقة",
+    "goals.emptySearchSubtext": "جرّب اسم هدف مختلف.",
+    "goals.deleteTitle": "حذف الهدف",
+    "goals.contributionAddedTitle": "تمت إضافة مساهمة",
+    "goals.goalDeletedTitle": "تم حذف الهدف",
+    "goals.goalCreatedTitle": "تم إنشاء الهدف",
+    "goals.goalUpdatedTitle": "تم تحديث الهدف",
+    "goals.invalidCurrentAmount": "لا يمكن أن يكون المبلغ الحالي سالبًا.",
+    "goals.currentLessThanTarget": "يجب أن يكون المبلغ الحالي أقل من المبلغ المستهدف.",
+    "goals.titlePlaceholder": "مثال: رحلة الأحلام، سيارة جديدة",
+    "goals.datePlaceholder": "MM/DD/YYYY",
+    "goals.progress": "التقدم",
+    "goals.amountSaved": "المبلغ المدخر",
+    "goals.selectWallet": "اختر المحفظة",
+    "goals.loadingWallets": "جارٍ تحميل المحافظ...",
+    "goals.noWalletsForCurrencyTitle": "لم يتم العثور على محافظ {{currency}}",
+    "goals.noWalletsForCurrencySubtext": "أضف رصيد {{currency}} إلى إحدى محافظك أولًا.",
+    "goals.noWalletsAvailableTitle": "لا توجد محافظ متاحة",
+    "goals.noWalletsAvailableDescription": "لا تملك أي محفظة {{currency}} برصيد متاح. أضف رصيدًا أولًا ثم حاول مرة أخرى.",
+    "goals.invalidInputTitle": "إدخال غير صالح",
+    "goals.invalidContributionAmount": "يرجى إدخال مبلغ صالح.",
+    "goals.amountMustBeGreaterThanZero": "يجب أن يكون المبلغ أكبر من صفر.",
+    "goals.noWalletSelectedTitle": "لا توجد محفظة",
+    "goals.selectWalletToContribute": "يرجى اختيار محفظة للمساهمة منها.",
+    "goals.insufficientBalanceTitle": "الرصيد غير كافٍ",
+    "goals.insufficientBalanceDescription": "\"{{wallet}}\" يحتوي فقط على {{balance}} {{currency}}. يرجى إدخال مبلغ أقل.",
+    "goals.exceedsGoalTitle": "يتجاوز الهدف",
+    "goals.exceedsGoalDescription": "تحتاج فقط إلى {{remaining}} {{currency}} لإكمال هذا الهدف.",
+    "goals.emptyWalletTitle": "محفظة فارغة",
+    "goals.emptyWalletDescription": "\"{{wallet}}\" لا يحتوي على رصيد {{currency}}.",
+    "goals.remainingToReachGoal": "متبقي للوصول إلى الهدف",
+    "goals.goalReached": "تم تحقيق الهدف",
+    "goals.inProgress": "قيد التنفيذ",
+    "goals.hideContributionHistory": "إخفاء سجل المساهمات",
+    "goals.showContributionHistory": "عرض سجل المساهمات",
+    "goals.yourContributions": "مساهماتك",
     "incomeSavings.title": "الدخل والتوفير",
     "incomeSavings.addEntry": "إضافة إدخال",
     "incomeSavings.editEntry": "تعديل الإدخال",
@@ -838,6 +1099,7 @@ export const translations: Record<
     "incomeSavings.categories.freelance": "عمل حر",
     "incomeSavings.categories.loan": "قرض",
     "incomeSavings.categories.other": "آخر",
+    "incomeSavings.categories.investment": "استثمار",
     "incomeSavings.categories.savings": "توفير",
     "incomeSavings.categories.debt": "دين",
     "incomeSavings.entryTypes.receive": "دخل",
@@ -846,6 +1108,45 @@ export const translations: Record<
     "incomeSavings.deleteSuccess": "تم حذف الإدخال بنجاح",
     "incomeSavings.createSuccess": "تم إنشاء الإدخال بنجاح",
     "incomeSavings.updateSuccess": "تم تحديث الإدخال بنجاح",
+    "incomeSavings.searchPlaceholder": "ابحث في مصادر الدخل",
+    "incomeSavings.emptyTitle": "لا توجد مصادر دخل بعد",
+    "incomeSavings.emptySubtext": "اضغط + لإضافة راتب أو قرض أو أي مصدر منتظم وربطه بمحفظة.",
+    "incomeSavings.emptySearchTitle": "لا توجد مصادر مطابقة",
+    "incomeSavings.emptySearchSubtext": "جرّب اسم مصدر أو محفظة أو ملاحظة مختلفة.",
+    "incomeSavings.deleteTitle": "حذف مصدر الدخل",
+    "incomeSavings.deletePrompt": "حذف مصدر {{type}} من {{wallet}}؟",
+    "incomeSavings.deletePromptGeneric": "حذف مصدر الدخل هذا؟",
+    "incomeSavings.noWalletsTitle": "لا توجد محافظ",
+    "incomeSavings.noWalletsDescription": "أنشئ محفظة أولًا قبل إضافة مصدر دخل منتظم.",
+    "incomeSavings.selectWalletTitle": "اختر محفظة",
+    "incomeSavings.selectWalletDescription": "يرجى اختيار محفظة لهذا المصدر.",
+    "incomeSavings.invalidAmountTitle": "مبلغ غير صالح",
+    "incomeSavings.invalidAmountDescription": "يرجى إدخال مبلغ صالح أكبر من صفر.",
+    "incomeSavings.addedTitle": "تمت إضافة التوفير",
+    "incomeSavings.addedDescription": "تم حفظ مصدر الدخل وتحديث رصيد المحفظة.",
+    "incomeSavings.walletLabel": "المحفظة",
+    "incomeSavings.summaryRegularSources": "المصادر المنتظمة",
+    "incomeSavings.summaryEstimatedMonthlyInflow": "التدفق الشهري المتوقع",
+    "incomeSavings.modal.addRegularSource": "إضافة مصدر منتظم",
+    "incomeSavings.modal.sourceType": "نوع المصدر",
+    "incomeSavings.modal.wallet": "المحفظة",
+    "incomeSavings.modal.regularity": "الانتظام",
+    "incomeSavings.modal.currency": "العملة",
+    "incomeSavings.modal.amount": "المبلغ",
+    "incomeSavings.modal.notesOptional": "ملاحظات (اختياري)",
+    "incomeSavings.modal.notesPlaceholder": "مثال: الراتب الشهري الأساسي",
+    "incomeSavings.modal.saving": "جارٍ الحفظ...",
+    "incomeSavings.modal.saveAndAddBalance": "حفظ وإضافة الرصيد",
+    addMoney: "إضافة مال",
+    spendMoney: "إنفاق مال",
+    availableBalance: "المتاح",
+    currency: "العملة",
+    reasonPlaceholder: "لماذا؟",
+    saving: "جارٍ الحفظ...",
+    confirm: "تأكيد",
+    history: "السجل",
+    noHistory: "لا يوجد نشاط بعد.",
+    noResults: "لا يوجد مستخدمون مطابقون.",
     "common.cancel": "إلغاء",
     "common.save": "حفظ",
     "common.delete": "حذف",

@@ -1,6 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 interface ExchangeCardProps {
   fromCurrency: string;
@@ -29,22 +30,26 @@ export const ExchangeCard: React.FC<ExchangeCardProps> = ({
   onSwap,
   onMax,
 }) => {
+  const surfaceColor = useThemeColor({}, 'surface');
+  const textColor = useThemeColor({}, 'text');
+  const inputBgColor = useThemeColor({}, 'inputBackground');
+
   return (
-    <View style={styles.container}>
-      {/* From Section */}
+    <View style={[styles.container, { backgroundColor: surfaceColor }]}>
+    
       <View style={styles.section}>
         <Text style={styles.label}>From</Text>
         <View style={styles.amountRow}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: textColor }]}
             placeholder="0.00"
             placeholderTextColor="#9ca3af"
             keyboardType="decimal-pad"
             value={amount}
             onChangeText={onAmountChange}
           />
-          <TouchableOpacity style={styles.selector} onPress={onFromCurrencyPress}>
-            <Text style={styles.code}>{fromCurrency}</Text>
+          <TouchableOpacity style={[styles.selector, { backgroundColor: inputBgColor }]} onPress={onFromCurrencyPress}>
+            <Text style={[styles.code, { color: textColor }]}>{fromCurrency}</Text>
             <FontAwesome name="chevron-down" size={12} color="#666" />
           </TouchableOpacity>
         </View>
@@ -56,20 +61,20 @@ export const ExchangeCard: React.FC<ExchangeCardProps> = ({
         </View>
       </View>
 
-      {/* Swap Button */}
+    
       <View style={styles.swapContainer}>
         <TouchableOpacity style={styles.swapButton} onPress={onSwap}>
           <FontAwesome name="exchange" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* To Section */}
+   
       <View style={styles.section}>
         <Text style={styles.label}>To</Text>
         <View style={styles.amountRow}>
-          <Text style={styles.output}>{convertedAmount || '0.00'}</Text>
-          <TouchableOpacity style={styles.selector} onPress={onToCurrencyPress}>
-            <Text style={styles.code}>{toCurrency}</Text>
+          <Text style={[styles.output, { color: textColor }]}>{convertedAmount || '0.00'}</Text>
+          <TouchableOpacity style={[styles.selector, { backgroundColor: inputBgColor }]} onPress={onToCurrencyPress}>
+            <Text style={[styles.code, { color: textColor }]}>{toCurrency}</Text>
             <FontAwesome name="chevron-down" size={12} color="#666" />
           </TouchableOpacity>
         </View>
@@ -83,7 +88,6 @@ export const ExchangeCard: React.FC<ExchangeCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
@@ -114,19 +118,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 36,
     fontWeight: '600',
-    color: '#0f172a',
     padding: 0,
   },
   output: {
     flex: 1,
     fontSize: 36,
     fontWeight: '600',
-    color: '#0f172a',
   },
   selector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 12,
@@ -135,7 +136,6 @@ const styles = StyleSheet.create({
   code: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0f172a',
     minWidth: 45,
   },
   balanceRow: {

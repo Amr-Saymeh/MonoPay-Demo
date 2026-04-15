@@ -1,10 +1,10 @@
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 
 import { deleteUser, onAuthStateChanged, User } from "firebase/auth";
@@ -13,9 +13,9 @@ import { auth } from "@/src/firebaseConfig";
 import { signIn, signOut, signUp } from "@/src/services/auth.service";
 import { uploadImageToCloudinary } from "@/src/services/cloudinary.service";
 import {
-  createUserProfile,
-  subscribeUserProfile,
-  UserProfile,
+    createUserProfile,
+    subscribeUserProfile,
+    UserProfile,
 } from "@/src/services/user.service";
 
 type RegisterInput = {
@@ -28,6 +28,7 @@ type RegisterInput = {
   identityNumber: number;
   identityImageUri: string;
   personalImageUri: string;
+  categories?: string[];
 };
 
 type AuthContextValue = {
@@ -135,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         identityNumber: input.identityNumber,
         identityImageUrl,
         personalImageUrl,
+        categories: input.categories ?? [],
       });
     } catch (e) {
       if (credentials) {

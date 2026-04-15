@@ -15,15 +15,15 @@ export const CURRENCY_NAMES: { [key: string]: string } = {
 };
 
 export function normalizeCurrency(code: string): string {
-  // Always use uppercase for consistency
+  
   const upper = code.trim().toUpperCase();
-  // Handle legacy ILS codes from database
-  if (upper === 'ILS') return 'NIS';
+
+
   return upper;
 }
 
 export function denormalizeCurrency(code: string): string {
-  // Always use uppercase for consistency
+
   return code.trim().toUpperCase();
 }
 
