@@ -4,7 +4,7 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { CURRENCY_SYMBOLS } from "../types";
@@ -31,8 +31,8 @@ interface Props {
 // ─── Strings ──────────────────────────────────────────────────────────────────
 const S = {
   en: {
-    confirmSend: "Confirm Transfer",
-    confirmRequest: "Confirm Request",
+    confirmSend: "Confirm Sending Money",
+    confirmRequest: "Confirm Money Request",
     to: "To",
     from: "From Wallet",
     amount: "Amount",
@@ -44,8 +44,8 @@ const S = {
     processing: "Processing...",
   },
   ar: {
-    confirmSend: "تأكيد التحويل",
-    confirmRequest: "تأكيد الطلب",
+    confirmSend: "تأكيد إرسال المال",
+    confirmRequest: "تأكيد طلب المال",
     to: "إلى",
     from: "من محفظة",
     amount: "المبلغ",
@@ -76,7 +76,6 @@ export function ConfirmBottomSheet({
 }: Props) {
   const s = S[language];
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["55%"], []);
 
   const symbol = CURRENCY_SYMBOLS[currency] ?? currency.toUpperCase();
   const parsedAmount = parseFloat(amount) || 0;
@@ -107,7 +106,7 @@ export function ConfirmBottomSheet({
     <BottomSheet
       ref={bottomSheetRef}
       index={0}
-      snapPoints={snapPoints}
+      enableDynamicSizing
       enablePanDownToClose
       onClose={onCancel}
       backdropComponent={renderBackdrop}
@@ -265,9 +264,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 28,
   },
   container: {
-    flex: 1,
     paddingHorizontal: 24,
     paddingTop: 8,
+    paddingBottom: 36,
   },
   title: {
     fontSize: 20,

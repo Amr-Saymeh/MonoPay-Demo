@@ -5,16 +5,15 @@ import { get, ref } from "firebase/database";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
 import { useI18n } from "@/hooks/use-i18n";
+import { NotificationModal } from "@/src/features/transfer/components/NotificationModal";
 import { AppUser } from "@/src/features/transfer/types/index";
 import { db } from "@/src/firebaseConfig";
 import { useAuth } from "@/src/providers/AuthProvider";
@@ -47,12 +46,13 @@ export default function ScanQRScreen() {
 
   const currentUid = user?.uid ?? "";
   const [resolving, setResolving] = useState(false);
+  const [notif, setNotif] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
   const handleScanned = async (scannedValue: string) => {
     const uid = scannedValue.trim();
 
     if (uid === currentUid) {
-      Alert.alert("", s.ownQR, [{ text: "OK" }]);
+      setNotif({ type: "error", msg: s.ownQR });
       return;
     }
 
@@ -62,7 +62,7 @@ export default function ScanQRScreen() {
       const snap = await get(ref(db, `users/${uid}`));
 
       if (!snap.exists() || snap.val()?.type !== 1) {
-        Alert.alert("", s.invalidQR, [{ text: "OK" }]);
+        setNotif({ type: "error", msg: s.invalidQR });
         return;
       }
 
@@ -77,7 +77,7 @@ export default function ScanQRScreen() {
         },
       });
     } catch {
-      Alert.alert("", s.fetchError, [{ text: "OK" }]);
+      setNotif({ type: "error", msg: s.fetchError });
     } finally {
       setResolving(false);
     }
@@ -100,21 +100,34 @@ export default function ScanQRScreen() {
             { flexDirection: isRtl ? "row-reverse" : "row" },
           ]}
         >
-          <TouchableOpacity
+          <Ionicons
+            name={isRtl ? "arrow-forward" : "arrow-back"}
+            size={24}
+            color="white"
             onPress={() => router.back()}
-            style={styles.backBtn}
-            activeOpacity={0.7}
+          />
+          <Text
+            style={[
+              styles.headerTitle,
+              {
+                flex: 1,
+                marginLeft: isRtl ? 0 : 10,
+                marginRight: isRtl ? 10 : 0,
+              },
+            ]}
           >
-            <Ionicons
-              name={isRtl ? "chevron-forward" : "chevron-back"}
-              size={22}
-              color="white"
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{s.title}</Text>
-          <View style={{ width: 40 }} />
+            {s.title}
+          </Text>
         </View>
       </LinearGradient>
+
+      <NotificationModal
+        visible={!!notif}
+        type={notif?.type ?? "error"}
+        message={notif?.msg ?? ""}
+        onDismiss={() => setNotif(null)}
+        language={language as "en" | "ar"}
+      />
 
       {/* ── Camera area ── */}
       <View style={styles.cameraContainer}>
@@ -147,18 +160,13 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "ios" ? 56 : 44,
     paddingBottom: 20,
     paddingHorizontal: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    zIndex: 1,
   },
   headerRow: {
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   headerTitle: {
     color: "white",

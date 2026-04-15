@@ -3,7 +3,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -13,7 +12,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -22,6 +20,7 @@ import { useI18n } from "@/hooks/use-i18n";
 import { AmountInput } from "@/src/features/transfer/components/AmountInput";
 import { CategoryPicker } from "@/src/features/transfer/components/CategoryPicker";
 import { ConfirmBottomSheet } from "@/src/features/transfer/components/ConfirmBottomSheet";
+import { NotificationModal } from "@/src/features/transfer/components/NotificationModal";
 import { WalletPicker } from "@/src/features/transfer/components/WalletPicker";
 import { useSendMoney } from "@/src/features/transfer/hooks/useSendMoney";
 import {
@@ -125,6 +124,7 @@ export default function QRSendScreen() {
     null,
   );
   const [showConfirm, setShowConfirm] = useState(false);
+  const [notif, setNotif] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
   // ── Data & Actions ────────────────────────────────────────────────────────
   const {
@@ -178,7 +178,7 @@ export default function QRSendScreen() {
   const handleSubmit = () => {
     const err = validateForm();
     if (err) {
-      Alert.alert("", err);
+      setNotif({ type: "error", msg: err });
       return;
     }
     setShowConfirm(true);
@@ -187,7 +187,7 @@ export default function QRSendScreen() {
   // ── Confirm from bottom sheet ─────────────────────────────────────────────
   const handleConfirm = async () => {
     const parsed = parseFloat(amount);
-    const success = await executeSend({
+    const error = await executeSend({
       senderUid: CURRENT_USER_UID,
       fromSlotKey: myWalletSlot!.slotKey,
       receiverUid: recipient.uid,
@@ -197,11 +197,11 @@ export default function QRSendScreen() {
       note,
     });
 
-    if (success) {
+    if (!error) {
       setShowConfirm(false);
-      Alert.alert("", s.successSend, [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      setNotif({ type: "success", msg: s.successSend });
+    } else {
+      setNotif({ type: "error", msg: s.errors[error] ?? s.errors.UNKNOWN });
     }
   };
 
@@ -226,19 +226,13 @@ export default function QRSendScreen() {
               { flexDirection: isRtl ? "row-reverse" : "row" },
             ]}
           >
-            <TouchableOpacity
+            <Ionicons
+              name={isRtl ? "arrow-forward" : "arrow-back"}
+              size={24}
+              color="white"
               onPress={() => router.back()}
-              style={styles.backBtn}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name={isRtl ? "chevron-forward" : "chevron-back"}
-                size={22}
-                color="white"
-              />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{s.title}</Text>
-            <View style={{ width: 40 }} />
+            />
+            <Text style={[styles.headerTitle, { flex: 1, marginLeft: isRtl ? 0 : 10, marginRight: isRtl ? 10 : 0 }]}>{s.title}</Text>
           </View>
 
           {/* ── Recipient card (inside header) ── */}
@@ -431,6 +425,18 @@ export default function QRSendScreen() {
           onCancel={() => setShowConfirm(false)}
         />
       </View>
+
+      <NotificationModal
+        visible={!!notif}
+        type={notif?.type ?? "success"}
+        message={notif?.msg ?? ""}
+        onDismiss={() => {
+          const wasSuccess = notif?.type === "success";
+          setNotif(null);
+          if (wasSuccess) router.back();
+        }}
+        language={language as "en" | "ar"}
+      />
     </GestureHandlerRootView>
   );
 }
@@ -526,14 +532,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   headerTitle: {
     color: "white",

@@ -38,7 +38,54 @@ export const menuItems: MenuItem[] = [
     route: "/goals",
   },
   {
-    id: "5",
+
+    id: '5',
+    titleKey: 'sendMoneyPage',
+    subtitleKey: 'sendMoneySubtitle',
+    iconName: 'send-outline',
+    color: '#7C3AED',
+    state: false,
+    route: '/send-money'
+  },
+  {
+    id: '13',
+    titleKey: 'requestMoneyPage',
+    subtitleKey: 'requestMoneySubtitle',
+    iconName: 'arrow-down-circle-outline',
+    color: '#5B21B6',
+    state: false,
+    route: '/request-money'
+  },
+  {
+    id: '10',
+    titleKey: 'requestsPage',
+    subtitleKey: 'requestsSubtitle',
+    iconName: 'mail-open-outline',
+    color: '#8B5CF6',
+    state: false,
+    route: '/requests'
+  },
+  {
+    id: '11',
+    titleKey: 'scanQr',
+    subtitleKey: 'scanQrSubtitle',
+    iconName: 'scan-outline',
+    color: '#0EA5E9',
+    state: false,
+    route: '/scan-qr'
+  },
+  {
+    id: '12',
+    titleKey: 'myQr',
+    subtitleKey: 'myQrSubtitle',
+    iconName: 'qr-code-outline',
+    color: '#14B8A6',
+    state: false,
+    route: '/my-qr'
+    },
+  
+    {
+    id: "6",
     titleKey: "regularSavings",
     subtitleKey: "regularSavingsSubtitle",
     iconName: "cash-outline",
@@ -46,15 +93,7 @@ export const menuItems: MenuItem[] = [
     state: false,
     route: "/income-savings",
   },
-  {
-    id: "6",
-    titleKey: "transactions",
-    subtitleKey: undefined,
-    iconName: "receipt-outline",
-    color: "#00BCD4",
-    state: false,
-    route: "/transfer",
-  },
+
   {
     id: "9",
     titleKey: "settings",

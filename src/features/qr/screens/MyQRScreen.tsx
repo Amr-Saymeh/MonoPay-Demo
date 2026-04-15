@@ -57,19 +57,24 @@ export default function MyQRScreen() {
             { flexDirection: isRtl ? "row-reverse" : "row" },
           ]}
         >
-          <TouchableOpacity
+          <Ionicons
+            name={isRtl ? "arrow-forward" : "arrow-back"}
+            size={24}
+            color="white"
             onPress={() => router.back()}
-            style={styles.backBtn}
-            activeOpacity={0.7}
+          />
+          <Text
+            style={[
+              styles.headerTitle,
+              {
+                flex: 1,
+                marginLeft: isRtl ? 0 : 10,
+                marginRight: isRtl ? 10 : 0,
+              },
+            ]}
           >
-            <Ionicons
-              name={isRtl ? "chevron-forward" : "chevron-back"}
-              size={22}
-              color="white"
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{s.title}</Text>
-          <View style={{ width: 40 }} />
+            {s.title}
+          </Text>
         </View>
       </LinearGradient>
 
@@ -135,14 +140,6 @@ const styles = StyleSheet.create({
   headerRow: {
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   headerTitle: {
     color: "white",
