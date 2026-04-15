@@ -19,6 +19,16 @@ export const styles = StyleSheet.create({
   headerRtl: {
     flexDirection: "row-reverse",
   },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backBtnPressed: {
+    opacity: 0.8,
+  },
   headerTitle: {
     fontFamily: Fonts.sansBlack,
     fontSize: 28,
