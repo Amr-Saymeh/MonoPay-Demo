@@ -1,399 +1,466 @@
-// components/income-savings/AddEntryModal.tsx
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { GradientButton } from "@/components/ui/gradient-button";
-import { useI18n } from "@/hooks/use-i18n";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import React from "react";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import { Pressable, StyleSheet, TextInput, View, ScrollView } from "react-native";
+
+import { ThemedText } from "@/components/themed-text";
+import { useI18n } from "@/hooks/use-i18n";
+import type { Regularity, SourceType } from "@/src/services/incomeSources.service";
+import { hapticSelection, hapticTap } from "@/src/utils/haptics";
+
+export interface WalletOption {
+  slotKey: string;
+  walletid: number;
+  walletKey: string;
+  name: string;
+}
 
 interface AddEntryModalProps {
   visible: boolean;
+  isDark: boolean;
+  saving: boolean;
+  type: SourceType;
+  regularity: Regularity;
+  selectedWalletSlot: string | null;
+  amount: string;
+  currency: string;
+  notes: string;
+  sourceTypes: SourceType[];
+  regularityTypes: Regularity[];
+  walletOptions: WalletOption[];
+  selectedWalletCurrencies: string[];
   onClose: () => void;
-  onSubmit: (data: {
-    type: "send" | "receive";
-    category: string;
-    amount: number;
-    currency: string;
-    regularity: string;
-    notes: string;
-  }) => void;
-  initialData?: {
-    type?: "send" | "receive";
-    category?: string;
-    amount?: number;
-    currency?: string;
-    regularity?: string;
-    notes?: string;
-  };
+  onSave: () => void;
+  onTypeChange: (value: SourceType) => void;
+  onRegularityChange: (value: Regularity) => void;
+  onWalletSelect: (slotKey: string) => void;
+  onAmountChange: (value: string) => void;
+  onCurrencyChange: (value: string) => void;
+  onNotesChange: (value: string) => void;
+}
+
+function normalizeCurrencyCode(value: string | undefined | null): string {
+  if (!value) return "";
+  return value.trim().toLowerCase().replace(/[^a-z]/g, "");
 }
 
 export function AddEntryModal({
   visible,
+  isDark,
+  saving,
+  type,
+  regularity,
+  selectedWalletSlot,
+  amount,
+  currency,
+  notes,
+  sourceTypes,
+  regularityTypes,
+  walletOptions,
+  selectedWalletCurrencies,
   onClose,
-  onSubmit,
-  initialData,
+  onSave,
+  onTypeChange,
+  onRegularityChange,
+  onWalletSelect,
+  onAmountChange,
+  onCurrencyChange,
+  onNotesChange,
 }: AddEntryModalProps) {
   const { t } = useI18n();
-  const backgroundColor = useThemeColor({}, "inputBackground");
-  const borderColor = useThemeColor({}, "inputBorder");
-  const textColor = useThemeColor({}, "text");
-  const placeholderColor = useThemeColor({}, "placeholder");
-  
-  const [type, setType] = useState<"send" | "receive">(
-    initialData?.type || "receive",
-  );
-  const [category, setCategory] = useState(initialData?.category || "salary");
-  const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
-  const [currency, setCurrency] = useState(initialData?.currency || "usd");
-  const [regularity, setRegularity] = useState(
-    initialData?.regularity || "monthly",
-  );
-  const [notes, setNotes] = useState(initialData?.notes || "");
 
-  const incomeCategories = ["salary", "freelance", "loan", "other"];
-  const savingsCategories = ["savings", "debt", "other"];
-  const currencies = ["usd", "eur", "nis"];
-  const regularities = ["daily", "weekly", "monthly", "yearly"];
-
-  const getCategoryLabel = (cat: string) => {
-    const key = `incomeSavings.categories.${cat}`;
-    return t(key as any) || cat;
-  };
-
-  const getRegularityLabel = (reg: string) => {
-    const key = `incomeSavings.${reg}`;
-    return t(key as any) || reg;
-  };
-
-  const handleSubmit = () => {
-    const amountNum = parseFloat(amount);
-    if (!isNaN(amountNum) && amountNum > 0) {
-      onSubmit({
-        type,
-        category,
-        amount: amountNum,
-        currency,
-        regularity,
-        notes,
-      });
-      handleClose();
+  const getSourceTypeLabel = (value: SourceType) => {
+    switch (value) {
+      case "salary":
+        return t("incomeSavings.categories.salary");
+      case "loan":
+        return t("incomeSavings.categories.loan");
+      case "freelance":
+        return t("incomeSavings.categories.freelance");
+      case "investment":
+        return t("incomeSavings.categories.investment");
+      default:
+        return t("incomeSavings.categories.other");
     }
   };
 
-  const handleClose = () => {
-    // Reset form if it's a new entry (no initial data)
-    if (!initialData) {
-      setType("receive");
-      setCategory("salary");
-      setAmount("");
-      setCurrency("usd");
-      setRegularity("monthly");
-      setNotes("");
+  const getRegularityLabel = (value: Regularity) => {
+    switch (value) {
+      case "daily":
+        return t("incomeSavings.daily");
+      case "weekly":
+        return t("incomeSavings.weekly");
+      case "yearly":
+        return t("incomeSavings.yearly");
+      default:
+        return t("incomeSavings.monthly");
     }
-    onClose();
   };
 
-  const categories = type === "receive" ? incomeCategories : savingsCategories;
-
-  if (!visible) return null;
+  const inputBg = isDark ? "rgba(255,255,255,0.06)" : "#F9FAFB";
+  const inputBorder = isDark ? "rgba(255,255,255,0.15)" : "#E5E7EB";
+  const inputColor = isDark ? "#FFFFFF" : "#111827";
+  const modalBg = isDark ? "#1F1B2E" : "#FFFFFF";
+  const pillBorder = isDark ? "rgba(255,255,255,0.2)" : "#E5E7EB";
+  const pillTextColor = isDark ? "rgba(255,255,255,0.75)" : "#6B7280";
+  const walletTextColor = isDark ? "#F3F4F6" : "#111827";
+  const cancelBorder = isDark ? "rgba(255,255,255,0.2)" : "#E5E7EB";
+  const cancelTextColor = isDark ? "rgba(255,255,255,0.78)" : "rgba(17,24,39,0.78)";
 
   return (
-    <ThemedView style={styles.overlay}>
-      <ThemedView style={styles.modal}>
-        <View style={styles.header}>
-          <ThemedText style={styles.title}>
-            {initialData
-              ? t("incomeSavings.editEntry")
-              : t("incomeSavings.addEntry")}
-          </ThemedText>
-          <Pressable onPress={handleClose}>
-            <MaterialIcons name="close" size={24} color="#6B7280" />
-          </Pressable>
-        </View>
-
-        <View style={styles.toggleContainer}>
-          <Pressable
-            style={[
-              styles.toggleButton,
-              type === "receive" && styles.activeToggle,
-            ]}
-            onPress={() => {
-              setType("receive");
-              setCategory("salary");
-            }}
-          >
-            <ThemedText
-              style={[
-                styles.toggleText,
-                type === "receive" && styles.activeToggleText,
-              ]}
-            >
-              {t("incomeSavings.income")}
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.toggleButton,
-              type === "send" && styles.activeToggle,
-            ]}
-            onPress={() => {
-              setType("send");
-              setCategory("savings");
-            }}
-          >
-            <ThemedText
-              style={[
-                styles.toggleText,
-                type === "send" && styles.activeToggleText,
-              ]}
-            >
-              {t("incomeSavings.savings")}
-            </ThemedText>
-          </Pressable>
-        </View>
-
-        <ScrollView 
-          style={styles.scrollView}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>
-                {t("incomeSavings.source")}
-              </ThemedText>
-              <View style={styles.pillContainer}>
-                {categories.map((cat) => (
-                  <Pressable
-                    key={cat}
-                    style={[styles.pill, category === cat && styles.selectedPill]}
-                    onPress={() => setCategory(cat)}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.pillText,
-                        category === cat && styles.selectedPillText,
-                      ]}
-                    >
-                      {getCategoryLabel(cat)}
-                    </ThemedText>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>
-                {t("incomeSavings.amount")}
-              </ThemedText>
-            <TextInput
-              style={[
-                styles.input,
-                { backgroundColor, borderColor, color: textColor }
-              ]}
-              value={amount}
-              onChangeText={setAmount}
-              placeholder="0.00"
-              placeholderTextColor={placeholderColor}
-              keyboardType="numeric"
-            />
-            </View>
-
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, styles.flexOne]}>
-                <ThemedText style={styles.label}>
-                  {t("incomeSavings.currency" as any)}
-                </ThemedText>
-                <View style={styles.pillContainer}>
-                  {currencies.map((curr) => (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.modalKeyboard}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={onClose} />
+          <View style={[styles.modalCard, { backgroundColor: modalBg }]}>
+            <ThemedText style={styles.modalTitle}>{t("incomeSavings.modal.addRegularSource")}</ThemedText>
+            <View style={styles.modalBody}>
+              <ScrollView
+                style={styles.modalScroll}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                nestedScrollEnabled
+                bounces={false}
+                overScrollMode="never"
+                scrollEventThrottle={16}
+                contentContainerStyle={styles.modalScrollContent}
+              >
+                <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.sourceType")}</ThemedText>
+                <View style={styles.pillsWrap}>
+                  {sourceTypes.map((item) => (
                     <Pressable
-                      key={curr}
+                      key={item}
                       style={[
                         styles.pill,
-                        currency === curr && styles.selectedPill,
+                        { borderColor: pillBorder },
+                        type === item && styles.pillSelected,
                       ]}
-                      onPress={() => setCurrency(curr)}
+                      onPress={() => {
+                        hapticSelection();
+                        onTypeChange(item);
+                      }}
                     >
                       <ThemedText
                         style={[
                           styles.pillText,
-                          currency === curr && styles.selectedPillText,
+                          { color: pillTextColor },
+                          type === item && styles.pillTextSelected,
                         ]}
                       >
-                        {curr.toUpperCase()}
+                        {getSourceTypeLabel(item)}
                       </ThemedText>
                     </Pressable>
                   ))}
                 </View>
-              </View>
 
-              <View style={[styles.inputGroup, styles.flexOne]}>
-                <ThemedText style={styles.label}>
-                  {t("incomeSavings.regularity" as any)}
-                </ThemedText>
-                <View style={styles.pillContainer}>
-                  {regularities.map((reg) => (
+                <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.wallet")}</ThemedText>
+                <View style={styles.walletList}>
+                  {walletOptions.map((wallet) => {
+                    const isSelected = selectedWalletSlot === wallet.slotKey;
+                    return (
+                      <Pressable
+                        key={wallet.slotKey}
+                        style={[
+                          styles.walletOption,
+                          { borderColor: pillBorder },
+                          isSelected && styles.walletOptionSelected,
+                        ]}
+                        onPress={() => {
+                          hapticSelection();
+                          onWalletSelect(wallet.slotKey);
+                        }}
+                      >
+                        <ThemedText style={[styles.walletOptionText, { color: walletTextColor }]}>
+                          {wallet.name}
+                        </ThemedText>
+                        {isSelected ? <MaterialIcons name="check-circle" size={18} color="#7C3AED" /> : null}
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.regularity")}</ThemedText>
+                <View style={styles.pillsWrap}>
+                  {regularityTypes.map((item) => (
                     <Pressable
-                      key={reg}
+                      key={item}
                       style={[
                         styles.pill,
-                        regularity === reg && styles.selectedPill,
+                        { borderColor: pillBorder },
+                        regularity === item && styles.pillSelected,
                       ]}
-                      onPress={() => setRegularity(reg)}
+                      onPress={() => {
+                        hapticSelection();
+                        onRegularityChange(item);
+                      }}
                     >
                       <ThemedText
                         style={[
                           styles.pillText,
-                          regularity === reg && styles.selectedPillText,
+                          { color: pillTextColor },
+                          regularity === item && styles.pillTextSelected,
                         ]}
                       >
-                        {getRegularityLabel(reg)}
+                        {getRegularityLabel(item)}
                       </ThemedText>
                     </Pressable>
                   ))}
                 </View>
-              </View>
+
+                <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.currency")}</ThemedText>
+                <View style={styles.pillsWrap}>
+                  {(selectedWalletCurrencies.length > 0
+                    ? selectedWalletCurrencies
+                    : ["usd", "eur", "nis"]
+                  ).map((item) => {
+                    const normalized = normalizeCurrencyCode(currency);
+                    return (
+                      <Pressable
+                        key={item}
+                        style={[
+                          styles.pill,
+                          { borderColor: pillBorder },
+                          normalized === item && styles.pillSelected,
+                        ]}
+                        onPress={() => {
+                          hapticSelection();
+                          onCurrencyChange(item);
+                        }}
+                      >
+                        <ThemedText
+                          style={[
+                            styles.pillText,
+                            { color: pillTextColor },
+                            normalized === item && styles.pillTextSelected,
+                          ]}
+                        >
+                          {item.toUpperCase()}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.amount")}</ThemedText>
+                <TextInput
+                  value={amount}
+                  onChangeText={onAmountChange}
+                  keyboardType="numeric"
+                  placeholder="0.00"
+                  placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "#9CA3AF"}
+                  style={[
+                    styles.input,
+                    { backgroundColor: inputBg, borderColor: inputBorder, color: inputColor },
+                  ]}
+                />
+
+                <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.notesOptional")}</ThemedText>
+                <TextInput
+                  value={notes}
+                  onChangeText={onNotesChange}
+                  placeholder={t("incomeSavings.modal.notesPlaceholder")}
+                  placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "#9CA3AF"}
+                  style={[
+                    styles.input,
+                    { backgroundColor: inputBg, borderColor: inputBorder, color: inputColor },
+                  ]}
+                />
+              </ScrollView>
             </View>
 
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>
-                {t("incomeSavings.notes")}
-              </ThemedText>
-            <TextInput
-              style={[
-                styles.input,
-                styles.textArea,
-                { backgroundColor, borderColor, color: textColor }
-              ]}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder={t("incomeSavings.notes")}
-              placeholderTextColor={placeholderColor}
-              multiline
-            />
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.cancelBtn, { borderColor: cancelBorder }]}
+                onPress={() => {
+                  hapticTap();
+                  onClose();
+                }}
+              >
+                <View style={styles.actionRow}>
+                  <MaterialIcons name="close" size={16} color={cancelTextColor} />
+                  <ThemedText style={[styles.cancelText, { color: cancelTextColor }]}> 
+                    {t("common.cancel")}
+                  </ThemedText>
+                </View>
+              </Pressable>
+              <Pressable
+                style={styles.saveBtn}
+                disabled={saving}
+                onPress={() => {
+                  hapticTap();
+                  onSave();
+                }}
+              >
+                <View style={styles.actionRow}>
+                  <MaterialIcons
+                    name={saving ? "hourglass-top" : "add-circle-outline"}
+                    size={16}
+                    color="#FFFFFF"
+                  />
+                  <ThemedText style={styles.saveText}>
+                    {saving ? t("incomeSavings.modal.saving") : t("incomeSavings.modal.saveAndAddBalance")}
+                  </ThemedText>
+                </View>
+              </Pressable>
             </View>
           </View>
-        </ScrollView>
-
-        <GradientButton
-          label={initialData ? t("common.save") : t("common.add")}
-          onPress={handleSubmit}
-          style={styles.submitButton}
-        />
-      </ThemedView>
-    </ThemedView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-    zIndex: 1000,
+  modalKeyboard: {
+    flex: 1,
   },
-  modal: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 460,
+    borderRadius: 18,
+    padding: 20,
     maxHeight: "92%",
+    minHeight: 500,
+    backgroundColor: "#FFFFFF",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  toggleContainer: {
-    flexDirection: "row",
-    backgroundColor: "#EEF2FF",
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
-  },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  activeToggle: {
-    backgroundColor: "#7C3AED",
-  },
-  toggleText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#6B7280",
-  },
-  activeToggleText: {
-    color: "#FFFFFF",
-  },
-  scrollView: {
+  modalBody: {
     flex: 1,
   },
-  form: {
-    marginBottom: 20,
+  modalScroll: {
+    flex: 1,
   },
-  inputGroup: {
-    marginBottom: 16,
+  modalScrollContent: {
+    paddingBottom: 12,
+    flexGrow: 1,
   },
-  label: {
-    fontSize: 16,
+  modalTitle: {
+    fontSize: 19,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  modalLabel: {
+    fontSize: 14,
     fontWeight: "600",
+    marginTop: 12,
     marginBottom: 8,
+    opacity: 0.75,
   },
-  pillContainer: {
+  pillsWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
   pill: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 20,
-    paddingHorizontal: 16,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  selectedPill: {
-    backgroundColor: "#7C3AED",
+  pillSelected: {
+    borderColor: "#7C3AED",
+    backgroundColor: "rgba(124,58,237,0.1)",
   },
   pillText: {
-    fontSize: 14,
-    color: "#374151",
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#6B7280",
   },
-  selectedPillText: {
-    color: "#FFFFFF",
+  pillTextSelected: {
+    color: "#7C3AED",
+  },
+  walletList: {
+    gap: 8,
+  },
+  walletOption: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
+    padding: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  walletOptionSelected: {
+    borderColor: "#7C3AED",
+    backgroundColor: "rgba(124,58,237,0.08)",
+  },
+  walletOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111827",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     fontSize: 16,
   },
-  textArea: {
-    height: 80,
-    textAlignVertical: "top",
-  },
-  row: {
+  modalButtons: {
     flexDirection: "row",
-    gap: 16,
+    gap: 10,
+    marginTop: 16,
   },
-  flexOne: {
+  cancelBtn: {
     flex: 1,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  submitButton: {
-    marginTop: 10,
+  cancelText: {
+    fontSize: 15,
+    fontWeight: "600",
+    opacity: 0.7,
+  },
+  saveBtn: {
+    flex: 2,
+    borderRadius: 12,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#7C3AED",
+  },
+  saveText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
   },
 });

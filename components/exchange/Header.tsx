@@ -20,7 +20,7 @@ interface HeaderProps {
   onCurrencyChange?: (currency: string) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
+const Header = ({
   baseCurrency,
   onRefresh,
   refreshing,
@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
   onWalletChange,
   walletCurrencies = [],
   onCurrencyChange,
-}) => {
+}: HeaderProps) => {
   const spinValue = useRef(new Animated.Value(0)).current;
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);

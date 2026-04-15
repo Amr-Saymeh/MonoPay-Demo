@@ -64,15 +64,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: t("explore"),
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
-          ),
-        }}
-      />
+      
       <Tabs.Screen
         name="wallets"
         options={{
@@ -93,15 +85,6 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="transfer"
-        options={{
-          title: t("transfer"),
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="arrow.left.arrow.right" color={color} />
-          ),
-        }}
-      />
 
       <Tabs.Screen
         name="settings"
