@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 
 import { Link, useRouter } from "expo-router";
 import {
@@ -8,6 +8,8 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  findNodeHandle,
+  type TextInput,
 } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -45,6 +47,29 @@ export default function SignupDetailsScreen() {
 
   const [securePin, setSecurePin] = useState(true);
   const [secureConfirm, setSecureConfirm] = useState(true);
+
+  const scrollRef = useRef<ScrollView>(null);
+  const firstNameRef = useRef<TextInput>(null);
+  const lastNameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
+  const phoneRef = useRef<TextInput>(null);
+  const pinRef = useRef<TextInput>(null);
+  const confirmPinRef = useRef<TextInput>(null);
+  const addressRef = useRef<TextInput>(null);
+  const identityNumberRef = useRef<TextInput>(null);
+
+  const scrollToField = (fieldRef: React.RefObject<TextInput | null>) => {
+    const node = findNodeHandle(fieldRef.current);
+    if (!node) return;
+
+    requestAnimationFrame(() => {
+      (scrollRef.current as any)?.scrollResponderScrollNativeHandleToKeyboard?.(
+        node,
+        96,
+        true,
+      );
+    });
+  };
 
   const canContinue = useMemo(() => {
     return (
@@ -110,13 +135,17 @@ export default function SignupDetailsScreen() {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
       >
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={[
             styles.content,
             { paddingBottom: Math.max(60, insets.bottom + 24) },
           ]}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
         >
           <Animated.View
             entering={FadeInDown.duration(450)}
@@ -133,60 +162,105 @@ export default function SignupDetailsScreen() {
             style={styles.form}
           >
             <AuthInput
+              ref={firstNameRef}
               value={firstName}
               onChangeText={setFirstName}
               placeholder={t("firstName")}
               autoCapitalize="words"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(firstNameRef)}
+              onSubmitEditing={() => lastNameRef.current?.focus()}
             />
             <AuthInput
+              ref={lastNameRef}
               value={lastName}
               onChangeText={setLastName}
               placeholder={t("lastName")}
               autoCapitalize="words"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(lastNameRef)}
+              onSubmitEditing={() => emailRef.current?.focus()}
             />
             <AuthInput
+              ref={emailRef}
               value={email}
               onChangeText={setEmail}
               placeholder={t("email")}
               keyboardType="email-address"
+              textContentType="emailAddress"
+              autoCorrect={false}
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(emailRef)}
+              onSubmitEditing={() => phoneRef.current?.focus()}
             />
 
             <AuthInput
+              ref={phoneRef}
               value={phone}
               onChangeText={setPhone}
               placeholder={t("phone")}
               keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(phoneRef)}
+              onSubmitEditing={() => pinRef.current?.focus()}
             />
 
             <AuthInput
+              ref={pinRef}
               value={pin}
               onChangeText={setPin}
               placeholder={t("pin")}
               secureTextEntry={securePin}
               onToggleSecure={() => setSecurePin((s) => !s)}
               keyboardType="number-pad"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(pinRef)}
+              onSubmitEditing={() => confirmPinRef.current?.focus()}
             />
 
             <AuthInput
+              ref={confirmPinRef}
               value={confirmPin}
               onChangeText={setConfirmPin}
               placeholder={t("confirmPin")}
               secureTextEntry={secureConfirm}
               onToggleSecure={() => setSecureConfirm((s) => !s)}
               keyboardType="number-pad"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(confirmPinRef)}
+              onSubmitEditing={() => addressRef.current?.focus()}
             />
 
             <AuthInput
+              ref={addressRef}
               value={address}
               onChangeText={setAddress}
               placeholder={t("address")}
               autoCapitalize="sentences"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onFocus={() => scrollToField(addressRef)}
+              onSubmitEditing={() => identityNumberRef.current?.focus()}
             />
             <AuthInput
+              ref={identityNumberRef}
               value={identityNumber}
               onChangeText={setIdentityNumber}
               placeholder={t("idNumber")}
               keyboardType="number-pad"
+              returnKeyType="done"
+              onFocus={() => scrollToField(identityNumberRef)}
+              onSubmitEditing={() => {
+                if (!canContinue) return;
+                onContinue();
+              }}
             />
 
             <GradientButton
