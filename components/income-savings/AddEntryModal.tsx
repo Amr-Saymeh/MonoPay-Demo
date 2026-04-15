@@ -114,6 +114,20 @@ export function AddEntryModal({
   const walletTextColor = isDark ? "#F3F4F6" : "#111827";
   const cancelBorder = isDark ? "rgba(255,255,255,0.2)" : "#E5E7EB";
   const cancelTextColor = isDark ? "rgba(255,255,255,0.78)" : "rgba(17,24,39,0.78)";
+  const currencyOptions = React.useMemo(() => {
+    const rawCurrencies =
+      selectedWalletCurrencies.length > 0
+        ? selectedWalletCurrencies
+        : ["usd", "eur", "nis"];
+
+    return Array.from(
+      new Set(
+        rawCurrencies
+          .map((item) => normalizeCurrencyCode(item))
+          .filter(Boolean),
+      ),
+    );
+  }, [selectedWalletCurrencies]);
 
   return (
     <Modal
@@ -227,10 +241,7 @@ export function AddEntryModal({
 
                 <ThemedText style={styles.modalLabel}>{t("incomeSavings.modal.currency")}</ThemedText>
                 <View style={styles.pillsWrap}>
-                  {(selectedWalletCurrencies.length > 0
-                    ? selectedWalletCurrencies
-                    : ["usd", "eur", "nis"]
-                  ).map((item) => {
+                  {currencyOptions.map((item) => {
                     const normalized = normalizeCurrencyCode(currency);
                     return (
                       <Pressable
