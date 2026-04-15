@@ -64,7 +64,13 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="create" options={{ href: null }} />
+      <Tabs.Screen
+        name="create"
+        options={{
+          href: null,
+          tabBarStyle: { display: "none" },
+        }}
+      />
       <Tabs.Screen name="goals" options={{ href: null }} />
       <Tabs.Screen name="income-savings" options={{ href: null }} />
       <Tabs.Screen name="wallets" options={{ href: null }} />
