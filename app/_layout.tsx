@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 import "../global.css";
 
 import {
