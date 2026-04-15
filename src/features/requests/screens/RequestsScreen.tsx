@@ -17,6 +17,7 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useI18n } from "@/hooks/use-i18n";
+import { NotificationModal } from "@/src/features/transfer/components/NotificationModal";
 import { WalletPicker } from "@/src/features/transfer/components/WalletPicker";
 import { useUserWallets } from "@/src/features/transfer/hooks/useUserWallets";
 import {
@@ -93,6 +94,7 @@ export default function RequestsScreen() {
   const [activeTab, setActiveTab] = useState<"received" | "sent">("received");
   const [actionLoading, setActionLoading] = useState(false);
 
+  const [notif, setNotif] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [approveItem, setApproveItem] = useState<MoneyRequestItem | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
 
@@ -141,9 +143,9 @@ export default function RequestsScreen() {
     setApproveItem(null);
     setSelectedSlot(null);
     if (result.success) {
-      Alert.alert("", s.success);
+      setNotif({ type: "success", msg: s.success });
     } else {
-      Alert.alert("", s.error);
+      setNotif({ type: "error", msg: s.error });
     }
   };
 
@@ -162,8 +164,8 @@ export default function RequestsScreen() {
             item.id,
           );
           setActionLoading(false);
-          if (result.success) Alert.alert("", s.success);
-          else Alert.alert("", s.error);
+          if (result.success) setNotif({ type: "success", msg: s.success });
+          else setNotif({ type: "error", msg: s.error });
         },
       },
     ]);
@@ -190,9 +192,9 @@ export default function RequestsScreen() {
               [`users/${item.toUserId}/moneyRequests/${item.id}/decidedAt`]:
                 now,
             });
-            Alert.alert("", s.success);
+            setNotif({ type: "success", msg: s.success });
           } catch {
-            Alert.alert("", s.error);
+            setNotif({ type: "error", msg: s.error });
           }
           setActionLoading(false);
         },
@@ -221,19 +223,24 @@ export default function RequestsScreen() {
               { flexDirection: isRtl ? "row-reverse" : "row" },
             ]}
           >
-            <TouchableOpacity
+            <Ionicons
+              name={isRtl ? "arrow-forward" : "arrow-back"}
+              size={24}
+              color="white"
               onPress={() => router.back()}
-              activeOpacity={0.7}
-              style={styles.backBtn}
+            />
+            <Text
+              style={[
+                styles.headerTitle,
+                {
+                  flex: 1,
+                  marginLeft: isRtl ? 0 : 10,
+                  marginRight: isRtl ? 10 : 0,
+                },
+              ]}
             >
-              <Ionicons
-                name={isRtl ? "chevron-forward" : "chevron-back"}
-                size={22}
-                color="white"
-              />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{s.title}</Text>
-            <View style={{ width: 40 }} />
+              {s.title}
+            </Text>
           </View>
 
           {/* ── Tab Bar ── */}
@@ -467,6 +474,14 @@ export default function RequestsScreen() {
           </View>
         )}
       </View>
+
+      <NotificationModal
+        visible={!!notif}
+        type={notif?.type ?? "success"}
+        message={notif?.msg ?? ""}
+        onDismiss={() => setNotif(null)}
+        language={language as "en" | "ar"}
+      />
     </GestureHandlerRootView>
   );
 }
@@ -481,19 +496,13 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "ios" ? 56 : 44,
     paddingBottom: 8,
     paddingHorizontal: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
   headerRow: {
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   headerTitle: {
     color: "white",

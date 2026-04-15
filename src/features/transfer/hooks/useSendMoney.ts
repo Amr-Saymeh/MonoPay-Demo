@@ -10,7 +10,7 @@ interface SendMoneyState {
 }
 
 interface UseSendMoneyResult extends SendMoneyState {
-  execute: (params: SendMoneyParams) => Promise<boolean>;
+  execute: (params: SendMoneyParams) => Promise<TransferError | null>;
   reset: () => void;
 }
 
@@ -21,17 +21,17 @@ export function useSendMoney(): UseSendMoneyResult {
     success: false,
   });
 
-  const execute = useCallback(async (params: SendMoneyParams): Promise<boolean> => {
+  const execute = useCallback(async (params: SendMoneyParams): Promise<TransferError | null> => {
     setState({ loading: true, error: null, success: false });
 
     const result = await sendMoney(params);
 
     if (result.success) {
       setState({ loading: false, error: null, success: true });
-      return true;
+      return null;
     } else {
       setState({ loading: false, error: result.error, success: false });
-      return false;
+      return result.error;
     }
   }, []);
 

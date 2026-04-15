@@ -144,6 +144,16 @@ type TranslationKey =
   | "spendingInsights"
   | "spendingInsightsSubtitle"
   | "transactions"
+  | "sendMoneyPage"
+  | "sendMoneySubtitle"
+  | "requestMoneyPage"
+  | "requestMoneySubtitle"
+  | "requestsPage"
+  | "requestsSubtitle"
+  | "scanQr"
+  | "scanQrSubtitle"
+  | "myQr"
+  | "myQrSubtitle"
   | "settingsSubtitle" // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
   | "changeLanguage" // اقتراح إضافي لزر تغيير اللغة
   | "next"
@@ -532,6 +542,16 @@ export const translations: Record<
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
     transactions: "Transactions",
+    sendMoneyPage: "Send Money",
+    sendMoneySubtitle: "Transfer funds to another user",
+    requestMoneyPage: "Request Money",
+    requestMoneySubtitle: "Request payment from someone",
+    requestsPage: "Requests",
+    requestsSubtitle: "Review sent and received requests",
+    scanQr: "Scan QR",
+    scanQrSubtitle: "Pay instantly by scanning a code",
+    myQr: "My QR",
+    myQrSubtitle: "Show your code to receive money",
     settingsSubtitle: "Manage your account preferences",
     changeLanguage: "Change Language",
     changePercent: " from last month",
@@ -918,6 +938,16 @@ export const translations: Record<
     spendingInsights: "الإحصائيات",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
     transactions: "المعاملات",
+    sendMoneyPage: "إرسال مال",
+    sendMoneySubtitle: "حوّل أموالاً لمستخدم آخر",
+    requestMoneyPage: "طلب مال",
+    requestMoneySubtitle: "اطلب دفعاً من شخص آخر",
+    requestsPage: "الطلبات",
+    requestsSubtitle: "مراجعة الطلبات الواردة والصادرة",
+    scanQr: "مسح QR",
+    scanQrSubtitle: "ادفع مباشرة من خلال مسح الرمز",
+    myQr: "QR الخاص بي",
+    myQrSubtitle: "اعرض رمزك لاستلام المال",
     settingsSubtitle: "إدارة تفضيلات حسابك",
     changeLanguage: "تغيير اللغة",
     changePercent: " من الشهر الماضي",

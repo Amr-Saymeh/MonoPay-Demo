@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -19,11 +19,11 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useI18n } from "@/hooks/use-i18n";
-import { useMoneyRequests } from "@/src/features/requests/hooks/useMoneyRequests";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { AmountInput } from "../components/AmountInput";
 import { CategoryPicker } from "../components/CategoryPicker";
 import { ConfirmBottomSheet } from "../components/ConfirmBottomSheet";
+import { NotificationModal } from "../components/NotificationModal";
 import {
   SegmentedControl,
   SegmentOption,
@@ -45,6 +45,9 @@ import {
 const TX_STRINGS = {
   en: {
     title: "Make a Transaction",
+    sendPageTitle: "Send Money",
+    requestPageTitle: "Request Money",
+    viewRequests: "View Requests",
     sendMoney: "Send",
     receiveMoney: "Request",
     amount: "Amount",
@@ -65,9 +68,6 @@ const TX_STRINGS = {
     successSend: "Money sent successfully!",
     successRequest: "Request sent! The payer will be notified.",
     fillRequired: "Please select a recipient and enter an amount.",
-    requests: "Requests",
-    payWithQR: "Pay with QR",
-    myQR: "My QR",
     errors: {
       INSUFFICIENT_FUNDS: "Insufficient funds in your wallet.",
       WALLET_INACTIVE: "Your wallet is inactive.",
@@ -80,6 +80,9 @@ const TX_STRINGS = {
   },
   ar: {
     title: "إجراء معاملة",
+    sendPageTitle: "إرسال المال",
+    requestPageTitle: "طلب المال",
+    viewRequests: "عرض الطلبات",
     sendMoney: "إرسال",
     receiveMoney: "طلب",
     amount: "المبلغ",
@@ -100,9 +103,6 @@ const TX_STRINGS = {
     successSend: "تم الإرسال بنجاح!",
     successRequest: "تم إرسال الطلب! سيتم إبلاغ الدافع.",
     fillRequired: "الرجاء اختيار مستلم وإدخال المبلغ.",
-    requests: "الطلبات",
-    payWithQR: "الدفع بـQR",
-    myQR: "رمز QR الخاص بي",
     errors: {
       INSUFFICIENT_FUNDS: "الرصيد غير كافٍ في محفظتك.",
       WALLET_INACTIVE: "محفظتك غير نشطة.",
@@ -123,22 +123,27 @@ const MAX_AMOUNT: Record<string, number> = {
 
 const MAX_NOTE_LENGTH = 150;
 
+// ─── Props ────────────────────────────────────────────────────────────────────
+interface MakeTransactionScreenProps {
+  fixedMode?: TransactionMode;
+  showRequestsButton?: boolean;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function MakeTransactionScreen() {
+export default function MakeTransactionScreen({
+  fixedMode,
+  showRequestsButton,
+}: MakeTransactionScreenProps = {}) {
   const { user } = useAuth();
   const CURRENT_USER_UID = user?.uid ?? "";
 
-  const { received } = useMoneyRequests(CURRENT_USER_UID);
-  const pendingCount = received.filter((r) => r.status === "pending").length;
-
-  const router = useRouter();
   const amountAnim = useRef(new Animated.Value(0)).current;
 
   const { language, isRtl } = useI18n();
   const s = TX_STRINGS[language as "en" | "ar"] ?? TX_STRINGS.en;
 
   // ── Mode ──────────────────────────────────────────────────────────────────
-  const [mode, setMode] = useState<TransactionMode>("send");
+  const [mode, setMode] = useState<TransactionMode>(fixedMode ?? "send");
 
   // ── Form state ────────────────────────────────────────────────────────────
   const [amount, setAmount] = useState("");
@@ -150,6 +155,7 @@ export default function MakeTransactionScreen() {
     null,
   );
   const [showConfirm, setShowConfirm] = useState(false);
+  const [notif, setNotif] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
   // ── Data & Actions ────────────────────────────────────────────────────────
   const {
@@ -264,7 +270,7 @@ export default function MakeTransactionScreen() {
   const handleSubmit = () => {
     const validationError = validateForm();
     if (validationError) {
-      Alert.alert("", validationError);
+      setNotif({ type: "error", msg: validationError });
       return;
     }
     setShowConfirm(true);
@@ -273,34 +279,32 @@ export default function MakeTransactionScreen() {
   // ── Confirm action from bottom sheet ─────────────────────────────────────
   const handleConfirm = async () => {
     const parsedAmount = parseFloat(amount);
-    let success = false;
 
-    if (mode === "send") {
-      success = await executeSend({
-        senderUid: CURRENT_USER_UID,
-        fromSlotKey: myWalletSlot!.slotKey,
-        receiverUid: selectedUser!.uid,
-        amount: parsedAmount,
-        currency,
-        category: category?.key ?? "other",
-        note,
-      });
-    } else {
-      success = await executeRequest({
-        requesterUid: CURRENT_USER_UID,
-        payerUid: selectedUser!.uid,
-        amount: parsedAmount,
-        currency,
-        category: category?.key ?? "other",
-        note,
-      });
-    }
+    const error =
+      mode === "send"
+        ? await executeSend({
+            senderUid: CURRENT_USER_UID,
+            fromSlotKey: myWalletSlot!.slotKey,
+            receiverUid: selectedUser!.uid,
+            amount: parsedAmount,
+            currency,
+            category: category?.key ?? "other",
+            note,
+          })
+        : await executeRequest({
+            requesterUid: CURRENT_USER_UID,
+            payerUid: selectedUser!.uid,
+            amount: parsedAmount,
+            currency,
+            category: category?.key ?? "other",
+            note,
+          });
 
-    if (success) {
+    if (!error) {
       setShowConfirm(false);
-      Alert.alert("", mode === "send" ? s.successSend : s.successRequest, [
-        { text: "OK", onPress: resetForm },
-      ]);
+      setNotif({ type: "success", msg: mode === "send" ? s.successSend : s.successRequest });
+    } else {
+      setNotif({ type: "error", msg: s.errors[error] ?? s.errors.UNKNOWN });
     }
   };
 
@@ -313,6 +317,13 @@ export default function MakeTransactionScreen() {
     { value: "send", label: s.sendMoney, icon: "➤" },
     { value: "receive", label: s.receiveMoney, icon: "📥" },
   ];
+
+  const pageTitle =
+    fixedMode === "send"
+      ? s.sendPageTitle
+      : fixedMode === "receive"
+        ? s.requestPageTitle
+        : s.title;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -332,35 +343,54 @@ export default function MakeTransactionScreen() {
               { flexDirection: isRtl ? "row-reverse" : "row" },
             ]}
           >
-            <Text style={styles.headerTitle}>{s.title}</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/requests")}
-              activeOpacity={0.7}
-              style={styles.requestsBtn}
+            {fixedMode && (
+              <Ionicons
+                name={isRtl ? "arrow-forward" : "arrow-back"}
+                size={24}
+                color="white"
+                onPress={() => router.back()}
+              />
+            )}
+            <Text
+              style={[
+                styles.headerTitle,
+                fixedMode
+                  ? {
+                      flex: 1,
+                      marginLeft: isRtl ? 0 : 10,
+                      marginRight: isRtl ? 10 : 0,
+                    }
+                  : undefined,
+              ]}
             >
-              <View>
-                <Ionicons name="notifications-outline" size={18} color="white" />
-                {pendingCount > 0 && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>
-                      {pendingCount > 99 ? "99+" : pendingCount}
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.requestsBtnText}>{s.requests}</Text>
-            </TouchableOpacity>
+              {pageTitle}
+            </Text>
+            {showRequestsButton && (
+              <TouchableOpacity
+                style={[
+                  styles.headerBtn,
+                  { flexDirection: isRtl ? "row-reverse" : "row" },
+                ]}
+                onPress={() => router.push("/requests")}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="list-outline" size={15} color="white" />
+                <Text style={styles.headerBtnText}>{s.viewRequests}</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
-          {/* ── Segmented Control inside header ── */}
-          <View style={styles.segmentWrapHeader}>
-            <SegmentedControl
-              options={segmentOptions}
-              value={mode}
-              onChange={handleModeChange}
-              isRtl={isRtl}
-            />
-          </View>
+          {/* ── Segmented Control inside header (hidden when mode is fixed) ── */}
+          {!fixedMode && (
+            <View style={styles.segmentWrapHeader}>
+              <SegmentedControl
+                options={segmentOptions}
+                value={mode}
+                onChange={handleModeChange}
+                isRtl={isRtl}
+              />
+            </View>
+          )}
         </LinearGradient>
 
         <KeyboardAvoidingView
@@ -537,36 +567,19 @@ export default function MakeTransactionScreen() {
           onCancel={() => setShowConfirm(false)}
         />
 
-        {/* ── Floating QR Bar ── */}
-        <View style={styles.qrBar}>
-          <TouchableOpacity
-            onPress={() => router.push("/my-qr")}
-            activeOpacity={0.8}
-            style={styles.qrBarBtn}
-          >
-            <View style={styles.qrBarIconWrap}>
-              <Ionicons name="qr-code-outline" size={20} color="#7C3AED" />
-            </View>
-            <Text style={styles.qrBarBtnText}>{s.myQR}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push("/scan-qr")}
-            activeOpacity={0.8}
-            style={styles.qrBarBtnPrimary}
-          >
-            <LinearGradient
-              colors={["#7C3AED", "#6D28D9"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.qrBarPrimaryGradient}
-            >
-              <Ionicons name="scan-outline" size={20} color="white" />
-              <Text style={styles.qrBarPrimaryText}>{s.payWithQR}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
       </View>
+
+      <NotificationModal
+        visible={!!notif}
+        type={notif?.type ?? "success"}
+        message={notif?.msg ?? ""}
+        onDismiss={() => {
+          const wasSuccess = notif?.type === "success";
+          setNotif(null);
+          if (wasSuccess) resetForm();
+        }}
+        language={language as "en" | "ar"}
+      />
     </GestureHandlerRootView>
   );
 }
@@ -677,37 +690,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 0.3,
   },
-  requestsBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  badge: {
-    position: "absolute",
-    top: -6,
-    right: -8,
-    backgroundColor: "#EF4444",
-    borderRadius: 10,
-    minWidth: 16,
-    height: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 3,
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 9,
-    fontWeight: "bold",
-  },
-  requestsBtnText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 13,
-  },
   scrollView: {
     flex: 1,
   },
@@ -765,6 +747,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 6,
   },
+  headerBtn: {
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.28)",
+  },
+  headerBtnText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 0.2,
+  },
   submitBtnGradient: {
     flexDirection: "row",
     alignItems: "center",
@@ -777,70 +775,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     color: "white",
-    letterSpacing: 0.3,
-  },
-  qrBar: {
-    flexDirection: "row",
-    gap: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    paddingBottom: Platform.OS === "ios" ? 28 : 12,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderTopColor: "rgba(124,58,237,0.06)",
-    shadowColor: "#7C3AED",
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: -4 },
-    elevation: 8,
-  },
-  qrBarBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    height: 50,
-    borderRadius: 16,
-    backgroundColor: "#F5F3FF",
-    borderWidth: 1,
-    borderColor: "#EDE9FE",
-  },
-  qrBarIconWrap: {
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  qrBarBtnText: {
-    color: "#7C3AED",
-    fontWeight: "700",
-    fontSize: 13,
-  },
-  qrBarBtnPrimary: {
-    flex: 1.5,
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#7C3AED",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-  qrBarPrimaryGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    height: 50,
-    borderRadius: 16,
-  },
-  qrBarPrimaryText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 14,
     letterSpacing: 0.3,
   },
 });
