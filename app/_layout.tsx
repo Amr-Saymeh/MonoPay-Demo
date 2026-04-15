@@ -21,6 +21,7 @@ import {
 } from "@expo-google-fonts/tajawal";
 
 import { ActivityIndicator, Text, TextInput, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider } from "@/src/providers/AuthProvider";
@@ -116,18 +117,20 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <ThemeModeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <SignupFlowProvider>
-              <FeaturesProvider>
-                <RootLayoutInner />
-              </FeaturesProvider>
-            </SignupFlowProvider>
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeModeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeModeProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <SignupFlowProvider>
+                <FeaturesProvider>
+                  <RootLayoutInner />
+                </FeaturesProvider>
+              </SignupFlowProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeModeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

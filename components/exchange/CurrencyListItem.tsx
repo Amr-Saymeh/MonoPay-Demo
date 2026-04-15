@@ -23,7 +23,7 @@ function getStableChange(currency: string): { pct: number; positive: boolean } {
   return { pct, positive };
 }
 
-const CurrencyListItem: React.FC<CurrencyListItemProps> = ({
+const CurrencyListItem = ({
   currency,
   rate,
   previousRate,
@@ -32,7 +32,7 @@ const CurrencyListItem: React.FC<CurrencyListItemProps> = ({
   balance,
   status,
   onPress,
-}) => {
+}: CurrencyListItemProps) => {
   const formattedRate = rate != null ? rate.toFixed(2) : '--';
 
   const change = useMemo(() => {
