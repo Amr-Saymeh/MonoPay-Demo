@@ -1,43 +1,44 @@
-import { MenuItem } from './types';
+import { MenuItem } from "./types";
 
 export const menuItems: MenuItem[] = [
   {
-    id: '1',
-    titleKey: 'myCards',
-    subtitleKey: 'myCardsSubtitle',
-    iconName: 'card-outline',
-    color: '#FF5722',
+    id: "1",
+    titleKey: "myCards",
+    subtitleKey: "myCardsSubtitle",
+    iconName: "card-outline",
+    color: "#FF5722",
     state: false,
-    route: '/wallets'
+    route: "/wallets",
   },
   {
-    id: '2',
-    titleKey: 'exchangeRates',
-    subtitleKey: 'exchangeRatesSubtitle',
-    iconName: 'trending-up-outline',
-    color: '#2196F3',
+    id: "2",
+    titleKey: "exchangeRates",
+    subtitleKey: "exchangeRatesSubtitle",
+    iconName: "trending-up-outline",
+    color: "#2196F3",
     state: false,
-    route: '/exchange'
+    route: "/exchange",
   },
   {
-    id: '3',
-    titleKey: 'spendingInsights',
-    subtitleKey: 'spendingInsightsSubtitle',
-    iconName: 'bar-chart-outline',
-    color: '#9C27B0',
+    id: "3",
+    titleKey: "spendingInsights",
+    subtitleKey: "spendingInsightsSubtitle",
+    iconName: "bar-chart-outline",
+    color: "#9C27B0",
     state: false,
-    route: '/SpendingInsights'
+    route: "/SpendingInsights",
   },
   {
-    id: '4',
-    titleKey: 'savingGoals',
+    id: "4",
+    titleKey: "savingGoals",
     subtitleKey: undefined,
-    iconName: 'wallet-outline',
-    color: '#4CAF50',
+    iconName: "wallet-outline",
+    color: "#4CAF50",
     state: false,
-    route: '/SavingGoals'
+    route: "/goals",
   },
   {
+
     id: '5',
     titleKey: 'sendMoneyPage',
     subtitleKey: 'sendMoneySubtitle',
@@ -81,33 +82,44 @@ export const menuItems: MenuItem[] = [
     color: '#14B8A6',
     state: false,
     route: '/my-qr'
-  },
-  {
-    id: '6',
-    titleKey: 'settings',
-    subtitleKey: 'settingsSubtitle',
-    iconName: 'settings-outline',
-    color: '#607D8B',
-    state: false,
-    route: '/settings'
-  },
+    },
   
-  {
-    id: '9',
-    titleKey: 'dailyPurchases',
-    subtitleKey: 'Spending Insights',
-    iconName: 'cart-outline',
-    color: '#FF4D6D',
+    {
+    id: "6",
+    titleKey: "regularSavings",
+    subtitleKey: "regularSavingsSubtitle",
+    iconName: "cash-outline",
+    color: "#27D3F5",
     state: false,
-    route: '/MainScreen_DailyPur'
+    route: "/income-savings",
+  },
+
+  {
+    id: "9",
+    titleKey: "settings",
+    subtitleKey: "settingsSubtitle",
+    iconName: "settings-outline",
+    color: "#607D8B",
+    state: false,
+    route: "/settings",
+  },
+
+  {
+    id: "8",
+    titleKey: "dailyPurchases",
+    subtitleKey: "Spending Insights",
+    iconName: "cart-outline",
+    color: "#FF4D6D",
+    state: false,
+    route: "/MainScreen_DailyPur",
   },
   {
-    id: '7',
-    titleKey: 'more',
+    id: "7",
+    titleKey: "more",
     subtitleKey: undefined,
-    iconName: 'ellipsis-horizontal',
-    color: '#00BCD4',
+    iconName: "ellipsis-horizontal",
+    color: "#00BCD4",
     state: true,
-    route: '/FeturesPage' 
+    route: "/FeturesPage",
   },
 ];

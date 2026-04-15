@@ -41,6 +41,7 @@ import {
   BackHandler,
   Easing,
   FlatList,
+  Platform,
   Pressable,
   StyleSheet,
   TextInput,
@@ -353,7 +354,7 @@ export default function IncomeSavingsScreen() {
       easing: Easing.in(Easing.cubic),
       useNativeDriver: true,
     }).start(() => {
-      router.replace("/(tabs)/HomePage" as any);
+      router.replace("/(tabs)/" as any);
     });
   }, [pageTransition, router]);
 
@@ -407,6 +408,15 @@ export default function IncomeSavingsScreen() {
   const searchBorder = isDark ? "rgba(196,181,253,0.25)" : "rgba(124,58,237,0.18)";
   const searchText = isDark ? "#F5F3FF" : "#1F2937";
   const searchPlaceholder = isDark ? "rgba(255,255,255,0.45)" : "#6B7280";
+  const floatingButtonBottom =
+    Platform.OS === "ios"
+      ? Math.max(insets.bottom + 100, 86)
+      : Math.max(insets.bottom + 88, 76);
+  const scrollBottomSpacing = floatingButtonBottom + 86;
+  const bottomSheetInset =
+    Platform.OS === "ios"
+      ? Math.max(insets.bottom + 74, 88)
+      : Math.max(insets.bottom + 64, 76);
 
   const sourceTypes: SourceType[] = ["salary", "loan", "freelance", "investment", "other"];
   const regularityTypes: Regularity[] = ["daily", "weekly", "monthly", "yearly"];
@@ -474,7 +484,7 @@ export default function IncomeSavingsScreen() {
           data={visibleSources}
           keyExtractor={(item) => item.id}
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomSpacing }]}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
           initialNumToRender={8}
@@ -542,7 +552,7 @@ export default function IncomeSavingsScreen() {
         />
 
         <Pressable
-          style={styles.fabAddButton}
+          style={[styles.fabAddButton, { bottom: floatingButtonBottom }]}
           onPress={handleOpenCreate}
           accessibilityRole="button"
           accessibilityLabel={t("common.add")}
@@ -581,6 +591,7 @@ export default function IncomeSavingsScreen() {
         ref={deleteSheetRef}
         snapPoints={deleteSheetSnapPoints}
         index={0}
+        bottomInset={bottomSheetInset}
         onDismiss={() => setPendingDeleteSource(null)}
         handleIndicatorStyle={[styles.sheetHandle, { backgroundColor: sheetHandle }]}
         backgroundStyle={[styles.sheetBackground, { backgroundColor: sheetBg }]}
@@ -631,6 +642,7 @@ export default function IncomeSavingsScreen() {
         actionLabel={t("common.confirm")}
         titleIcon={successIcon}
         actionIcon="check-circle"
+        bottomInset={bottomSheetInset}
         onAction={() => successSheetRef.current?.dismiss()}
       />
 
@@ -724,7 +736,7 @@ const styles = StyleSheet.create({
   fabAddButton: {
     position: "absolute",
     right: 20,
-    bottom: 24,
+    zIndex: 1200,
     width: 58,
     height: 58,
     borderRadius: 29,

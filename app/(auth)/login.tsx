@@ -1,6 +1,8 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 
+import { useFocusEffect } from "@react-navigation/native";
 import { Link, useRouter } from "expo-router";
+import * as ScreenCapture from "expo-screen-capture";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -40,17 +42,24 @@ export default function LoginScreen() {
   const emailRef = useRef<TextInput>(null);
   const pinRef = useRef<TextInput>(null);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === "web") return;
+      void ScreenCapture.allowScreenCaptureAsync();
+    }, []),
+  );
+
   const scrollToField = (fieldRef: React.RefObject<TextInput | null>) => {
     const node = findNodeHandle(fieldRef.current);
     if (!node) return;
 
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       (scrollRef.current as any)?.scrollResponderScrollNativeHandleToKeyboard?.(
         node,
         96,
         true,
       );
-    });
+    }, Platform.OS === "android" ? 80 : 0);
   };
 
   const canSubmit = useMemo(
@@ -72,7 +81,7 @@ export default function LoginScreen() {
       <LanguageSwitch />
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
       >
         <ScrollView
