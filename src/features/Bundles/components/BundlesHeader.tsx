@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { BundlesStyles as styles } from '../styles';
 import { Ionicons } from '@expo/vector-icons';
-import { useI18n } from '@/hooks/use-i18n';           
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
+import { useI18n } from '@/hooks/use-i18n';
 
 interface BundlesHeaderProps {
     onCreateNew: () => void;
@@ -11,17 +12,20 @@ interface BundlesHeaderProps {
 
 export default function BundlesHeader({ onCreateNew, onBack }: BundlesHeaderProps) {
     const { t } = useI18n() as any;
+    const { colorScheme } = useThemeMode();
+    const isDark = colorScheme === 'dark';
+
     return (
         <View style={styles.headerContainer}>
             <View style={styles.headerRow}>
                 <Ionicons 
                     name="arrow-back" 
                     size={28} 
-                    color="#111" 
+                    color={isDark ? "#a78bfa" : "#111"} 
                     style={styles.backButton} 
                     onPress={onBack} 
                 />
-                <Text style={styles.headerTitle}>{t('myBundles')}</Text>
+                <Text style={[styles.headerTitle, isDark && styles.darkHeaderTitle]}>{t('myBundles')}</Text>
             </View>
             <Text style={styles.headerSubtitle}>
                 {t('bundlesSubtitle')}

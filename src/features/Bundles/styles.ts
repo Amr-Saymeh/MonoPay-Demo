@@ -27,11 +27,14 @@ export const BundlesStyles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: THEME.text,
-    marginLeft: 8,
-    marginTop: -12,
+   fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111',
+    marginLeft: -10,
+    marginBottom:10,
+    textAlign: 'left',
+    paddingHorizontal: 15,
+    paddingVertical: 1,
     
   },
   headerSubtitle: {
@@ -273,5 +276,31 @@ export const BundlesStyles = StyleSheet.create({
     fontSize: 16,
     color: THEME.secondaryText,
     fontStyle: 'italic',
+  },
+
+  // Dark Mode Unified Styles
+  darkBackground: {
+    backgroundColor: '#000',
+  },
+  darkText: {
+    color: '#ECEDEE',
+  },
+  darkSecondaryText: {
+    color: 'rgba(236, 237, 238, 0.6)',
+  },
+  darkCard: {
+    backgroundColor: '#0f0f14',
+    borderWidth: 0.5,
+    borderColor: 'rgba(255,255,255,0.1)',
+    shadowColor: '#6366f1',
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  whiteText: {
+    color: '#fff',
+  },
+  darkHeaderTitle: {
+    color: '#a78bfa',
   }
 });

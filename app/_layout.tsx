@@ -6,9 +6,8 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import "react-native-reanimated";
 import "../global.css";
 
 import {
@@ -26,13 +25,14 @@ import { ActivityIndicator, Text, TextInput, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider } from "@/src/providers/AuthProvider";
+import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
 import { LanguageProvider } from "@/src/providers/LanguageProvider";
 import { SignupFlowProvider } from "@/src/providers/SignupFlowProvider";
 import {
   ThemeModeProvider,
   useThemeMode,
 } from "@/src/providers/ThemeModeProvider";
-import { FeaturesProvider } from "@/src/providers/FeaturesProvider";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
@@ -49,8 +49,12 @@ const queryClient = new QueryClient({
   },
 });
 
+import SplashLoading from "@/src/features/home/components/SplashLoading";
+
 function RootLayoutInner() {
   const { colorScheme } = useThemeMode();
+  const [appReady, setAppReady] = React.useState(false);
+  const [splashVisible, setSplashVisible] = React.useState(true);
 
   const [fontsLoaded] = useFonts({
     Tajawal_200ExtraLight,
@@ -61,6 +65,16 @@ function RootLayoutInner() {
     Tajawal_800ExtraBold,
     Tajawal_900Black,
   });
+
+  useEffect(() => {
+    // Hide splash after minimum 2 seconds and fonts loaded
+    if (fontsLoaded) {
+      const timer = setTimeout(() => {
+        setSplashVisible(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [fontsLoaded]);
 
   useEffect(() => {
     if (!fontsLoaded) return;
@@ -84,17 +98,8 @@ function RootLayoutInner() {
     };
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return (
-      <SafeAreaProvider>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" />
-          <StatusBar style="auto" />
-        </View>
-      </SafeAreaProvider>
-    );
+  if (splashVisible || !fontsLoaded) {
+    return <SplashLoading />;
   }
 
   return (
@@ -111,7 +116,20 @@ function RootLayoutInner() {
           }}
         >
           <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              gestureEnabled: false,
+              fullScreenGestureEnabled: false,
+            }}
+          />
+          <Stack.Screen
+            name="category-suggestions"
+            options={{
+              gestureEnabled: false,
+              fullScreenGestureEnabled: false,
+            }}
+          />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen
             name="modal"

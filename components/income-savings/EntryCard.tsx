@@ -1,126 +1,172 @@
-// components/income-savings/EntryCard.tsx
+import React, { useRef } from "react";
+import { Animated, Pressable, StyleSheet, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { useI18n } from "@/hooks/use-i18n";
-import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import type { IncomeSource } from "@/src/services/incomeSources.service";
+import { hapticWarning } from "@/src/utils/haptics";
 
 interface EntryCardProps {
-  amount: number;
-  currency: string;
-  notes: string;
-  date: number;
-  type: "send" | "receive";
-  category: string;
-  onEdit: () => void;
-  onDelete: () => void;
+  item: IncomeSource;
+  cardBg: string;
+  cardBorder: string;
+  regularityTextColor: string;
+  onDelete: (item: IncomeSource) => void;
 }
 
-export function EntryCard({
-  amount,
-  currency,
-  notes,
-  date,
-  type,
-  category,
-  onEdit,
-  onDelete,
-}: EntryCardProps) {
+export function EntryCard({ item, cardBg, cardBorder, regularityTextColor, onDelete }: EntryCardProps) {
   const { t } = useI18n();
+  const shakeAnimation = useRef(new Animated.Value(0)).current;
+  const formattedAmount = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(item.amount || 0));
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString();
-  };
+  const sourceTypeLabel = (() => {
+    switch (item.type) {
+      case "salary":
+        return t("incomeSavings.categories.salary");
+      case "loan":
+        return t("incomeSavings.categories.loan");
+      case "freelance":
+        return t("incomeSavings.categories.freelance");
+      case "investment":
+        return t("incomeSavings.categories.investment");
+      default:
+        return t("incomeSavings.categories.other");
+    }
+  })();
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return `${amount.toFixed(2)} ${currency.toUpperCase()}`;
-  };
+  const regularityLabel = (() => {
+    switch (item.regularity) {
+      case "daily":
+        return t("incomeSavings.daily");
+      case "weekly":
+        return t("incomeSavings.weekly");
+      case "yearly":
+        return t("incomeSavings.yearly");
+      default:
+        return t("incomeSavings.monthly");
+    }
+  })();
 
-  const getCategoryLabel = (category: string) => {
-    const key = `incomeSavings.categories.${category}`;
-    return t(key as any) || category;
-  };
-
-  const getTypeLabel = (type: string) => {
-    const key = `incomeSavings.entryTypes.${type}`;
-    return t(key as any) || type;
+  const handleDeletePress = () => {
+    hapticWarning();
+    Animated.sequence([
+      Animated.timing(shakeAnimation, {
+        toValue: 12,
+        duration: 90,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: -12,
+        duration: 90,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: 8,
+        duration: 85,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: -8,
+        duration: 85,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: 0,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+    ]).start(() => onDelete(item));
   };
 
   return (
-    <ThemedView style={styles.card}>
-      <View style={styles.header}>
-        <View style={styles.typeBadge}>
-          <ThemedText style={styles.typeText}>{getTypeLabel(type)}</ThemedText>
+    <Animated.View
+      style={[
+        styles.sourceCard,
+        { backgroundColor: cardBg, borderColor: cardBorder },
+        { transform: [{ translateX: shakeAnimation }] },
+      ]}
+    >
+      <View style={styles.sourceHeader}>
+        <ThemedText style={styles.sourceTitle}>{sourceTypeLabel}</ThemedText>
+        <Pressable onPress={handleDeletePress} style={styles.sourceDelete}>
+          <MaterialIcons name="delete" size={24} color="#EF4444" />
+        </Pressable>
+      </View>
+
+      <ThemedText style={styles.sourceAmount}>
+        {formattedAmount} {String(item.currency || "usd").toUpperCase()}
+      </ThemedText>
+
+      <View style={styles.sourceMetaRow}>
+        <ThemedText style={styles.sourceMeta}>{t("incomeSavings.walletLabel")}: {item.walletName}</ThemedText>
+        <View style={styles.regularityPill}>
+          <ThemedText style={[styles.regularityPillText, { color: regularityTextColor }]}> 
+            {regularityLabel}
+          </ThemedText>
         </View>
-        <ThemedText style={styles.category}>
-          {getCategoryLabel(category)}
-        </ThemedText>
       </View>
 
-      <View style={styles.content}>
-        <ThemedText style={styles.amount}>
-          {formatCurrency(amount, currency)}
-        </ThemedText>
-        <ThemedText style={styles.date}>{formatDate(date)}</ThemedText>
-      </View>
-
-      {notes ? <ThemedText style={styles.notes}>{notes}</ThemedText> : null}
-    </ThemedView>
+      {!!item.notes && <ThemedText style={styles.sourceNotes}>{item.notes}</ThemedText>}
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+  sourceCard: {
+    borderWidth: 1,
+    borderColor: "rgba(124,58,237,0.25)",
+    borderRadius: 14,
+    padding: 14,
+    backgroundColor: "rgba(124,58,237,0.08)",
+    gap: 8,
   },
-  header: {
+  sourceHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
   },
-  typeBadge: {
-    backgroundColor: "#EDE9FE",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  typeText: {
-    fontSize: 12,
-    fontWeight: "600",
+  sourceTitle: {
+    fontSize: 13,
+    fontWeight: "700",
     color: "#7C3AED",
   },
-  category: {
-    fontSize: 14,
-    color: "#6B7280",
+  sourceDelete: {
+    padding: 4,
   },
-  content: {
+  sourceAmount: {
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  sourceMetaRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    gap: 10,
   },
-  amount: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1F2937",
+  sourceMeta: {
+    fontSize: 13,
+    opacity: 0.7,
+    flex: 1,
   },
-  date: {
-    fontSize: 14,
-    color: "#6B7280",
+  regularityPill: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "rgba(16,185,129,0.16)",
+    borderColor: "rgba(16,185,129,0.45)",
+    borderWidth: 1,
   },
-  notes: {
-    fontSize: 14,
-    color: "#374151",
-    fontStyle: "italic",
+  regularityPillText: {
+    color: "#065F46",
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  sourceNotes: {
+    fontSize: 12,
+    opacity: 0.7,
   },
 });

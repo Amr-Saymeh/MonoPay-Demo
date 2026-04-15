@@ -1,28 +1,37 @@
 import { SharedCard } from '@/src/features/card/SharedCard';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { get, ref, set } from 'firebase/database';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import {
-    CurrencySelectorModal,
-    ExchangeCard,
-    RateInfo,
-    StatusMessage,
-    WalletSelectorModal,
+  CurrencySelectorModal,
+  ExchangeCard,
+  RateInfo,
+  StatusMessage,
+  WalletSelectorModal,
 } from '../src/features/exchange/components';
 import { useExchangeRatesQuery, useWalletCurrencies, useWallets } from '../src/features/exchange/hooks';
 import {
-    denormalizeCurrency,
-    getAvailableToCurrencies,
-    normalizeCurrency,
+  denormalizeCurrency,
+  getAvailableToCurrencies,
+  normalizeCurrency,
 } from '../src/features/exchange/utils';
 import { db } from '../src/firebaseConfig';
 import { useAuth } from '../src/providers/AuthProvider';
+
 
 const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'NIS', 'JOD', 'EGP'];
 
 const Exchange: React.FC = () => {
   const { user } = useAuth();
+  const router = useRouter();
+  
+  const surfaceColor = useThemeColor({}, 'surface');
+  const borderColor = useThemeColor({}, 'border');
 
   const [selectedWalletId, setSelectedWalletId] = useState<number | null>(null);
   const [fromCurrency, setFromCurrency] = useState('USD');
@@ -170,24 +179,32 @@ const Exchange: React.FC = () => {
 
   if (walletsLoading || !selectedWallet) {
     return (
-      <View style={styles.loadingContainer}>
+      <ThemedView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6366f1" />
-      </View>
+      </ThemedView>
     );
   }
 
+
+
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Exchange</Text>
-        <TouchableOpacity onPress={() => setShowWalletModal(true)} style={styles.walletButton}>
-          <Text style={styles.walletEmoji}>{selectedWallet.emoji || '💳'}</Text>
-          <Text style={styles.walletName} numberOfLines={1}>
+    <ThemedView style={styles.container}>
+      <ThemedView style={[styles.header, { borderBottomColor: borderColor }]}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.push('/(tabs)')} style={[styles.homeButton, { backgroundColor: surfaceColor }]}>
+            <FontAwesome name="arrow-left" size={20} color="#6366f1" />
+          </TouchableOpacity>
+          <ThemedText style={styles.headerTitle}>Exchange</ThemedText>
+        </View>
+        <TouchableOpacity onPress={() => setShowWalletModal(true)} style={[styles.walletButton, { backgroundColor: surfaceColor }]}>
+          <ThemedText style={styles.walletEmoji}>{selectedWallet.emoji || '💳'}</ThemedText>
+          <ThemedText style={styles.walletName} numberOfLines={1}>
             {selectedWallet.name}
-          </Text>
+          </ThemedText>
           <FontAwesome name="chevron-down" size={12} color="#666" />
         </TouchableOpacity>
-      </View>
+      </ThemedView>
 
       <ScrollView
         style={styles.scrollView}
@@ -195,11 +212,11 @@ const Exchange: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ marginBottom: 16 }}>
-        <SharedCard
-         name={selectedWallet.name}
-         emoji={selectedWallet.emoji}
-         currencies={currencies}
-        />
+          <SharedCard
+            name={selectedWallet.name}
+            emoji={selectedWallet.emoji}
+            currencies={currencies}
+          />
         </View>
 
         <ExchangeCard
@@ -229,7 +246,7 @@ const Exchange: React.FC = () => {
           onPress={handleExchange}
           disabled={!isAmountValid || isLoading}
         >
-          <Text style={styles.exchangeButtonText}>Exchange</Text>
+          <ThemedText style={styles.exchangeButtonText}>Exchange</ThemedText>
         </TouchableOpacity>
       </ScrollView>
 
@@ -266,7 +283,7 @@ const Exchange: React.FC = () => {
         }}
         onClose={() => setShowToCurrencyModal(false)}
       />
-    </View>
+    </ThemedView>
   );
 };
 
@@ -275,11 +292,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
   },
   header: {
     flexDirection: 'row',
@@ -288,19 +303,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   walletButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -312,8 +328,14 @@ const styles = StyleSheet.create({
   walletName: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#334155',
     maxWidth: 100,
+  },
+  homeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollView: {
     flex: 1,

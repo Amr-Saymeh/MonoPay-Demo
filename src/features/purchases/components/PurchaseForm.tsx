@@ -2,9 +2,10 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, I18nManager, Keyboard, Animated } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { useI18n } from "@/hooks/use-i18n";
-import { FormStyles as styles, ToastStyles as toastStyles } from '../styles';
+import { FormStyles as styles, ToastStyles as toastStyles, DarkThemeStyles } from '../styles';
 import { CATEGORIES } from '../constants';
 import { PurchaseFormProps, ToastProps, Currency } from '../types';
+import { useThemeMode } from '@/src/providers/ThemeModeProvider';
 
 function Toast({ visible, message }: ToastProps) {
   const opacity = useMemo(() => new Animated.Value(0), []);
@@ -40,13 +41,15 @@ export default function PurchaseForm({
   selectedCurrency,
 }: PurchaseFormProps) {
   const { t, locale } = useI18n() as any;
+  const { colorScheme } = useThemeMode();
+  const isDark = colorScheme === 'dark';
   const isRtl = locale === 'ar' || I18nManager.isRTL;
 
   return (
     <View style={styles.container}>
       <Toast visible={visibleToast} message={t('purchaseAdded')} />
 
-      <Text style={[styles.label, isRtl && { textAlign: 'right' }]}>{t('addNewPurchase')}</Text>
+      <Text style={[styles.label, isRtl && { textAlign: 'right' }, isDark && DarkThemeStyles.darkLabel]}>{t('addNewPurchase')}</Text>
 
       <View style={styles.inputWrapper}>
         <Controller
@@ -127,7 +130,7 @@ export default function PurchaseForm({
         />
       </View>
 
-      <Text style={[styles.categoryTitle, isRtl && { textAlign: 'right' }]}>{t('category')}</Text>
+      <Text style={[styles.categoryTitle, isRtl && { textAlign: 'right' }, isDark && DarkThemeStyles.darkLabel]}>{t('category')}</Text>
       <Controller
         control={control}
         name="category"
