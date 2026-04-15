@@ -1,29 +1,39 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
-    ActivityIndicator,
-    Alert,
-    Pressable,
-    StyleSheet,
-    View,
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  View
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { useI18n } from "@/hooks/use-i18n";
 import { useSignup } from "@/hooks/use-signup-flow";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export default function IdScanScreen() {
-  const { t } = useI18n();
+  const { t, isRtl } = useI18n();
   const router = useRouter();
   const { setIdentityImageUri } = useSignup();
+  const insets = useSafeAreaInsets();
+
+  const surface = useThemeColor({}, "surface");
+  const border = useThemeColor({}, "border");
+  const surfacePressed = useThemeColor({}, "surfacePressed");
+  const textColor = useThemeColor({}, "text");
 
   const cameraRef = useRef<CameraView | null>(null);
+  const requestedPermissionRef = useRef(false);
   const [permission, requestPermission] = useCameraPermissions();
 
   const [capturing, setCapturing] = useState(false);
@@ -32,11 +42,13 @@ export default function IdScanScreen() {
   const hasPermission = permission?.granted;
 
   const onCapture = async () => {
-    if (!cameraRef.current) return;
+    if (!cameraRef.current || capturing) return;
     setCapturing(true);
     try {
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.85,
+        quality: 0.7,
+        exif: false,
+        skipProcessing: true,
         base64: false,
       });
       setPhotoUri(photo.uri);
@@ -52,13 +64,47 @@ export default function IdScanScreen() {
     [photoUri],
   );
 
+  const askPermission = useCallback(async () => {
+    requestedPermissionRef.current = true;
+    await requestPermission();
+  }, [requestPermission]);
+
+  useEffect(() => {
+    if (!permission || permission.granted || !permission.canAskAgain) return;
+    if (requestedPermissionRef.current) return;
+    void askPermission();
+  }, [askPermission, permission]);
+
   const onUse = () => {
     if (!photoUri) return;
     setIdentityImageUri(photoUri);
     router.push("/(auth)/selfie" as any);
   };
 
-  if (!permission) return null;
+  const onBack = () => {
+    if ((router as any).canGoBack?.()) {
+      router.back();
+      return;
+    }
+    router.replace("/(auth)/signup-details" as any);
+  };
+
+  if (!permission) {
+    return (
+      <ThemedView style={styles.permission}>
+        <Animated.View
+          entering={FadeInDown.duration(300)}
+          style={styles.permissionCard}
+        >
+          <ActivityIndicator size="small" color={border} />
+          <ThemedText style={styles.permissionText}>
+            {t("cameraPermissionNeeded")}
+          </ThemedText>
+          <GradientButton label={t("continue")} onPress={() => void askPermission()} />
+        </Animated.View>
+      </ThemedView>
+    );
+  }
 
   if (!hasPermission) {
     return (
@@ -73,7 +119,7 @@ export default function IdScanScreen() {
           </ThemedText>
           <GradientButton
             label={t("continue")}
-            onPress={() => void requestPermission()}
+            onPress={() => void askPermission()}
           />
         </Animated.View>
       </ThemedView>
@@ -83,7 +129,19 @@ export default function IdScanScreen() {
   return (
     <ThemedView style={styles.screen}>
       <View style={styles.topText}>
-        <Animated.View entering={FadeInDown.duration(450)}>
+        <View style={styles.topRow}>
+          <Pressable
+            onPress={onBack}
+            style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
+          >
+            <MaterialIcons
+              name={isRtl ? "arrow-forward" : "arrow-back"}
+              size={22}
+              color={textColor}
+            />
+          </Pressable>
+        </View>
+        <Animated.View entering={FadeInDown.duration(450)} style={styles.topCopy}>
           <ThemedText type="subtitle" style={styles.title}>
             {t("scanYourId")}
           </ThemedText>
@@ -108,6 +166,7 @@ export default function IdScanScreen() {
             ref={(r) => {
               cameraRef.current = r;
             }}
+            active={!photoUri}
             style={styles.camera}
             facing="back"
           >
@@ -123,41 +182,42 @@ export default function IdScanScreen() {
         )}
       </View>
 
-      <View style={styles.actions}>
+      <View style={[styles.actions, { paddingBottom: 30 + insets.bottom }]}>
         {photoUri ? (
           <View style={styles.row}>
             <Pressable
               onPress={() => setPhotoUri(null)}
               style={({ pressed }) => [
                 styles.secondary,
+                { backgroundColor: pressed ? surfacePressed : surface, borderColor: border },
                 pressed ? styles.pressed : null,
               ]}
             >
-              <ThemedText type="defaultSemiBold">{t("retake")}</ThemedText>
+              <MaterialIcons name="refresh" size={18} color={textColor} />
+              <ThemedText
+                type="defaultSemiBold"
+                style={styles.secondaryLabel}
+                numberOfLines={1}
+              >
+                {t("retake")}
+              </ThemedText>
             </Pressable>
             <GradientButton
               label={t("usePhoto")}
               onPress={onUse}
               disabled={!canUse}
-              style={{ flex: 1 }}
+              iconName="check-circle"
+              style={styles.inlinePrimary}
             />
           </View>
         ) : (
-          <Pressable
+          <GradientButton
+            label={t("capture")}
             onPress={onCapture}
-            style={({ pressed }) => [
-              styles.capture,
-              pressed ? styles.pressed : null,
-            ]}
-          >
-            {capturing ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <ThemedText type="defaultSemiBold" style={styles.captureText}>
-                {t("capture")}
-              </ThemedText>
-            )}
-          </Pressable>
+            iconName="photo-camera"
+            style={styles.capturePrimary}
+            loading={capturing}
+          />
         )}
       </View>
     </ThemedView>
@@ -171,6 +231,20 @@ const styles = StyleSheet.create({
   topText: {
     paddingTop: 64,
     paddingHorizontal: 24,
+  },
+  topRow: {
+    marginBottom: 10,
+  },
+  topCopy: {
+    paddingRight: 8,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-start",
   },
   title: {
     fontSize: 22,
@@ -236,34 +310,44 @@ const styles = StyleSheet.create({
   actions: {
     padding: 16,
     paddingBottom: 30,
-  },
-  capture: {
-    height: 56,
-    borderRadius: 16,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#6D28D9",
   },
-  captureText: {
-    color: "#fff",
+  capturePrimary: {
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "stretch",
+  },
+  inlinePrimary: {
+    flex: 1,
+    minHeight: 58,
   },
   pressed: {
-    opacity: 0.88,
+    transform: [{ scale: 0.99 }],
   },
   row: {
     flexDirection: "row",
     gap: 12,
-    alignItems: "center",
+    alignItems: "stretch",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
   },
   secondary: {
-    height: 52,
-    paddingHorizontal: 18,
-    borderRadius: 14,
+    flex: 1,
+    minHeight: 58,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(17, 24, 28, 0.06)",
+    flexDirection: "row",
     borderWidth: 1,
-    borderColor: "rgba(17, 24, 28, 0.08)",
+    gap: 8,
+  },
+  secondaryLabel: {
+    textAlign: "center",
+    flexShrink: 1,
   },
   previewWrap: {
     flex: 1,
