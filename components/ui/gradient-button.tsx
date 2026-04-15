@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -42,7 +42,15 @@ export function GradientButton({
         ) : (
           <View style={styles.contentRow}>
             {iconName ? <MaterialIcons name={iconName} size={18} color="#FFFFFF" /> : null}
-            <ThemedText type="defaultSemiBold" style={styles.label}>{label}</ThemedText>
+            <ThemedText
+              type="defaultSemiBold"
+              style={styles.label}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
+              {label}
+            </ThemedText>
           </View>
         )}
       </LinearGradient>
@@ -52,10 +60,11 @@ export function GradientButton({
 
 const styles = StyleSheet.create({
   gradient: {
-    height: 52,
-    borderRadius: 14,
+    height: 56,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 14,
   },
   label: {
     color: '#fff',
@@ -66,6 +75,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    width: "100%",
+    paddingHorizontal: 8,
   },
   pressed: {
     transform: [{ scale: 0.99 }],
