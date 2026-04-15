@@ -1,9 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { ref, update } from "firebase/database";
 import React, { useRef, useState } from "react";
 import {
   Alert,
   Animated,
   FlatList,
+  Platform,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -17,21 +23,18 @@ import {
   approveRequest,
   rejectRequest,
 } from "@/src/features/transfer/services/transferService";
+import { CURRENCY_SYMBOLS } from "@/src/features/transfer/types";
 import { db } from "@/src/firebaseConfig";
-import { ref, update } from "firebase/database";
+import { useAuth } from "@/src/providers/AuthProvider";
 
 import { RequestCard } from "../components/RequestCard";
 import { MoneyRequestItem, useMoneyRequests } from "../hooks/useMoneyRequests";
-import { useAuth } from "@/src/providers/AuthProvider";
-
-// ─── TODO: replace with Firebase Auth ────────────────────────────────────────
-
 
 const STRINGS = {
   en: {
     title: "Requests",
-    received: "Received 🔔",
-    sent: "Sent 📤",
+    received: "Received",
+    sent: "Sent",
     emptyReceived: "No requests received",
     emptySent: "No requests sent",
     emptySubReceived:
@@ -47,13 +50,16 @@ const STRINGS = {
     rejectMsg: (name: string) => `Reject payment request from ${name}?`,
     cancelTitle: "Cancel Request",
     cancelMsg: "Cancel this money request?",
-    success: "Done! ✅",
+    success: "Done!",
     error: "Something went wrong. Please try again.",
+    balance: "Your balance",
+    required: "Required",
+    insufficientBalance: "Insufficient balance in this wallet",
   },
   ar: {
     title: "الطلبات",
-    received: "واردة 🔔",
-    sent: "صادرة 📤",
+    received: "واردة",
+    sent: "صادرة",
     emptyReceived: "لا توجد طلبات واردة",
     emptySent: "لا توجد طلبات صادرة",
     emptySubReceived: "عندما يطلب منك أحد مالاً ستظهر هنا.",
@@ -68,13 +74,15 @@ const STRINGS = {
     rejectMsg: (name: string) => `رفض طلب المال من ${name}؟`,
     cancelTitle: "إلغاء الطلب",
     cancelMsg: "إلغاء هذا الطلب؟",
-    success: "تمّ! ✅",
+    success: "تمّ!",
     error: "حدث خطأ. حاول مرة أخرى.",
+    balance: "رصيدك الحالي",
+    required: "المطلوب",
+    insufficientBalance: "رصيد غير كافٍ في هذه المحفظة",
   },
 };
 
 export default function RequestsScreen() {
-
   const { user } = useAuth();
   const CURRENT_USER_UID = user?.uid ?? "";
 
@@ -85,7 +93,6 @@ export default function RequestsScreen() {
   const [activeTab, setActiveTab] = useState<"received" | "sent">("received");
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Approve bottom sheet state
   const [approveItem, setApproveItem] = useState<MoneyRequestItem | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
 
@@ -198,118 +205,97 @@ export default function RequestsScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={{ flex: 1, backgroundColor: "#7C3AED" }}>
-        {/* ── Header ── */}
-        <View
-          style={{
-            paddingTop: 56,
-            paddingBottom: 20,
-            paddingHorizontal: 24,
-            flexDirection: isRtl ? "row-reverse" : "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-            <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: 24 }}>
-              {isRtl ? "→" : "←"}
-            </Text>
-          </TouchableOpacity>
-          <Text style={{ color: "white", fontSize: 22, fontWeight: "bold" }}>
-            {s.title}
-          </Text>
-          <View style={{ width: 24 }} />
-        </View>
+      <View style={styles.root}>
+        <StatusBar barStyle="light-content" />
 
-        {/* ── Tab Bar ── */}
-        <View
-          style={{
-            flexDirection: isRtl ? "row-reverse" : "row",
-            marginHorizontal: 24,
-            marginBottom: 20,
-            backgroundColor: "rgba(255,255,255,0.15)",
-            borderRadius: 16,
-            padding: 4,
-          }}
+        {/* ── Gradient Header ── */}
+        <LinearGradient
+          colors={["#7C3AED", "#6D28D9", "#5B21B6"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
         >
-          {(["received", "sent"] as const).map((tab) => (
+          <View
+            style={[
+              styles.headerRow,
+              { flexDirection: isRtl ? "row-reverse" : "row" },
+            ]}
+          >
             <TouchableOpacity
-              key={tab}
-              onPress={() => switchTab(tab)}
-              activeOpacity={0.8}
-              style={{
-                flex: 1,
-                height: 40,
-                borderRadius: 13,
-                backgroundColor: activeTab === tab ? "white" : "transparent",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              onPress={() => router.back()}
+              activeOpacity={0.7}
+              style={styles.backBtn}
             >
-              <Text
-                style={{
-                  fontWeight: "700",
-                  fontSize: 14,
-                  color:
-                    activeTab === tab ? "#7C3AED" : "rgba(255,255,255,0.75)",
-                }}
-              >
-                {tab === "received" ? s.received : s.sent}
-              </Text>
+              <Ionicons
+                name={isRtl ? "chevron-forward" : "chevron-back"}
+                size={22}
+                color="white"
+              />
             </TouchableOpacity>
-          ))}
-        </View>
+            <Text style={styles.headerTitle}>{s.title}</Text>
+            <View style={{ width: 40 }} />
+          </View>
+
+          {/* ── Tab Bar ── */}
+          <View
+            style={[
+              styles.tabBar,
+              { flexDirection: isRtl ? "row-reverse" : "row" },
+            ]}
+          >
+            {(["received", "sent"] as const).map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  onPress={() => switchTab(tab)}
+                  activeOpacity={0.8}
+                  style={[
+                    styles.tabItem,
+                    isActive && styles.tabItemActive,
+                  ]}
+                >
+                  <Ionicons
+                    name={tab === "received" ? "arrow-down-circle-outline" : "arrow-up-circle-outline"}
+                    size={18}
+                    color={isActive ? "#7C3AED" : "rgba(255,255,255,0.7)"}
+                  />
+                  <Text
+                    style={[
+                      styles.tabText,
+                      isActive && styles.tabTextActive,
+                    ]}
+                  >
+                    {tab === "received" ? s.received : s.sent}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </LinearGradient>
 
         {/* ── Content ── */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#F5F3FF",
-            borderTopLeftRadius: 28,
-            borderTopRightRadius: 28,
-          }}
-        >
+        <View style={styles.contentContainer}>
           {loading ? (
-            <View
-              style={{
-                flex: 1,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ color: "#9CA3AF", fontSize: 16 }}>Loading...</Text>
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptySubText}>Loading...</Text>
             </View>
           ) : isEmpty ? (
-            <View
-              style={{
-                flex: 1,
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 40,
-              }}
-            >
-              <Text style={{ fontSize: 56, marginBottom: 16 }}>
-                {activeTab === "received" ? "🔔" : "📤"}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  color: "#1F2937",
-                  marginBottom: 8,
-                  textAlign: "center",
-                }}
-              >
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconWrap}>
+                <Ionicons
+                  name={activeTab === "received" ? "notifications-off-outline" : "paper-plane-outline"}
+                  size={48}
+                  color="#C4B5FD"
+                />
+              </View>
+              <Text style={styles.emptyTitle}>
                 {activeTab === "received" ? s.emptyReceived : s.emptySent}
               </Text>
-              <Text
-                style={{
-                  color: "#9CA3AF",
-                  textAlign: "center",
-                  lineHeight: 22,
-                }}
-              >
-                {activeTab === "received" ? s.emptySubReceived : s.emptySubSent}
+              <Text style={styles.emptySubText}>
+                {activeTab === "received"
+                  ? s.emptySubReceived
+                  : s.emptySubSent}
               </Text>
             </View>
           ) : (
@@ -317,7 +303,7 @@ export default function RequestsScreen() {
               <FlatList
                 data={data}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+                contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
                   <RequestCard
@@ -337,56 +323,21 @@ export default function RequestsScreen() {
 
         {/* ── Approve Bottom Sheet ── */}
         {approveItem && (
-          <View
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: "white",
-              borderTopLeftRadius: 28,
-              borderTopRightRadius: 28,
-              padding: 24,
-              shadowColor: "#000",
-              shadowOpacity: 0.2,
-              shadowRadius: 20,
-              elevation: 20,
-            }}
-          >
+          <View style={styles.approveSheet}>
             {/* Handle */}
-            <View style={{ alignItems: "center", marginBottom: 16 }}>
-              <View
-                style={{
-                  width: 40,
-                  height: 4,
-                  backgroundColor: "#E5E7EB",
-                  borderRadius: 2,
-                }}
-              />
+            <View style={styles.sheetHandle}>
+              <View style={styles.sheetHandleBar} />
             </View>
 
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "bold",
-                color: "#1F2937",
-                marginBottom: 6,
-              }}
-            >
-              {s.approveTitle}
-            </Text>
-            <Text style={{ color: "#6B7280", marginBottom: 20 }}>
+            <Text style={styles.approveTitle}>{s.approveTitle}</Text>
+            <Text style={styles.approveMsg}>
               {s.approveMsg(
                 approveItem.otherPartyName ?? "",
                 `${CURRENCY_SYMBOLS[approveItem.currancy] ?? ""}${approveItem.amount.toFixed(2)}`,
               )}
             </Text>
 
-            <Text
-              style={{ color: "#7C3AED", fontWeight: "600", marginBottom: 8 }}
-            >
-              {s.selectWallet}
-            </Text>
+            <Text style={styles.walletLabel}>{s.selectWallet}</Text>
             <WalletPicker
               label={s.selectWallet}
               placeholder={s.selectWallet}
@@ -397,112 +348,82 @@ export default function RequestsScreen() {
               isRtl={isRtl}
             />
 
-            {/* ── رصيد المحفظة المختارة ── */}
-            {selectedSlot &&
-              approveItem &&
-              (() => {
-                const currancy = approveItem.currancy;
-                const balance =
-                  selectedSlot.wallet?.currancies?.[currancy] ?? 0;
-                const hasEnough = balance >= approveItem.amount;
-                const symbol =
-                  CURRENCY_SYMBOLS[currancy] ?? currancy.toUpperCase();
+            {/* Balance info */}
+            {selectedSlot && approveItem && (() => {
+              const currancy = approveItem.currancy;
+              const balance =
+                selectedSlot.wallet?.currancies?.[currancy] ?? 0;
+              const hasEnough = balance >= approveItem.amount;
+              const symbol =
+                CURRENCY_SYMBOLS[currancy] ?? currancy.toUpperCase();
 
-                return (
-                  <>
-                    <View
-                      style={{
-                        marginTop: 12,
-                        padding: 12,
-                        borderRadius: 12,
-                        backgroundColor: hasEnough ? "#D1FAE5" : "#FEE2E2",
+              return (
+                <>
+                  <View
+                    style={[
+                      styles.balanceBar,
+                      {
+                        backgroundColor: hasEnough ? "#ECFDF5" : "#FEF2F2",
                         flexDirection: isRtl ? "row-reverse" : "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <View>
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            color: hasEnough ? "#059669" : "#DC2626",
-                            marginBottom: 2,
-                          }}
-                        >
-                          {language === "ar" ? "رصيدك الحالي" : "Your balance"}
-                        </Text>
-                        <Text
-                          style={{
-                            fontWeight: "bold",
-                            color: hasEnough ? "#059669" : "#DC2626",
-                          }}
-                        >
-                          {symbol}
-                          {balance.toFixed(2)}
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          alignItems: isRtl ? "flex-start" : "flex-end",
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            color: hasEnough ? "#059669" : "#DC2626",
-                            marginBottom: 2,
-                          }}
-                        >
-                          {language === "ar" ? "المطلوب" : "Required"}
-                        </Text>
-                        <Text
-                          style={{
-                            fontWeight: "bold",
-                            color: hasEnough ? "#059669" : "#DC2626",
-                          }}
-                        >
-                          {symbol}
-                          {approveItem.amount.toFixed(2)}
-                        </Text>
-                      </View>
-                    </View>
-                    {!hasEnough && (
+                      },
+                    ]}
+                  >
+                    <View>
                       <Text
-                        style={{
-                          color: "#DC2626",
-                          fontSize: 12,
-                          fontWeight: "600",
-                          textAlign: "center",
-                          marginTop: 6,
-                        }}
+                        style={[
+                          styles.balanceLabel,
+                          { color: hasEnough ? "#059669" : "#DC2626" },
+                        ]}
                       >
-                        {language === "ar"
-                          ? "⚠️ رصيد غير كافٍ في هذه المحفظة"
-                          : "⚠️ Insufficient balance in this wallet"}
+                        {s.balance}
                       </Text>
-                    )}
-                  </>
-                );
-              })()}
+                      <Text
+                        style={[
+                          styles.balanceAmount,
+                          { color: hasEnough ? "#059669" : "#DC2626" },
+                        ]}
+                      >
+                        {symbol}{balance.toFixed(2)}
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: isRtl ? "flex-start" : "flex-end" }}>
+                      <Text
+                        style={[
+                          styles.balanceLabel,
+                          { color: hasEnough ? "#059669" : "#DC2626" },
+                        ]}
+                      >
+                        {s.required}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.balanceAmount,
+                          { color: hasEnough ? "#059669" : "#DC2626" },
+                        ]}
+                      >
+                        {symbol}{approveItem.amount.toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                  {!hasEnough && (
+                    <Text style={styles.insufficientText}>
+                      {s.insufficientBalance}
+                    </Text>
+                  )}
+                </>
+              );
+            })()}
 
-            <View style={{ flexDirection: "row", gap: 12, marginTop: 20 }}>
+            {/* Action buttons */}
+            <View style={styles.approveActions}>
               <TouchableOpacity
                 onPress={() => {
                   setApproveItem(null);
                   setSelectedSlot(null);
                 }}
-                style={{
-                  flex: 1,
-                  height: 52,
-                  borderRadius: 14,
-                  backgroundColor: "#F3F4F6",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                style={styles.cancelActionBtn}
               >
-                <Text style={{ color: "#6B7280", fontWeight: "600" }}>
-                  {s.cancel}
-                </Text>
+                <Text style={styles.cancelActionText}>{s.cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={confirmApprove}
@@ -517,28 +438,30 @@ export default function RequestsScreen() {
                     return balance < approveItem.amount;
                   })()
                 }
-                style={{
-                  flex: 2,
-                  height: 52,
-                  borderRadius: 14,
-                  backgroundColor: "#7C3AED",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: (() => {
-                    if (actionLoading || !selectedSlot) return 0.6;
-                    const balance =
-                      selectedSlot.wallet?.currancies?.[
-                        approveItem?.currancy ?? ""
-                      ] ?? 0;
-                    return balance < (approveItem?.amount ?? 0) ? 0.6 : 1;
-                  })(),
-                }}
+                style={[
+                  styles.confirmActionBtn,
+                  {
+                    opacity: (() => {
+                      if (actionLoading || !selectedSlot) return 0.5;
+                      const balance =
+                        selectedSlot.wallet?.currancies?.[
+                          approveItem?.currancy ?? ""
+                        ] ?? 0;
+                      return balance < (approveItem?.amount ?? 0) ? 0.5 : 1;
+                    })(),
+                  },
+                ]}
               >
-                <Text
-                  style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
+                <LinearGradient
+                  colors={["#7C3AED", "#6D28D9"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.confirmGradient}
                 >
-                  {actionLoading ? "..." : s.confirm}
-                </Text>
+                  <Text style={styles.confirmActionText}>
+                    {actionLoading ? "..." : s.confirm}
+                  </Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
@@ -548,9 +471,200 @@ export default function RequestsScreen() {
   );
 }
 
-// ── Helper ────────────────────────────────────────────────────────────────────
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  nis: "₪",
-  usd: "$",
-  jod: "JD",
-};
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#F8F5FF",
+  },
+  headerGradient: {
+    paddingTop: Platform.OS === "ios" ? 56 : 44,
+    paddingBottom: 8,
+    paddingHorizontal: 20,
+  },
+  headerRow: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTitle: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "bold",
+    letterSpacing: 0.3,
+  },
+  tabBar: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderRadius: 16,
+    padding: 4,
+    marginBottom: 8,
+  },
+  tabItem: {
+    flex: 1,
+    height: 42,
+    borderRadius: 13,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  tabItemActive: {
+    backgroundColor: "white",
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  tabText: {
+    fontWeight: "700",
+    fontSize: 14,
+    color: "rgba(255,255,255,0.7)",
+  },
+  tabTextActive: {
+    color: "#7C3AED",
+  },
+  contentContainer: {
+    flex: 1,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: "#F8F5FF",
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 40,
+  },
+  emptyIconWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    backgroundColor: "#EDE9FE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptySubText: {
+    color: "#9CA3AF",
+    textAlign: "center",
+    lineHeight: 22,
+    fontSize: 14,
+  },
+  listContent: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  approveSheet: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: -8 },
+    elevation: 20,
+  },
+  sheetHandle: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sheetHandleBar: {
+    width: 40,
+    height: 4,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 2,
+  },
+  approveTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: 6,
+  },
+  approveMsg: {
+    color: "#6B7280",
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  walletLabel: {
+    color: "#7C3AED",
+    fontWeight: "600",
+    marginBottom: 8,
+    fontSize: 13,
+  },
+  balanceBar: {
+    marginTop: 12,
+    padding: 14,
+    borderRadius: 14,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  balanceLabel: {
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  balanceAmount: {
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  insufficientText: {
+    color: "#DC2626",
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: 6,
+  },
+  approveActions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 20,
+  },
+  cancelActionBtn: {
+    flex: 1,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelActionText: {
+    color: "#6B7280",
+    fontWeight: "600",
+  },
+  confirmActionBtn: {
+    flex: 2,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  confirmGradient: {
+    height: 52,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confirmActionText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});
