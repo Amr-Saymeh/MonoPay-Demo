@@ -16,6 +16,7 @@ type FeedbackBottomSheetProps = {
   actionIcon?: keyof typeof MaterialIcons.glyphMap;
   onAction: () => void;
   onDismiss?: () => void;
+  bottomInset?: number;
 };
 
 export function FeedbackBottomSheet({
@@ -28,6 +29,7 @@ export function FeedbackBottomSheet({
   actionIcon = "check",
   onAction,
   onDismiss,
+  bottomInset = 0,
 }: FeedbackBottomSheetProps) {
   const snapPoints = useMemo(() => ["34%"], []);
   const sheetBg = isDark ? "#181124" : "#FFFFFF";
@@ -40,6 +42,7 @@ export function FeedbackBottomSheet({
       ref={modalRef}
       snapPoints={snapPoints}
       index={0}
+      bottomInset={bottomInset}
       enablePanDownToClose
       onDismiss={onDismiss}
       handleIndicatorStyle={[styles.sheetHandle, { backgroundColor: sheetHandle }]}

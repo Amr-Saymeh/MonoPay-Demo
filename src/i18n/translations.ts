@@ -143,6 +143,8 @@ type TranslationKey =
   | "exchangeRatesSubtitle"
   | "spendingInsights"
   | "spendingInsightsSubtitle"
+  | "regularSavings"
+  | "regularSavingsSubtitle"
   | "transactions"
   | "sendMoneyPage"
   | "sendMoneySubtitle"
@@ -541,6 +543,8 @@ export const translations: Record<
     exchangeRatesSubtitle: "View real-time currency exchange rates",
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
+    regularSavings: "Regular Savings",
+    regularSavingsSubtitle: "Plan and track recurring savings",
     transactions: "Transactions",
     sendMoneyPage: "Send Money",
     sendMoneySubtitle: "Transfer funds to another user",
@@ -937,6 +941,8 @@ export const translations: Record<
     exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
     spendingInsights: "الإحصائيات",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
+    regularSavings: "الادخار المنتظم",
+    regularSavingsSubtitle: "خطط وتابع الادخار الدوري",
     transactions: "المعاملات",
     sendMoneyPage: "إرسال مال",
     sendMoneySubtitle: "حوّل أموالاً لمستخدم آخر",

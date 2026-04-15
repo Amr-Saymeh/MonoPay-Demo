@@ -1,6 +1,8 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useFocusEffect } from "@react-navigation/native";
 import { Link, useRouter } from "expo-router";
+import * as ScreenCapture from "expo-screen-capture";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -47,8 +49,10 @@ export default function SignupDetailsScreen() {
 
   const [securePin, setSecurePin] = useState(true);
   const [secureConfirm, setSecureConfirm] = useState(true);
+  const [continuing, setContinuing] = useState(false);
 
   const scrollRef = useRef<ScrollView>(null);
+  const continueLockRef = useRef(false);
   const firstNameRef = useRef<TextInput>(null);
   const lastNameRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
@@ -58,17 +62,24 @@ export default function SignupDetailsScreen() {
   const addressRef = useRef<TextInput>(null);
   const identityNumberRef = useRef<TextInput>(null);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === "web") return;
+      void ScreenCapture.allowScreenCaptureAsync();
+    }, []),
+  );
+
   const scrollToField = (fieldRef: React.RefObject<TextInput | null>) => {
     const node = findNodeHandle(fieldRef.current);
     if (!node) return;
 
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       (scrollRef.current as any)?.scrollResponderScrollNativeHandleToKeyboard?.(
         node,
         96,
         true,
       );
-    });
+    }, Platform.OS === "android" ? 80 : 0);
   };
 
   const canContinue = useMemo(() => {
@@ -94,6 +105,22 @@ export default function SignupDetailsScreen() {
   ]);
 
   const onContinue = () => {
+    if (continueLockRef.current || continuing) return;
+
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !email.trim() ||
+      !phone.trim() ||
+      !pin.trim() ||
+      !confirmPin.trim() ||
+      !address.trim() ||
+      !identityNumber.trim()
+    ) {
+      Alert.alert(t("error"), t("fillAllFields"));
+      return;
+    }
+
     if (!isValidEmail(email)) {
       Alert.alert(t("error"), t("invalidEmail"));
       return;
@@ -126,15 +153,26 @@ export default function SignupDetailsScreen() {
       identityNumber: identityNumber.trim(),
     });
 
+    continueLockRef.current = true;
+    setContinuing(true);
     router.push("/category-suggestions" as any);
   };
+
+  useEffect(() => {
+    if (!continuing) return;
+    const timer = setTimeout(() => {
+      continueLockRef.current = false;
+      setContinuing(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [continuing]);
 
   return (
     <ThemedView style={styles.screen}>
       <LanguageSwitch />
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
       >
         <ScrollView
@@ -257,16 +295,18 @@ export default function SignupDetailsScreen() {
               keyboardType="number-pad"
               returnKeyType="done"
               onFocus={() => scrollToField(identityNumberRef)}
-              onSubmitEditing={() => {
-                if (!canContinue) return;
-                onContinue();
-              }}
+              onSubmitEditing={onContinue}
             />
 
             <GradientButton
               label={t("continue")}
               onPress={onContinue}
-              disabled={!canContinue}
+              disabled={continuing}
+              style={
+                !canContinue || continuing
+                  ? { opacity: 0.6 }
+                  : undefined
+              }
             />
           </Animated.View>
 

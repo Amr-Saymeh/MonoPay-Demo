@@ -1,7 +1,7 @@
 // app/(tabs)/goals/create.tsx
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { FeedbackBottomSheet } from "@/components/ui/FeedbackBottomSheet";
+import { AppDialogModal } from "@/components/ui/AppDialogModal";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Fonts } from "@/constants/theme";
 import { useAuthSession } from "@/hooks/use-auth";
@@ -15,10 +15,6 @@ import {
   hapticTap,
 } from "@/src/utils/haptics";
 import { MaterialIcons } from "@expo/vector-icons";
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-} from "@gorhom/bottom-sheet";
 import {
   useFocusEffect,
   useIsFocused,
@@ -68,11 +64,9 @@ export default function CreateGoalScreen() {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [successVisible, setSuccessVisible] = useState(false);
   const [successTitle, setSuccessTitle] = useState("");
   const [successDescription, setSuccessDescription] = useState("");
-  const [successIcon, setSuccessIcon] =
-    useState<any>("check-circle");
-  const successSheetRef = useRef<BottomSheetModal>(null);
   const pageTransition = useRef(new Animated.Value(0)).current;
   const isLeavingRef = useRef(false);
   const defaultDatePickerStyles = useDefaultStyles();
@@ -212,8 +206,7 @@ export default function CreateGoalScreen() {
         hapticSuccess();
         setSuccessTitle(t("goals.goalUpdatedTitle"));
         setSuccessDescription(t("goals.updateSuccess"));
-        setSuccessIcon("edit");
-        requestAnimationFrame(() => successSheetRef.current?.present());
+        setSuccessVisible(true);
       } else {
         await set(ref(db, `wallets/${timestamp}`), {
           type: "goal",
@@ -238,8 +231,7 @@ export default function CreateGoalScreen() {
         hapticSuccess();
         setSuccessTitle(t("goals.goalCreatedTitle"));
         setSuccessDescription(t("goals.createSuccess"));
-        setSuccessIcon("add-circle");
-        requestAnimationFrame(() => successSheetRef.current?.present());
+        setSuccessVisible(true);
       }
     } catch (error) {
       hapticError();
@@ -545,7 +537,7 @@ export default function CreateGoalScreen() {
   );
 
   return (
-    <BottomSheetModalProvider>
+    <>
       <View
         style={[
           styles.safeArea,
@@ -579,337 +571,331 @@ export default function CreateGoalScreen() {
           ]}
         >
           <ThemedView style={styles.container}>
-            {/* Header */}
-            <View
-              style={[
-                styles.headerSection,
-                {
-                  backgroundColor: headerSurface,
-                  borderBottomColor: headerBorder,
-                },
-              ]}
-            >
-              <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                  <Pressable
-                    onPress={handleBack}
-                    style={[
-                      styles.backButton,
-                      isDark ? styles.backButtonDark : styles.backButtonLight,
-                    ]}
-                  >
-                    <MaterialIcons
-                      name="arrow-back"
-                      size={18}
-                      color={isDark ? "#C4B5FD" : "#7C3AED"}
-                    />
-                  </Pressable>
-                  <ThemedText style={styles.headerTitle}>
-                    {isEditing ? t("goals.editTitle") : t("goals.createTitle")}
-                  </ThemedText>
-                </View>
-              </View>
-            </View>
-
-            <ScrollView
-              style={styles.scroll}
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Live Preview Card */}
-              <LinearGradient
-                colors={["#A95EF1", "#7A48B7", "#3F568C"]}
-                start={{ x: 0.1, y: 0.25 }}
-                end={{ x: 0.9, y: 0.85 }}
-                style={styles.previewCard}
-              >
-                <MaterialIcons
-                  name="savings"
-                  size={28}
-                  color="rgba(255,255,255,0.82)"
-                />
-                <ThemedText
-                  style={styles.previewTitle}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                >
-                  {watchedTitle || t("goals.goalName")}
-                </ThemedText>
-                <ThemedText style={styles.previewSub}>
-                  {t("goals.targetAmount")}
-                </ThemedText>
-                <ThemedText style={styles.previewAmount}>
-                  {previewAmount}
-                </ThemedText>
-                {watchedTargetDate ? (
-                  <ThemedText style={styles.previewDate}>
-                    {new Date(watchedTargetDate).toLocaleDateString()}
-                  </ThemedText>
-                ) : null}
-
-                <View style={styles.previewCircleTop} />
-                <View style={styles.previewCircleBottom} />
-              </LinearGradient>
-
-              {/* Goal Name */}
-              <ThemedText style={styles.label}>
-                {t("goals.goalName")} *
-              </ThemedText>
-              <Controller
-                control={control}
-                name="title"
-                rules={{ required: t("required") }}
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.input,
-                      inputStyle,
-                      errors.title && styles.inputError,
-                    ]}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t("goals.titlePlaceholder")}
-                    placeholderTextColor={placeholder}
-                  />
-                )}
-              />
-              {errors.title && (
-                <ThemedText style={styles.errorText}>
-                  {errors.title.message}
-                </ThemedText>
-              )}
-
-              {/* Target Amount */}
-              <ThemedText style={styles.label}>
-                {t("goals.targetAmount")} *
-              </ThemedText>
-              <Controller
-                control={control}
-                name="targetAmount"
-                rules={{
-                  required: t("required"),
-                  validate: (v) => parseFloat(v) > 0 || t("invalidAmount"),
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.input,
-                      inputStyle,
-                      errors.targetAmount && styles.inputError,
-                    ]}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder="0.00"
-                    placeholderTextColor={placeholder}
-                    keyboardType="numeric"
-                  />
-                )}
-              />
-              {errors.targetAmount && (
-                <ThemedText style={styles.errorText}>
-                  {errors.targetAmount.message}
-                </ThemedText>
-              )}
-
-              {/* Current Amount */}
-              <ThemedText style={styles.label}>
-                {t("goals.currentAmount")}
-              </ThemedText>
-              <Controller
-                control={control}
-                name="currentAmount"
-                rules={{
-                  validate: (v) => {
-                    if (!v || v.trim() === "") return true;
-                    const currentNum = parseFloat(v);
-                    if (Number.isNaN(currentNum))
-                      return t("goals.invalidCurrentAmount");
-                    if (currentNum < 0) return t("goals.invalidCurrentAmount");
-
-                    const targetNum = parseFloat(watch("targetAmount"));
-                    if (!Number.isNaN(targetNum) && currentNum >= targetNum) {
-                      return t("goals.currentLessThanTarget");
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.input,
-                      inputStyle,
-                      errors.currentAmount && styles.inputError,
-                    ]}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder="0.00"
-                    placeholderTextColor={placeholder}
-                    keyboardType="numeric"
-                  />
-                )}
-              />
-              {errors.currentAmount && (
-                <ThemedText style={styles.errorText}>
-                  {errors.currentAmount.message}
-                </ThemedText>
-              )}
-
-              {/* Target Date */}
-              <ThemedText style={styles.label}>
-                {t("goals.targetDate")} *
-              </ThemedText>
-              <Controller
-                control={control}
-                name="targetDate"
-                rules={{ required: t("required") }}
-                render={({ field: { value } }) => (
-                  <Pressable
-                    onPress={() => {
-                      hapticSelection();
-                      setShowDatePicker((prev) => !prev);
-                    }}
-                    style={[
-                      styles.input,
-                      styles.dateRow,
-                      inputStyle,
-                      errors.targetDate && styles.inputError,
-                    ]}
-                  >
-                    <ThemedText
-                      style={{
-                        color: value ? inputColor : placeholder,
-                        fontSize: 16,
-                      }}
-                    >
-                      {value
-                        ? new Date(value).toLocaleDateString()
-                        : t("goals.datePlaceholder")}
-                    </ThemedText>
-                    <MaterialIcons
-                      name={showDatePicker ? "expand-less" : "calendar-today"}
-                      size={18}
-                      color={placeholder}
-                    />
-                  </Pressable>
-                )}
-              />
-              {showDatePicker ? (
-                <View
+          {/* Header */}
+          <View
+            style={[
+              styles.headerSection,
+              {
+                backgroundColor: headerSurface,
+                borderBottomColor: headerBorder,
+              },
+            ]}
+          >
+            <View style={styles.header}>
+              <View style={styles.headerLeft}>
+                <Pressable
+                  onPress={handleBack}
                   style={[
-                    styles.datePickerCard,
-                    {
-                      backgroundColor: isDark
-                        ? "rgba(124,58,237,0.12)"
-                        : "rgba(255,255,255,0.96)",
-                      borderColor: isDark
-                        ? "rgba(196,181,253,0.35)"
-                        : "rgba(124,58,237,0.18)",
-                    },
+                    styles.backButton,
+                    isDark ? styles.backButtonDark : styles.backButtonLight,
                   ]}
                 >
-                  <DateTimePicker
-                    mode="single"
-                    locale={language}
-                    date={
-                      watchedTargetDate
-                        ? new Date(watchedTargetDate)
-                        : new Date()
-                    }
-                    month={pickerMonth}
-                    year={pickerYear}
-                    minDate={todayStart}
-                    onMonthChange={(month) => setPickerMonth(month)}
-                    onYearChange={(year) => setPickerYear(year)}
-                    onChange={({ date }) => {
-                      if (!date) return;
-                      hapticSelection();
-                      const nextValue =
-                        date instanceof Date
-                          ? date.getTime()
-                          : new Date(date as string | number).getTime();
-                      setValue("targetDate", nextValue, {
-                        shouldValidate: true,
-                      });
-                      setShowDatePicker(false);
-                    }}
-                    styles={datePickerStyles}
-                    style={styles.datePicker}
-                    {...pickerSwipeResponder.panHandlers}
+                  <MaterialIcons
+                    name="arrow-back"
+                    size={18}
+                    color={isDark ? "#C4B5FD" : "#7C3AED"}
                   />
-                </View>
-              ) : null}
-              {errors.targetDate && (
-                <ThemedText style={styles.errorText}>
-                  {errors.targetDate.message}
+                </Pressable>
+                <ThemedText style={styles.headerTitle}>
+                  {isEditing ? t("goals.editTitle") : t("goals.createTitle")}
                 </ThemedText>
-              )}
-
-              {/* Currency */}
-              <ThemedText style={styles.label}>
-                {t("goals.currency")}
-              </ThemedText>
-              <Controller
-                control={control}
-                name="currency"
-                render={({ field: { value, onChange } }) => (
-                  <View style={styles.pillRow}>
-                    {CURRENCIES.map((curr) => (
-                      <Pressable
-                        key={curr}
-                        style={[
-                          styles.pill,
-                          { borderColor: pillBorder, backgroundColor: pillBg },
-                          value === curr && styles.pillSelected,
-                        ]}
-                        onPress={() => {
-                          hapticSelection();
-                          onChange(curr);
-                        }}
-                      >
-                        <ThemedText
-                          style={[
-                            styles.pillText,
-                            { color: pillTextColor },
-                            value === curr && styles.pillTextSelected,
-                          ]}
-                        >
-                          {curr.toUpperCase()}
-                        </ThemedText>
-                      </Pressable>
-                    ))}
-                  </View>
-                )}
-              />
-            </ScrollView>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <GradientButton
-                label={isEditing ? t("common.save") : t("common.add")}
-                iconName={isEditing ? "edit" : "add-circle-outline"}
-                onPress={handleSubmit(onSubmit)}
-                loading={loading}
-              />
+              </View>
             </View>
+          </View>
+
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Live Preview Card */}
+            <LinearGradient
+              colors={["#A95EF1", "#7A48B7", "#3F568C"]}
+              start={{ x: 0.1, y: 0.25 }}
+              end={{ x: 0.9, y: 0.85 }}
+              style={styles.previewCard}
+            >
+              <MaterialIcons
+                name="savings"
+                size={28}
+                color="rgba(255,255,255,0.82)"
+              />
+              <ThemedText
+                style={styles.previewTitle}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {watchedTitle || t("goals.goalName")}
+              </ThemedText>
+              <ThemedText style={styles.previewSub}>
+                {t("goals.targetAmount")}
+              </ThemedText>
+              <ThemedText style={styles.previewAmount}>
+                {previewAmount}
+              </ThemedText>
+              {watchedTargetDate ? (
+                <ThemedText style={styles.previewDate}>
+                  {new Date(watchedTargetDate).toLocaleDateString()}
+                </ThemedText>
+              ) : null}
+
+              <View style={styles.previewCircleTop} />
+              <View style={styles.previewCircleBottom} />
+            </LinearGradient>
+
+            {/* Goal Name */}
+            <ThemedText style={styles.label}>
+              {t("goals.goalName")} *
+            </ThemedText>
+            <Controller
+              control={control}
+              name="title"
+              rules={{ required: t("required") }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    inputStyle,
+                    errors.title && styles.inputError,
+                  ]}
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder={t("goals.titlePlaceholder")}
+                  placeholderTextColor={placeholder}
+                />
+              )}
+            />
+            {errors.title && (
+              <ThemedText style={styles.errorText}>
+                {errors.title.message}
+              </ThemedText>
+            )}
+
+            {/* Target Amount */}
+            <ThemedText style={styles.label}>
+              {t("goals.targetAmount")} *
+            </ThemedText>
+            <Controller
+              control={control}
+              name="targetAmount"
+              rules={{
+                required: t("required"),
+                validate: (v) => parseFloat(v) > 0 || t("invalidAmount"),
+              }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    inputStyle,
+                    errors.targetAmount && styles.inputError,
+                  ]}
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="0.00"
+                  placeholderTextColor={placeholder}
+                  keyboardType="numeric"
+                />
+              )}
+            />
+            {errors.targetAmount && (
+              <ThemedText style={styles.errorText}>
+                {errors.targetAmount.message}
+              </ThemedText>
+            )}
+
+            {/* Current Amount */}
+            <ThemedText style={styles.label}>
+              {t("goals.currentAmount")}
+            </ThemedText>
+            <Controller
+              control={control}
+              name="currentAmount"
+              rules={{
+                validate: (v) => {
+                  if (!v || v.trim() === "") return true;
+                  const currentNum = parseFloat(v);
+                  if (Number.isNaN(currentNum))
+                    return t("goals.invalidCurrentAmount");
+                  if (currentNum < 0) return t("goals.invalidCurrentAmount");
+
+                  const targetNum = parseFloat(watch("targetAmount"));
+                  if (!Number.isNaN(targetNum) && currentNum >= targetNum) {
+                    return t("goals.currentLessThanTarget");
+                  }
+                  return true;
+                },
+              }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    inputStyle,
+                    errors.currentAmount && styles.inputError,
+                  ]}
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="0.00"
+                  placeholderTextColor={placeholder}
+                  keyboardType="numeric"
+                />
+              )}
+            />
+            {errors.currentAmount && (
+              <ThemedText style={styles.errorText}>
+                {errors.currentAmount.message}
+              </ThemedText>
+            )}
+
+            {/* Target Date */}
+            <ThemedText style={styles.label}>
+              {t("goals.targetDate")} *
+            </ThemedText>
+            <Controller
+              control={control}
+              name="targetDate"
+              rules={{ required: t("required") }}
+              render={({ field: { value } }) => (
+                <Pressable
+                  onPress={() => {
+                    hapticSelection();
+                    setShowDatePicker((prev) => !prev);
+                  }}
+                  style={[
+                    styles.input,
+                    styles.dateRow,
+                    inputStyle,
+                    errors.targetDate && styles.inputError,
+                  ]}
+                >
+                  <ThemedText
+                    style={{
+                      color: value ? inputColor : placeholder,
+                      fontSize: 16,
+                    }}
+                  >
+                    {value
+                      ? new Date(value).toLocaleDateString()
+                      : t("goals.datePlaceholder")}
+                  </ThemedText>
+                  <MaterialIcons
+                    name={showDatePicker ? "expand-less" : "calendar-today"}
+                    size={18}
+                    color={placeholder}
+                  />
+                </Pressable>
+              )}
+            />
+            {showDatePicker ? (
+              <View
+                style={[
+                  styles.datePickerCard,
+                  {
+                    backgroundColor: isDark
+                      ? "rgba(124,58,237,0.12)"
+                      : "rgba(255,255,255,0.96)",
+                    borderColor: isDark
+                      ? "rgba(196,181,253,0.35)"
+                      : "rgba(124,58,237,0.18)",
+                  },
+                ]}
+              >
+                <DateTimePicker
+                  mode="single"
+                  locale={language}
+                  date={
+                    watchedTargetDate ? new Date(watchedTargetDate) : new Date()
+                  }
+                  month={pickerMonth}
+                  year={pickerYear}
+                  minDate={todayStart}
+                  onMonthChange={(month) => setPickerMonth(month)}
+                  onYearChange={(year) => setPickerYear(year)}
+                  onChange={({ date }) => {
+                    if (!date) return;
+                    hapticSelection();
+                    const nextValue =
+                      date instanceof Date
+                        ? date.getTime()
+                        : new Date(date as string | number).getTime();
+                    setValue("targetDate", nextValue, {
+                      shouldValidate: true,
+                    });
+                    setShowDatePicker(false);
+                  }}
+                  styles={datePickerStyles}
+                  style={styles.datePicker}
+                  {...pickerSwipeResponder.panHandlers}
+                />
+              </View>
+            ) : null}
+            {errors.targetDate && (
+              <ThemedText style={styles.errorText}>
+                {errors.targetDate.message}
+              </ThemedText>
+            )}
+
+            {/* Currency */}
+            <ThemedText style={styles.label}>{t("goals.currency")}</ThemedText>
+            <Controller
+              control={control}
+              name="currency"
+              render={({ field: { value, onChange } }) => (
+                <View style={styles.pillRow}>
+                  {CURRENCIES.map((curr) => (
+                    <Pressable
+                      key={curr}
+                      style={[
+                        styles.pill,
+                        { borderColor: pillBorder, backgroundColor: pillBg },
+                        value === curr && styles.pillSelected,
+                      ]}
+                      onPress={() => {
+                        hapticSelection();
+                        onChange(curr);
+                      }}
+                    >
+                      <ThemedText
+                        style={[
+                          styles.pillText,
+                          { color: pillTextColor },
+                          value === curr && styles.pillTextSelected,
+                        ]}
+                      >
+                        {curr.toUpperCase()}
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            />
+          </ScrollView>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <GradientButton
+              label={isEditing ? t("common.save") : t("common.add")}
+              iconName={isEditing ? "edit" : "add-circle-outline"}
+              onPress={handleSubmit(onSubmit)}
+              loading={loading}
+            />
+          </View>
           </ThemedView>
         </Animated.View>
       </View>
-
-      <FeedbackBottomSheet
-        modalRef={successSheetRef}
+      <AppDialogModal
+        visible={successVisible}
         isDark={isDark}
         title={successTitle}
         description={successDescription}
         actionLabel={t("common.confirm")}
-        titleIcon={successIcon}
-        actionIcon="check-circle"
-        onAction={() => {
-          successSheetRef.current?.dismiss();
-          handleBack();
+        icon="check-circle"
+        onClose={() => {
+          setSuccessVisible(false);
+          router.replace("/(tabs)/goals");
         }}
       />
-    </BottomSheetModalProvider>
+    </>
   );
 }
 

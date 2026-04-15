@@ -1,35 +1,35 @@
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
-    Alert,
-    Dimensions,
-    Keyboard,
-    LayoutChangeEvent,
-    Platform,
-    Pressable,
-    StyleSheet,
-    TextInput,
-    View,
+  Alert,
+  Dimensions,
+  Keyboard,
+  LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import Animated, {
-    FadeIn,
-    FadeInDown,
-    FadeInUp,
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -41,15 +41,15 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useSignup } from "@/hooks/use-signup-flow";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
-    DEFAULT_PRESELECTED,
-    getLocalizedSuggestions,
-    localizeCategoryList,
+  DEFAULT_PRESELECTED,
+  getLocalizedSuggestions,
+  localizeCategoryList,
 } from "@/src/features/categories/data";
 import {
-    normalizeCategoryName,
-    sameNormalizedSet,
-    sortCloudCategories,
-    uniqByNormalized,
+  normalizeCategoryName,
+  sameNormalizedSet,
+  sortCloudCategories,
+  uniqByNormalized,
 } from "@/src/features/categories/utils";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { updateUserProfile } from "@/src/services/user.service";
@@ -66,6 +66,11 @@ interface BubbleProps {
   scrollY: SharedValue<number>;
   containerHeight: number;
   disableFisheye?: boolean;
+  idleBubbleBg: string;
+  activeBubbleBg: string;
+  idleLabelColor: string;
+  activeLabelColor: string;
+  activeShadowColor: string;
 }
 
 function Bubble({
@@ -78,6 +83,11 @@ function Bubble({
   scrollY,
   containerHeight,
   disableFisheye,
+  idleBubbleBg,
+  activeBubbleBg,
+  idleLabelColor,
+  activeLabelColor,
+  activeShadowColor,
 }: BubbleProps) {
   const selectAnim = useSharedValue(selected ? 1 : 0);
   const pressScale = useSharedValue(1);
@@ -147,11 +157,21 @@ function Bubble({
       >
         <Animated.View style={bubbleStyle}>
           {selected ? (
-            <View style={[styles.bubble, styles.bubbleActive]}>
+            <View
+              style={[
+                styles.bubble,
+                styles.bubbleActive,
+                {
+                  backgroundColor: activeBubbleBg,
+                  shadowColor: activeShadowColor,
+                },
+              ]}
+            >
               <ThemedText
                 style={[
                   styles.bubbleLabel,
                   styles.bubbleLabelActive,
+                  { color: activeLabelColor },
                   isRtl && styles.rtlText,
                 ]}
               >
@@ -159,11 +179,14 @@ function Bubble({
               </ThemedText>
             </View>
           ) : (
-            <View style={[styles.bubble, styles.bubbleIdle]}>
+            <View
+              style={[styles.bubble, styles.bubbleIdle, { backgroundColor: idleBubbleBg }]}
+            >
               <ThemedText
                 style={[
                   styles.bubbleLabel,
                   styles.bubbleLabelIdle as any,
+                  { color: idleLabelColor },
                   isRtl && styles.rtlText,
                 ]}
               >
@@ -204,14 +227,30 @@ export default function CategorySuggestionsScreen() {
     { light: "#FFFFFF", dark: "rgba(255,255,255,0.08)" },
     "inputBackground",
   );
-  const primary = useThemeColor({ light: "#6200EE", dark: "#A78BFA" }, "tint");
+  const accent = useThemeColor({ light: "#6200EE", dark: "#A78BFA" }, "tint");
+  const accentStrong = useThemeColor(
+    { light: "#6200EE", dark: "#8B5CF6" },
+    "tint",
+  );
+  const chromeBorder = useThemeColor(
+    { light: "rgba(98,0,238,0.15)", dark: "rgba(167,139,250,0.34)" },
+    "border",
+  );
+  const surfaceSoft = useThemeColor(
+    { light: "rgba(232,222,248,0.45)", dark: "rgba(167,139,250,0.16)" },
+    "surface",
+  );
+  const closeBg = useThemeColor(
+    { light: "rgba(0,0,0,0.05)", dark: "rgba(255,255,255,0.12)" },
+    "surface",
+  );
+  const idleBubbleBg = isDark ? "rgba(167,139,250,0.2)" : "rgba(232,222,248,0.6)";
+  const idleBubbleText = isDark ? "#E9D5FF" : "#6200EE";
+  const activeBubbleBg = isDark ? "#8B5CF6" : "#6200EE";
+  const ctaShadow = isDark ? "rgba(139,92,246,0.65)" : "#6200EE";
   const placeholderColor = useThemeColor(
     { light: "#9CA3AF", dark: "rgba(255,255,255,0.4)" },
     "placeholder",
-  );
-  const avatarBg = useThemeColor(
-    { light: "#E0E7FF", dark: "#374151" },
-    "surface",
   );
 
   const localizedDefaults = useMemo(
@@ -304,12 +343,6 @@ export default function CategorySuggestionsScreen() {
   }, [language]);
 
   useEffect(() => {
-    if (isSettingsMode) return;
-    if (sameNormalizedSet(signup.categories, selected)) return;
-    signup.setCategories(selected);
-  }, [isSettingsMode, selected, signup]);
-
-  useEffect(() => {
     if (initializing) return;
     if (isSettingsMode && !profileLoaded) return;
     if (!user && !signup.details && !isSettingsMode) {
@@ -348,6 +381,9 @@ export default function CategorySuggestionsScreen() {
         : uniqByNormalized([...selected, name]);
 
       setSelected(newSelected);
+      if (!isSettingsMode) {
+        signup.setCategories(newSelected);
+      }
 
       // Save to RTDB immediately if user is signed in
       if (user) {
@@ -379,6 +415,9 @@ export default function CategorySuggestionsScreen() {
     }
 
     setSelected(newSelected);
+    if (!isSettingsMode) {
+      signup.setCategories(newSelected);
+    }
     setCustomName("");
     setAdding(false);
     Keyboard.dismiss();
@@ -431,7 +470,11 @@ export default function CategorySuggestionsScreen() {
       setSaving(true);
       try {
         await updateUserProfile(user.uid, { categories: selected });
-        router.back();
+        if ((router as any).canGoBack?.()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)/settings" as any);
+        }
       } catch (e) {
         Alert.alert(t("error"), e instanceof Error ? e.message : "Failed");
       } finally {
@@ -444,8 +487,16 @@ export default function CategorySuggestionsScreen() {
   }, [isSettingsMode, router, selected, signup, t, user]);
 
   const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
+    if ((router as any).canGoBack?.()) {
+      router.back();
+      return;
+    }
+    if (isSettingsMode) {
+      router.replace("/(tabs)/settings" as any);
+      return;
+    }
+    router.replace("/(auth)/signup-details" as any);
+  }, [isSettingsMode, router]);
 
   const avatarUri = profile?.personalImage;
   const ctaDisabled = adding && !customName.trim();
@@ -483,6 +534,9 @@ export default function CategorySuggestionsScreen() {
                 height: 40,
                 justifyContent: "center",
                 alignItems: "center",
+                borderWidth: 1,
+                borderColor: chromeBorder,
+                backgroundColor: surfaceSoft,
               },
               pressed && styles.pressed,
             ]}
@@ -520,12 +574,13 @@ export default function CategorySuggestionsScreen() {
                 justifyContent: "center",
                 alignItems: "center",
                 borderWidth: 1,
-                borderColor: "#6200EE",
+                borderColor: chromeBorder,
+                backgroundColor: surfaceSoft,
               },
               pressed && styles.pressed,
             ]}
           >
-            <MaterialIcons name="add" size={24} color="#6200EE" />
+            <MaterialIcons name="add" size={24} color={accent} />
           </Pressable>
         </View>
       </Animated.View>
@@ -540,11 +595,12 @@ export default function CategorySuggestionsScreen() {
             styles.searchBar,
             {
               backgroundColor: inputBg,
+              borderColor: chromeBorder,
               shadowColor: isDark ? "transparent" : "rgba(0,0,0,0.06)",
             },
           ]}
         >
-          <MaterialIcons name="search" size={22} color="#6200EE" />
+          <MaterialIcons name="search" size={22} color={accent} />
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -562,7 +618,7 @@ export default function CategorySuggestionsScreen() {
             onPress={() => setShowSelectedOnly((p) => !p)}
             style={({ pressed }) => [
               styles.filterBtn,
-              { backgroundColor: "#6200EE" },
+              { backgroundColor: accentStrong },
               pressed && styles.pressed,
             ]}
           >
@@ -619,6 +675,11 @@ export default function CategorySuggestionsScreen() {
                   scrollY={scrollY}
                   containerHeight={cloudHeight}
                   disableFisheye={query.length > 0}
+                  idleBubbleBg={idleBubbleBg}
+                  activeBubbleBg={activeBubbleBg}
+                  idleLabelColor={idleBubbleText}
+                  activeLabelColor="#FFFFFF"
+                  activeShadowColor={accentStrong}
                 />
               );
             })}
@@ -645,7 +706,13 @@ export default function CategorySuggestionsScreen() {
         {adding && (
           <Animated.View
             entering={FadeInUp.duration(200)}
-            style={[styles.customInputRow, { backgroundColor: inputBg }]}
+            style={[
+              styles.customInputRow,
+              {
+                backgroundColor: inputBg,
+                borderColor: chromeBorder,
+              },
+            ]}
           >
             <TextInput
               value={customName}
@@ -668,6 +735,7 @@ export default function CategorySuggestionsScreen() {
               }}
               style={({ pressed }) => [
                 styles.closeBtn,
+                { backgroundColor: closeBg },
                 pressed && styles.pressed,
               ]}
             >
@@ -686,12 +754,13 @@ export default function CategorySuggestionsScreen() {
           }}
           style={({ pressed }) => [
             styles.ctaWrap,
+            { shadowColor: ctaShadow },
             (adding ? ctaDisabled : saving) && styles.disabled,
             pressed && !(adding ? ctaDisabled : saving) && styles.pressed,
           ]}
         >
           <LinearGradient
-            colors={["#6200EE", "#5000D0"]}
+            colors={isDark ? ["#8B5CF6", "#6D28D9"] : ["#6200EE", "#5000D0"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.ctaBtn, isRtl && styles.ctaBtnRtl]}
@@ -741,6 +810,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 56,
     borderRadius: 28,
+    borderWidth: 1,
     paddingHorizontal: 18,
     paddingRight: 8,
     gap: 12,
@@ -821,6 +891,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 56,
     borderRadius: 28,
+    borderWidth: 1,
     paddingHorizontal: 20,
     gap: 12,
     marginBottom: 14,
