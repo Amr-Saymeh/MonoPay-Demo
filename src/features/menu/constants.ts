@@ -56,7 +56,7 @@ export const menuItems: MenuItem[] = [
     route: "/transfer",
   },
   {
-    id: "7",
+    id: "9",
     titleKey: "settings",
     subtitleKey: "settingsSubtitle",
     iconName: "settings-outline",
@@ -75,7 +75,7 @@ export const menuItems: MenuItem[] = [
     route: "/MainScreen_DailyPur",
   },
   {
-    id: "9",
+    id: "7",
     titleKey: "more",
     subtitleKey: undefined,
     iconName: "ellipsis-horizontal",
