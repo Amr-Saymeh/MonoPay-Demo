@@ -1,8 +1,8 @@
+import { ThemedText } from '@/components/themed-text';
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
+
 
 interface StatusMessageProps {
   error: string | null;

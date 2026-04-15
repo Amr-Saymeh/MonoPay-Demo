@@ -1,35 +1,35 @@
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
-    Alert,
-    Dimensions,
-    Keyboard,
-    LayoutChangeEvent,
-    Platform,
-    Pressable,
-    StyleSheet,
-    TextInput,
-    View,
+  Alert,
+  Dimensions,
+  Keyboard,
+  LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import Animated, {
-    FadeIn,
-    FadeInDown,
-    FadeInUp,
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -41,15 +41,15 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useSignup } from "@/hooks/use-signup-flow";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
-    DEFAULT_PRESELECTED,
-    getLocalizedSuggestions,
-    localizeCategoryList,
+  DEFAULT_PRESELECTED,
+  getLocalizedSuggestions,
+  localizeCategoryList,
 } from "@/src/features/categories/data";
 import {
-    normalizeCategoryName,
-    sameNormalizedSet,
-    sortCloudCategories,
-    uniqByNormalized,
+  normalizeCategoryName,
+  sameNormalizedSet,
+  sortCloudCategories,
+  uniqByNormalized,
 } from "@/src/features/categories/utils";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { updateUserProfile } from "@/src/services/user.service";
@@ -304,12 +304,6 @@ export default function CategorySuggestionsScreen() {
   }, [language]);
 
   useEffect(() => {
-    if (isSettingsMode) return;
-    if (sameNormalizedSet(signup.categories, selected)) return;
-    signup.setCategories(selected);
-  }, [isSettingsMode, selected, signup]);
-
-  useEffect(() => {
     if (initializing) return;
     if (isSettingsMode && !profileLoaded) return;
     if (!user && !signup.details && !isSettingsMode) {
@@ -348,6 +342,9 @@ export default function CategorySuggestionsScreen() {
         : uniqByNormalized([...selected, name]);
 
       setSelected(newSelected);
+      if (!isSettingsMode) {
+        signup.setCategories(newSelected);
+      }
 
       // Save to RTDB immediately if user is signed in
       if (user) {
@@ -379,6 +376,9 @@ export default function CategorySuggestionsScreen() {
     }
 
     setSelected(newSelected);
+    if (!isSettingsMode) {
+      signup.setCategories(newSelected);
+    }
     setCustomName("");
     setAdding(false);
     Keyboard.dismiss();
@@ -431,7 +431,11 @@ export default function CategorySuggestionsScreen() {
       setSaving(true);
       try {
         await updateUserProfile(user.uid, { categories: selected });
-        router.back();
+        if ((router as any).canGoBack?.()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)/settings" as any);
+        }
       } catch (e) {
         Alert.alert(t("error"), e instanceof Error ? e.message : "Failed");
       } finally {
@@ -444,8 +448,16 @@ export default function CategorySuggestionsScreen() {
   }, [isSettingsMode, router, selected, signup, t, user]);
 
   const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
+    if ((router as any).canGoBack?.()) {
+      router.back();
+      return;
+    }
+    if (isSettingsMode) {
+      router.replace("/(tabs)/settings" as any);
+      return;
+    }
+    router.replace("/(auth)/signup-details" as any);
+  }, [isSettingsMode, router]);
 
   const avatarUri = profile?.personalImage;
   const ctaDisabled = adding && !customName.trim();
