@@ -143,6 +143,8 @@ type TranslationKey =
   | "exchangeRatesSubtitle"
   | "spendingInsights"
   | "spendingInsightsSubtitle"
+  | "regularSavings"
+  | "regularSavingsSubtitle"
   | "transactions"
   | "settingsSubtitle" // ← أضيف هنا لحل مشكلة MenuList / FeaturesPage
   | "changeLanguage" // اقتراح إضافي لزر تغيير اللغة
@@ -531,6 +533,8 @@ export const translations: Record<
     exchangeRatesSubtitle: "View real-time currency exchange rates",
     spendingInsights: "Spending Insights",
     spendingInsightsSubtitle: "Track your spending by category",
+    regularSavings: "Regular Savings",
+    regularSavingsSubtitle: "Plan and track recurring savings",
     transactions: "Transactions",
     settingsSubtitle: "Manage your account preferences",
     changeLanguage: "Change Language",
@@ -917,6 +921,8 @@ export const translations: Record<
     exchangeRatesSubtitle: "عرض أسعار صرف العملات في الوقت الفعلي",
     spendingInsights: "الإحصائيات",
     spendingInsightsSubtitle: "تتبع إنفاقك حسب الفئة",
+    regularSavings: "الادخار المنتظم",
+    regularSavingsSubtitle: "خطط وتابع الادخار الدوري",
     transactions: "المعاملات",
     settingsSubtitle: "إدارة تفضيلات حسابك",
     changeLanguage: "تغيير اللغة",

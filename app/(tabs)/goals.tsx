@@ -14,7 +14,13 @@ import {
   normalizeCurrencyCode,
   subscribeUserGoals,
 } from "@/src/services/goals.service";
-import { hapticError, hapticSelection, hapticSuccess, hapticTap, hapticWarning } from "@/src/utils/haptics";
+import {
+  hapticError,
+  hapticSelection,
+  hapticSuccess,
+  hapticTap,
+  hapticWarning,
+} from "@/src/utils/haptics";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   BottomSheetBackdrop,
@@ -25,12 +31,19 @@ import {
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Alert,
   Animated,
   BackHandler,
   Easing,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -82,8 +95,10 @@ function sortGoals(goals: any[], key: SortKey, dir: SortDir): any[] {
         valB = b.goalTargetDate ?? 0;
         break;
       case "progress":
-        valA = a.goalTargetAmount > 0 ? a.currentAmount / a.goalTargetAmount : 0;
-        valB = b.goalTargetAmount > 0 ? b.currentAmount / b.goalTargetAmount : 0;
+        valA =
+          a.goalTargetAmount > 0 ? a.currentAmount / a.goalTargetAmount : 0;
+        valB =
+          b.goalTargetAmount > 0 ? b.currentAmount / b.goalTargetAmount : 0;
         break;
       case "targetAmount":
         valA = a.goalTargetAmount ?? 0;
@@ -138,20 +153,23 @@ export default function GoalsScreen() {
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const getSortOptionLabel = useCallback((key: SortKey) => {
-    switch (key) {
-      case "date":
-        return t("goals.targetDate");
-      case "progress":
-        return t("goals.sort.progress");
-      case "targetAmount":
-        return t("goals.targetAmount");
-      case "amountSaved":
-        return t("goals.sort.amountSaved");
-      default:
-        return "";
-    }
-  }, [t]);
+  const getSortOptionLabel = useCallback(
+    (key: SortKey) => {
+      switch (key) {
+        case "date":
+          return t("goals.targetDate");
+        case "progress":
+          return t("goals.sort.progress");
+        case "targetAmount":
+          return t("goals.targetAmount");
+        case "amountSaved":
+          return t("goals.sort.amountSaved");
+        default:
+          return "";
+      }
+    },
+    [t],
+  );
 
   const handleBack = useCallback(() => {
     if (isLeavingRef.current) return;
@@ -163,7 +181,7 @@ export default function GoalsScreen() {
       easing: Easing.in(Easing.cubic),
       useNativeDriver: true,
     }).start(() => {
-      router.replace("/(tabs)/HomePage" as any);
+      router.replace("/(tabs)/" as any);
     });
   }, [pageTransition, router]);
 
@@ -187,14 +205,24 @@ export default function GoalsScreen() {
         return true;
       };
 
-      const hardwareSub = BackHandler.addEventListener("hardwareBackPress", onBackPress);
-      const removeNavListener = navigation.addListener("beforeRemove", (event: any) => {
-        const actionType = event?.data?.action?.type;
-        if (actionType === "GO_BACK" || actionType === "POP" || actionType === "POP_TO_TOP") {
-          event.preventDefault();
-          onBackPress();
-        }
-      });
+      const hardwareSub = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+      const removeNavListener = navigation.addListener(
+        "beforeRemove",
+        (event: any) => {
+          const actionType = event?.data?.action?.type;
+          if (
+            actionType === "GO_BACK" ||
+            actionType === "POP" ||
+            actionType === "POP_TO_TOP"
+          ) {
+            event.preventDefault();
+            onBackPress();
+          }
+        },
+      );
 
       return () => {
         hardwareSub.remove();
@@ -215,11 +243,14 @@ export default function GoalsScreen() {
   useEffect(() => {
     if (!user) return;
 
-    const unsubscribe = subscribeUserGoals(user.uid, ({ goals, totalSaved, totalTarget }) => {
-      setGoals(goals);
-      setTotalSaved(totalSaved);
-      setTotalTarget(totalTarget);
-    });
+    const unsubscribe = subscribeUserGoals(
+      user.uid,
+      ({ goals, totalSaved, totalTarget }) => {
+        setGoals(goals);
+        setTotalSaved(totalSaved);
+        setTotalTarget(totalTarget);
+      },
+    );
 
     return () => unsubscribe();
   }, [user]);
@@ -302,10 +333,14 @@ export default function GoalsScreen() {
 
   const sortedGoals = sortGoals(goals, sortKey, sortDir);
   const searchEnabled = goals.length > 3;
-  const normalizedSearch = searchEnabled ? searchQuery.trim().toLowerCase() : "";
+  const normalizedSearch = searchEnabled
+    ? searchQuery.trim().toLowerCase()
+    : "";
   const visibleGoals = sortedGoals.filter((goal) => {
     if (!normalizedSearch) return true;
-    return String(goal.goal ?? "").toLowerCase().includes(normalizedSearch);
+    return String(goal.goal ?? "")
+      .toLowerCase()
+      .includes(normalizedSearch);
   });
 
   const activeSortOption = SORT_OPTIONS.find((o) => o.key === sortKey)!;
@@ -317,12 +352,25 @@ export default function GoalsScreen() {
   const sheetText = isDark ? "rgba(255,255,255,0.75)" : "#4B5563";
   const sheetBorder = isDark ? "rgba(196,181,253,0.3)" : "rgba(124,58,237,0.2)";
   const sortSurface = isDark ? "rgba(124,58,237,0.08)" : "#FFFFFF";
-  const sortBorder = isDark ? "rgba(196,181,253,0.25)" : "rgba(124,58,237,0.16)";
+  const sortBorder = isDark
+    ? "rgba(196,181,253,0.25)"
+    : "rgba(124,58,237,0.16)";
   const sortText = isDark ? "#EDE9FE" : "#4C1D95";
   const searchBg = isDark ? "rgba(124,58,237,0.10)" : "#FFFFFF";
-  const searchBorder = isDark ? "rgba(196,181,253,0.25)" : "rgba(124,58,237,0.18)";
+  const searchBorder = isDark
+    ? "rgba(196,181,253,0.25)"
+    : "rgba(124,58,237,0.18)";
   const searchText = isDark ? "#F5F3FF" : "#1F2937";
   const searchPlaceholder = isDark ? "rgba(255,255,255,0.45)" : "#6B7280";
+  const floatingButtonBottom =
+    Platform.OS === "ios"
+      ? Math.max(insets.bottom + 100, 86)
+      : Math.max(insets.bottom + 88, 76);
+  const scrollBottomSpacing = floatingButtonBottom + 86;
+  const bottomSheetInset =
+    Platform.OS === "ios"
+      ? Math.max(insets.bottom + 74, 88)
+      : Math.max(insets.bottom + 64, 76);
 
   return (
     <BottomSheetModalProvider>
@@ -354,281 +402,374 @@ export default function GoalsScreen() {
             },
           ]}
         >
-        <ThemedView style={styles.container}>
-        {/* Header */}
-        <View
-          style={[
-            styles.headerSection,
-            { backgroundColor: headerSurface, borderBottomColor: headerBorder },
-          ]}
-        >
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Pressable
-                style={[
-                  styles.backButton,
-                  isDark ? styles.backButtonDark : styles.backButtonLight,
-                ]}
-                onPress={handleBack}
-                accessibilityRole="button"
-                accessibilityLabel="Back to home"
-              >
-                <MaterialIcons
-                  name="arrow-back"
-                  size={18}
-                  color={isDark ? "#C4B5FD" : "#7C3AED"}
-                />
-              </Pressable>
-              <ThemedText style={styles.pageTitle}>{t("goals.title")}</ThemedText>
-            </View>
-          </View>
-        </View>
-
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Total Saved Card */}
-          <View style={styles.summaryCard}>
-            <LinearGradient
-              colors={["#B166F8", "#864CBD", "#435799"]}
-              start={{ x: 0.1, y: 0.3 }}
-              end={{ x: 0.9, y: 0.8 }}
-              style={styles.summaryGradient}
+          <ThemedView style={styles.container}>
+            {/* Header */}
+            <View
+              style={[
+                styles.headerSection,
+                {
+                  backgroundColor: headerSurface,
+                  borderBottomColor: headerBorder,
+                },
+              ]}
             >
-              <View style={styles.summaryRow}>
-                <View style={styles.summaryIconWrap}>
-                  <MaterialIcons
-                    name="account-balance-wallet"
-                    size={20}
-                    color="#FFF"
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <ThemedText style={styles.summaryLabel}>
-                    {t("goals.totalSaved")}
+              <View style={styles.header}>
+                <View style={styles.headerLeft}>
+                  <Pressable
+                    style={[
+                      styles.backButton,
+                      isDark ? styles.backButtonDark : styles.backButtonLight,
+                    ]}
+                    onPress={handleBack}
+                    accessibilityRole="button"
+                    accessibilityLabel="Back to home"
+                  >
+                    <MaterialIcons
+                      name="arrow-back"
+                      size={18}
+                      color={isDark ? "#C4B5FD" : "#7C3AED"}
+                    />
+                  </Pressable>
+                  <ThemedText style={styles.pageTitle}>
+                    {t("goals.title")}
                   </ThemedText>
-                  <ThemedText style={styles.summaryAmount}>
-                    ${formattedTotalSaved}
-                  </ThemedText>
                 </View>
-                <Pressable
-                  style={styles.addSmallBtn}
-                  onPress={() => {
-                    hapticTap();
-                    router.push("./create");
-                  }}
-                >
-                  <View style={styles.addSmallRow}>
-                    <MaterialIcons name="add-circle-outline" size={14} color="#FFF" />
-                    <ThemedText style={styles.addSmallText}>
-                      {t("common.add")}
-                    </ThemedText>
-                  </View>
-                </Pressable>
               </View>
-
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${overallProgress * 100}%` },
-                  ]}
-                />
-              </View>
-              <View style={styles.progressMeta}>
-                <ThemedText style={styles.progressLabel}>
-                  {t("goals.overallProgress")}
-                </ThemedText>
-                <ThemedText style={styles.progressPercent}>
-                  {(overallProgress * 100).toFixed(1)}%
-                </ThemedText>
-              </View>
-              <ThemedText style={styles.remainingText}>
-                ${formattedRemaining} {t("goals.remainingToReachAllGoals")}
-              </ThemedText>
-            </LinearGradient>
-          </View>
-          {searchEnabled ? (
-            <View style={[styles.searchWrap, { backgroundColor: searchBg, borderColor: searchBorder }]}>
-              <MaterialIcons name="search" size={18} color={isDark ? "#C4B5FD" : "#7C3AED"} />
-              <TextInput
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                style={[styles.searchInput, { color: searchText }]}
-                placeholder={t("goals.searchPlaceholder")}
-                placeholderTextColor={searchPlaceholder}
-                onFocus={hapticSelection}
-              />
-              {searchQuery.length > 0 ? (
-                <Pressable
-                  onPress={() => {
-                    hapticTap();
-                    setSearchQuery("");
-                  }}
-                  style={styles.searchClearBtn}
-                >
-                  <MaterialIcons name="close" size={16} color={isDark ? "#E5E7EB" : "#6B7280"} />
-                </Pressable>
-              ) : null}
-            </View>
-          ) : null}
-          <View style={[styles.sortSection, { backgroundColor: sortSurface, borderColor: sortBorder }]}>
-            <View style={styles.sortHeaderRow}>
-              <View style={styles.sortHeaderLeft}>
-                <MaterialIcons name="tune" size={16} color={isDark ? "#C4B5FD" : "#7C3AED"} />
-                <ThemedText style={styles.sortHeaderTitle}>{t("goals.sortGoals")}</ThemedText>
-              </View>
-              <ThemedText style={[styles.sortHeaderMeta, { color: sortText }]}>
-                {getSortOptionLabel(activeSortOption.key)}
-              </ThemedText>
             </View>
 
             <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.sortChipsRow}
+              style={styles.scroll}
+              contentContainerStyle={[
+                styles.scrollContent,
+                { paddingBottom: scrollBottomSpacing },
+              ]}
+              showsVerticalScrollIndicator={false}
             >
-              {SORT_OPTIONS.map((opt) => {
-                const isActive = opt.key === sortKey;
-                return (
+              {/* Total Saved Card */}
+              <View style={styles.summaryCard}>
+                <LinearGradient
+                  colors={["#B166F8", "#864CBD", "#435799"]}
+                  start={{ x: 0.1, y: 0.3 }}
+                  end={{ x: 0.9, y: 0.8 }}
+                  style={styles.summaryGradient}
+                >
+                  <View style={styles.summaryRow}>
+                    <View style={styles.summaryIconWrap}>
+                      <MaterialIcons
+                        name="account-balance-wallet"
+                        size={20}
+                        color="#FFF"
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <ThemedText style={styles.summaryLabel}>
+                        {t("goals.totalSaved")}
+                      </ThemedText>
+                      <ThemedText style={styles.summaryAmount}>
+                        ${formattedTotalSaved}
+                      </ThemedText>
+                    </View>
+                    <Pressable
+                      style={styles.addSmallBtn}
+                      onPress={() => {
+                        hapticTap();
+                        router.push("./create");
+                      }}
+                    >
+                      <View style={styles.addSmallRow}>
+                        <MaterialIcons
+                          name="add-circle-outline"
+                          size={14}
+                          color="#FFF"
+                        />
+                        <ThemedText style={styles.addSmallText}>
+                          {t("common.add")}
+                        </ThemedText>
+                      </View>
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.progressTrack}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${overallProgress * 100}%` },
+                      ]}
+                    />
+                  </View>
+                  <View style={styles.progressMeta}>
+                    <ThemedText style={styles.progressLabel}>
+                      {t("goals.overallProgress")}
+                    </ThemedText>
+                    <ThemedText style={styles.progressPercent}>
+                      {(overallProgress * 100).toFixed(1)}%
+                    </ThemedText>
+                  </View>
+                  <ThemedText style={styles.remainingText}>
+                    ${formattedRemaining} {t("goals.remainingToReachAllGoals")}
+                  </ThemedText>
+                </LinearGradient>
+              </View>
+              {searchEnabled ? (
+                <View
+                  style={[
+                    styles.searchWrap,
+                    { backgroundColor: searchBg, borderColor: searchBorder },
+                  ]}
+                >
+                  <MaterialIcons
+                    name="search"
+                    size={18}
+                    color={isDark ? "#C4B5FD" : "#7C3AED"}
+                  />
+                  <TextInput
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    style={[styles.searchInput, { color: searchText }]}
+                    placeholder={t("goals.searchPlaceholder")}
+                    placeholderTextColor={searchPlaceholder}
+                    onFocus={hapticSelection}
+                  />
+                  {searchQuery.length > 0 ? (
+                    <Pressable
+                      onPress={() => {
+                        hapticTap();
+                        setSearchQuery("");
+                      }}
+                      style={styles.searchClearBtn}
+                    >
+                      <MaterialIcons
+                        name="close"
+                        size={16}
+                        color={isDark ? "#E5E7EB" : "#6B7280"}
+                      />
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : null}
+              <View
+                style={[
+                  styles.sortSection,
+                  { backgroundColor: sortSurface, borderColor: sortBorder },
+                ]}
+              >
+                <View style={styles.sortHeaderRow}>
+                  <View style={styles.sortHeaderLeft}>
+                    <MaterialIcons
+                      name="tune"
+                      size={16}
+                      color={isDark ? "#C4B5FD" : "#7C3AED"}
+                    />
+                    <ThemedText style={styles.sortHeaderTitle}>
+                      {t("goals.sortGoals")}
+                    </ThemedText>
+                  </View>
+                  <ThemedText
+                    style={[styles.sortHeaderMeta, { color: sortText }]}
+                  >
+                    {getSortOptionLabel(activeSortOption.key)}
+                  </ThemedText>
+                </View>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.sortChipsRow}
+                >
+                  {SORT_OPTIONS.map((opt) => {
+                    const isActive = opt.key === sortKey;
+                    return (
+                      <Pressable
+                        key={opt.key}
+                        style={[
+                          styles.sortChip,
+                          isActive && styles.sortChipActive,
+                        ]}
+                        onPress={() => handleSortSelect(opt.key)}
+                      >
+                        <MaterialIcons
+                          name={opt.icon}
+                          size={14}
+                          color={
+                            isActive
+                              ? "#FFFFFF"
+                              : isDark
+                                ? "#C4B5FD"
+                                : "#7C3AED"
+                          }
+                        />
+                        <ThemedText
+                          style={[
+                            styles.sortChipText,
+                            isActive && styles.sortChipTextActive,
+                          ]}
+                        >
+                          {getSortOptionLabel(opt.key)}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+
+                <View style={styles.sortDirWrap}>
                   <Pressable
-                    key={opt.key}
-                    style={[styles.sortChip, isActive && styles.sortChipActive]}
-                    onPress={() => handleSortSelect(opt.key)}
+                    style={[
+                      styles.sortDirOption,
+                      sortDir === "asc" && styles.sortDirOptionActive,
+                    ]}
+                    onPress={() => {
+                      hapticSelection();
+                      setSortDir("asc");
+                    }}
                   >
                     <MaterialIcons
-                      name={opt.icon}
+                      name="north"
                       size={14}
-                      color={isActive ? "#FFFFFF" : isDark ? "#C4B5FD" : "#7C3AED"}
+                      color={
+                        sortDir === "asc"
+                          ? "#FFFFFF"
+                          : isDark
+                            ? "#C4B5FD"
+                            : "#7C3AED"
+                      }
                     />
-                    <ThemedText style={[styles.sortChipText, isActive && styles.sortChipTextActive]}>
-                      {getSortOptionLabel(opt.key)}
+                    <ThemedText
+                      style={[
+                        styles.sortDirOptionText,
+                        sortDir === "asc" && styles.sortDirOptionTextActive,
+                      ]}
+                    >
+                      {t("goals.sort.ascending")}
                     </ThemedText>
                   </Pressable>
-                );
-              })}
+                  <Pressable
+                    style={[
+                      styles.sortDirOption,
+                      sortDir === "desc" && styles.sortDirOptionActive,
+                    ]}
+                    onPress={() => {
+                      hapticSelection();
+                      setSortDir("desc");
+                    }}
+                  >
+                    <MaterialIcons
+                      name="south"
+                      size={14}
+                      color={
+                        sortDir === "desc"
+                          ? "#FFFFFF"
+                          : isDark
+                            ? "#C4B5FD"
+                            : "#7C3AED"
+                      }
+                    />
+                    <ThemedText
+                      style={[
+                        styles.sortDirOptionText,
+                        sortDir === "desc" && styles.sortDirOptionTextActive,
+                      ]}
+                    >
+                      {t("goals.sort.descending")}
+                    </ThemedText>
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* Goal Cards */}
+              {goals.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <MaterialIcons
+                    name="savings"
+                    size={52}
+                    color="rgba(124,58,237,0.25)"
+                  />
+                  <ThemedText style={styles.emptyTitle}>
+                    {t("goals.emptyTitle")}
+                  </ThemedText>
+                  <ThemedText style={styles.emptySubtext}>
+                    {t("goals.emptySubtext")}
+                  </ThemedText>
+                </View>
+              ) : visibleGoals.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <MaterialIcons
+                    name="search-off"
+                    size={46}
+                    color="rgba(124,58,237,0.28)"
+                  />
+                  <ThemedText style={styles.emptyTitle}>
+                    {t("goals.emptySearchTitle")}
+                  </ThemedText>
+                  <ThemedText style={styles.emptySubtext}>
+                    {t("goals.emptySearchSubtext")}
+                  </ThemedText>
+                </View>
+              ) : (
+                visibleGoals.map((goal) => (
+                  <GoalCard
+                    key={goal.id}
+                    id={goal.id}
+                    title={goal.goal}
+                    currentAmount={goal.currentAmount || 0}
+                    targetAmount={goal.goalTargetAmount}
+                    targetCurrency={goal.goalTargetCurrency}
+                    targetDate={goal.goalTargetDate}
+                    myContributions={Object.entries(goal.sharedLogs ?? {})
+                      .filter(
+                        ([, log]: [string, any]) =>
+                          !log?.userUid || log.userUid === user?.uid,
+                      )
+                      .map(([logKey, log]: [string, any]) => ({
+                        amount: Number(log?.amount ?? 0),
+                        currency: String(
+                          log?.currency ||
+                            normalizeCurrencyCode(goal.goalTargetCurrency) ||
+                            "usd",
+                        ),
+                        createdAt: Number(log?.createdAt ?? logKey ?? 0),
+                        reason: String(log?.reason || ""),
+                      }))
+                      .filter(
+                        (log: any) =>
+                          Number.isFinite(log.amount) && log.amount > 0,
+                      )
+                      .sort((a: any, b: any) => b.createdAt - a.createdAt)}
+                    onContribute={() => {
+                      hapticTap();
+                      setSelectedGoal(goal);
+                      setShowContributionModal(true);
+                    }}
+                    onEdit={() => handleEdit(goal)}
+                    onDelete={() => handleDelete(goal)}
+                  />
+                ))
+              )}
             </ScrollView>
 
-            <View style={styles.sortDirWrap}>
-              <Pressable
-                style={[styles.sortDirOption, sortDir === "asc" && styles.sortDirOptionActive]}
-                onPress={() => {
-                  hapticSelection();
-                  setSortDir("asc");
-                }}
-              >
-                <MaterialIcons
-                  name="north"
-                  size={14}
-                  color={sortDir === "asc" ? "#FFFFFF" : isDark ? "#C4B5FD" : "#7C3AED"}
-                />
-                <ThemedText style={[styles.sortDirOptionText, sortDir === "asc" && styles.sortDirOptionTextActive]}>
-                  {t("goals.sort.ascending")}
-                </ThemedText>
-              </Pressable>
-              <Pressable
-                style={[styles.sortDirOption, sortDir === "desc" && styles.sortDirOptionActive]}
-                onPress={() => {
-                  hapticSelection();
-                  setSortDir("desc");
-                }}
-              >
-                <MaterialIcons
-                  name="south"
-                  size={14}
-                  color={sortDir === "desc" ? "#FFFFFF" : isDark ? "#C4B5FD" : "#7C3AED"}
-                />
-                <ThemedText style={[styles.sortDirOptionText, sortDir === "desc" && styles.sortDirOptionTextActive]}>
-                  {t("goals.sort.descending")}
-                </ThemedText>
-              </Pressable>
-            </View>
-          </View>
+            <ContributionModal
+              visible={showContributionModal}
+              onClose={() => {
+                setShowContributionModal(false);
+                setSelectedGoal(null);
+              }}
+              onSubmit={handleContributionSubmit}
+              currency={selectedGoal?.goalTargetCurrency || "usd"}
+              targetAmount={selectedGoal?.goalTargetAmount}
+              currentAmount={selectedGoal?.currentAmount || 0}
+            />
 
-          {/* Goal Cards */}
-          {goals.length === 0 ? (
-            <View style={styles.emptyState}>
-              <MaterialIcons
-                name="savings"
-                size={52}
-                color="rgba(124,58,237,0.25)"
-              />
-              <ThemedText style={styles.emptyTitle}>{t("goals.emptyTitle")}</ThemedText>
-              <ThemedText style={styles.emptySubtext}>
-                {t("goals.emptySubtext")}
-              </ThemedText>
-            </View>
-          ) : visibleGoals.length === 0 ? (
-            <View style={styles.emptyState}>
-              <MaterialIcons
-                name="search-off"
-                size={46}
-                color="rgba(124,58,237,0.28)"
-              />
-              <ThemedText style={styles.emptyTitle}>{t("goals.emptySearchTitle")}</ThemedText>
-              <ThemedText style={styles.emptySubtext}>
-                {t("goals.emptySearchSubtext")}
-              </ThemedText>
-            </View>
-          ) : (
-            visibleGoals.map((goal) => (
-              <GoalCard
-                key={goal.id}
-                id={goal.id}
-                title={goal.goal}
-                currentAmount={goal.currentAmount || 0}
-                targetAmount={goal.goalTargetAmount}
-                targetCurrency={goal.goalTargetCurrency}
-                targetDate={goal.goalTargetDate}
-                myContributions={Object.entries(goal.sharedLogs ?? {})
-                  .filter(([, log]: [string, any]) => !log?.userUid || log.userUid === user?.uid)
-                  .map(([logKey, log]: [string, any]) => ({
-                    amount: Number(log?.amount ?? 0),
-                    currency:
-                      String(log?.currency || normalizeCurrencyCode(goal.goalTargetCurrency) || "usd"),
-                    createdAt: Number(log?.createdAt ?? logKey ?? 0),
-                    reason: String(log?.reason || ""),
-                  }))
-                  .filter((log: any) => Number.isFinite(log.amount) && log.amount > 0)
-                  .sort((a: any, b: any) => b.createdAt - a.createdAt)}
-                onContribute={() => {
-                  hapticTap();
-                  setSelectedGoal(goal);
-                  setShowContributionModal(true);
-                }}
-                onEdit={() => handleEdit(goal)}
-                onDelete={() => handleDelete(goal)}
-              />
-            ))
-          )}
-        </ScrollView>
-
-        <ContributionModal
-          visible={showContributionModal}
-          onClose={() => {
-            setShowContributionModal(false);
-            setSelectedGoal(null);
-          }}
-          onSubmit={handleContributionSubmit}
-          currency={selectedGoal?.goalTargetCurrency || "usd"}
-          targetAmount={selectedGoal?.goalTargetAmount}
-          currentAmount={selectedGoal?.currentAmount || 0}
-        />
-
-        <Pressable
-          style={styles.fabAddButton}
-          onPress={() => {
-            hapticTap();
-            router.push("./create");
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={t("common.add")}
-        >
-          <MaterialIcons name="add" size={28} color="#FFFFFF" />
-        </Pressable>
-        </ThemedView>
+            <Pressable
+              style={[styles.fabAddButton, { bottom: floatingButtonBottom }]}
+              onPress={() => {
+                hapticTap();
+                router.push("./create");
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={t("common.add")}
+            >
+              <MaterialIcons name="add" size={28} color="#FFFFFF" />
+            </Pressable>
+          </ThemedView>
         </Animated.View>
       </View>
 
@@ -636,11 +777,19 @@ export default function GoalsScreen() {
         ref={deleteSheetRef}
         snapPoints={deleteSheetSnapPoints}
         index={0}
+        bottomInset={bottomSheetInset}
         onDismiss={() => setPendingDeleteGoal(null)}
-        handleIndicatorStyle={[styles.sheetHandle, { backgroundColor: sheetHandle }]}
+        handleIndicatorStyle={[
+          styles.sheetHandle,
+          { backgroundColor: sheetHandle },
+        ]}
         backgroundStyle={[styles.sheetBackground, { backgroundColor: sheetBg }]}
         backdropComponent={(props) => (
-          <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} />
+          <BottomSheetBackdrop
+            {...props}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
+          />
         )}
       >
         <BottomSheetView style={styles.sheetContent}>
@@ -652,12 +801,22 @@ export default function GoalsScreen() {
           </ThemedText>
           <View style={styles.sheetActions}>
             <Pressable
-              style={[styles.sheetButton, styles.sheetButtonSecondary, { borderColor: sheetBorder }]}
+              style={[
+                styles.sheetButton,
+                styles.sheetButtonSecondary,
+                { borderColor: sheetBorder },
+              ]}
               onPress={handleCancelDelete}
             >
               <View style={styles.sheetBtnRow}>
-                <MaterialIcons name="close" size={16} color={isDark ? "#E5E7EB" : "#374151"} />
-                <ThemedText style={styles.sheetButtonSecondaryText}>{t("common.cancel")}</ThemedText>
+                <MaterialIcons
+                  name="close"
+                  size={16}
+                  color={isDark ? "#E5E7EB" : "#374151"}
+                />
+                <ThemedText style={styles.sheetButtonSecondaryText}>
+                  {t("common.cancel")}
+                </ThemedText>
               </View>
             </Pressable>
             <Pressable
@@ -665,8 +824,14 @@ export default function GoalsScreen() {
               onPress={handleConfirmDelete}
             >
               <View style={styles.sheetBtnRow}>
-                <MaterialIcons name="delete-forever" size={16} color="#FFFFFF" />
-                <ThemedText style={styles.sheetButtonDangerText}>{t("common.delete")}</ThemedText>
+                <MaterialIcons
+                  name="delete-forever"
+                  size={16}
+                  color="#FFFFFF"
+                />
+                <ThemedText style={styles.sheetButtonDangerText}>
+                  {t("common.delete")}
+                </ThemedText>
               </View>
             </Pressable>
           </View>
@@ -681,6 +846,7 @@ export default function GoalsScreen() {
         actionLabel={t("common.confirm")}
         titleIcon={successIcon}
         actionIcon="check-circle"
+        bottomInset={bottomSheetInset}
         onAction={() => successSheetRef.current?.dismiss()}
       />
     </BottomSheetModalProvider>
@@ -755,7 +921,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  summaryLabel: { fontSize: 16, fontWeight: "600", color: "rgba(255,255,255,0.92)" },
+  summaryLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "rgba(255,255,255,0.92)",
+  },
   summaryAmount: { fontSize: 22, fontWeight: "700", color: "#FFF" },
   addSmallBtn: {
     backgroundColor: "rgba(255,255,255,0.2)",
@@ -903,7 +1073,7 @@ const styles = StyleSheet.create({
   fabAddButton: {
     position: "absolute",
     right: 20,
-    bottom: 24,
+    zIndex: 1200,
     width: 58,
     height: 58,
     borderRadius: 29,
@@ -972,5 +1142,3 @@ const styles = StyleSheet.create({
     gap: 6,
   },
 });
-
-
