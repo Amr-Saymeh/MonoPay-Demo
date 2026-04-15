@@ -7,15 +7,15 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
 import {
-  InputAccessoryView,
-  Keyboard,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
+    InputAccessoryView,
+    Keyboard,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface AmountModalProps {
@@ -80,14 +80,14 @@ export function AmountModal({
           <View style={[styles.modalHandle, { backgroundColor: borderColor }]} />
 
           <ThemedText type="subtitle" style={styles.modalTitle}>
-            {isAdd ? t("add money") ?? "Add money" : t("spendMoney") ?? "Spend money"}
+            {isAdd ? t("addMoney") : t("spendMoney")}
           </ThemedText>
 
           {/* Balance info for remove */}
           {showBalanceInfo && (
             <View style={styles.balanceInfoContainer}>
               <ThemedText style={styles.balanceInfoLabel}>
-                {t("availableBalance") ?? "Available"}
+                {t("availableBalance")}
               </ThemedText>
               <ThemedText style={styles.balanceInfoValue}>
                 {formatAmount(availableBalance)} {formatCurrency(amountCurrency)}
@@ -105,7 +105,7 @@ export function AmountModal({
           />
 
           <ThemedText style={[styles.sectionTitle, { marginTop: 6 }]}>
-            {t("currency") ?? "Currency"}
+            {t("currency")}
           </ThemedText>
           <View style={styles.currencyChipsRow}>
             {availableCurrencies.map((code) => {
@@ -137,7 +137,7 @@ export function AmountModal({
           <TextInput
             value={amountReason}
             onChangeText={onReasonChange}
-            placeholder={t("reasonPlaceholder") ?? "Why?"}
+            placeholder={t("reasonPlaceholder")}
             placeholderTextColor={useThemeColor({}, 'placeholder')}
             style={[styles.noteInput, { backgroundColor: inputBackgroundColor, borderColor: inputBorderColor, color: textColor }]}
             multiline
@@ -145,7 +145,7 @@ export function AmountModal({
           />
 
           <GradientButton
-            label={saving ? t("saving") ?? "Saving..." : t("confirm") ?? "Confirm"}
+            label={saving ? t("saving") : t("confirm")}
             onPress={onConfirm}
             disabled={saving}
             loading={saving}
