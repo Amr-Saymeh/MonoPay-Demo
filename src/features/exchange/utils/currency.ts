@@ -18,7 +18,7 @@ export function normalizeCurrency(code: string): string {
   
   const upper = code.trim().toUpperCase();
 
-  if (upper === 'ILS') return 'NIS';
+
   return upper;
 }
 
