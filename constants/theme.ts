@@ -8,17 +8,17 @@ const tintColorDark = "#fff";
 
 export const Colors = {
   light: {
-    text: "#11181C",
-    background: "#fff",
-    surface: "rgba(17, 24, 28, 0.03)",
-    surfacePressed: "rgba(17, 24, 28, 0.06)",
-    border: "rgba(17, 24, 28, 0.10)",
-    inputBackground: "rgba(17, 24, 28, 0.06)",
-    inputBorder: "rgba(17, 24, 28, 0.10)",
-    placeholder: "rgba(17, 24, 28, 0.38)",
+    text: "#0F172A",
+    background: "#F8FAFC",
+    surface: "rgba(15, 23, 42, 0.05)",
+    surfacePressed: "rgba(15, 23, 42, 0.10)",
+    border: "rgba(15, 23, 42, 0.18)",
+    inputBackground: "#FFFFFF",
+    inputBorder: "rgba(15, 23, 42, 0.20)",
+    placeholder: "rgba(15, 23, 42, 0.55)",
     tint: tintColorLight,
-    icon: "#687076",
-    tabIconDefault: "#687076",
+    icon: "#475569",
+    tabIconDefault: "#475569",
     tabIconSelected: tintColorLight,
   },
   dark: {
