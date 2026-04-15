@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useFocusEffect } from "@react-navigation/native";
 import { Link, useRouter } from "expo-router";
 import * as ScreenCapture from "expo-screen-capture";
 import {
@@ -61,10 +62,12 @@ export default function SignupDetailsScreen() {
   const addressRef = useRef<TextInput>(null);
   const identityNumberRef = useRef<TextInput>(null);
 
-  useEffect(() => {
-    if (Platform.OS === "web") return;
-    void ScreenCapture.allowScreenCaptureAsync();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === "web") return;
+      void ScreenCapture.allowScreenCaptureAsync();
+    }, []),
+  );
 
   const scrollToField = (fieldRef: React.RefObject<TextInput | null>) => {
     const node = findNodeHandle(fieldRef.current);

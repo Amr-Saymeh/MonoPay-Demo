@@ -111,9 +111,27 @@ export default function SettingsScreen() {
       >
         {/* Header */}
         <View style={[styles.header, isRtl ? styles.headerRtl : null]}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.backBtn,
+              { backgroundColor: iconPurpleBg },
+              pressed ? styles.backBtnPressed : null,
+            ]}
+            onPress={() => router.replace("/(tabs)" as any)}
+            accessibilityRole="button"
+            accessibilityLabel={language === "ar" ? "العودة للرئيسية" : "Back to Home"}
+          >
+            <MaterialIcons
+              name={isRtl ? "arrow-forward" : "arrow-back"}
+              size={20}
+              color={iconPurple}
+            />
+          </Pressable>
+
           <ThemedText style={[styles.headerTitle, { color: textColor }]}>
             {language === "ar" ? "الإعدادات" : "Settings"}
           </ThemedText>
+
           <View
             style={[
               styles.headerAvatar,
