@@ -1,7 +1,7 @@
 
 
 ```
-MonoPay
+MonoPay-Demo
 ├─ app
 │  ├─ (auth)
 │  │  ├─ id-scan.tsx
