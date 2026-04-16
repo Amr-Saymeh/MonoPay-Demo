@@ -64,7 +64,7 @@ export function PendingUserCard({
             <ThemedText type="subtitle" style={styles.userName}>
               {data.name ?? id}
             </ThemedText>
-            <ThemedText style={styles.userId}>@{id}</ThemedText>
+           
           </View>
         </View>
 
