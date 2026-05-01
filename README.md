@@ -3,7 +3,7 @@
 
 MonoPay is a student-friendly mobile payment app built with Expo and React Native. It is designed as a simple digital wallet experience with features for sending money, requesting payments, scanning QR codes, tracking spending, and managing goals.
 
-## 🚀 Overview
+## Overview
 
 This app is a learning project that demonstrates how to build a multi-screen financial app using modern React Native tools. It includes authentication, navigation, custom UI components, and a set of common wallet app features.
 
